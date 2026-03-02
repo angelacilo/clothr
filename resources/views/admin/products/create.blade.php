@@ -20,6 +20,7 @@
                     @enderror
                 </div>
 
+                
                 <div class="form-group">
                     <label for="slug" class="form-label">Slug (auto-generated)</label>
                     <input type="text" id="slug" name="slug" class="form-control" placeholder="leave blank to auto-generate" value="{{ old('slug') }}">
