@@ -14,20 +14,15 @@ use Illuminate\Support\Str;
 
 class AdminProductController extends Controller
 {
-    /**
-     * Display a listing of the products.
-     */
     public function index(Request $request)
     {
         $query = Product::with(['category', 'inventory', 'images']);
 
-        // Search filter
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%')
                 ->orWhere('description', 'like', '%' . $request->search . '%');
         }
 
-        // Category filter
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
@@ -38,61 +33,69 @@ class AdminProductController extends Controller
         return view('admin.products.index', compact('products', 'categories'));
     }
 
-    /**
-     * Show the form for creating a new product.
-     */
     public function create()
     {
         $categories = Category::all();
         return view('admin.products.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created product in storage.
-     */
     public function store(StoreProductRequest $request)
     {
         $validated = $request->validated();
 
-        // Auto-generate slug if not provided
-        if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+        // Auto-generate unique slug from name
+        $slug = Str::slug($validated['name']);
+        $original = $slug;
+        $i = 1;
+        while (Product::where('slug', $slug)->exists()) {
+            $slug = $original . '-' . ($i++);
         }
 
         // Create product
         $product = Product::create([
-            'name' => $validated['name'],
-            'slug' => $validated['slug'],
+            'name'        => $validated['name'],
+            'slug'        => $slug,
             'description' => $validated['description'],
-            'price' => $validated['price'],
+            'price'       => $validated['price'],
+            'sale_price'  => $validated['sale_price'] ?? null,
             'category_id' => $validated['category_id'],
+            'status'      => $validated['status'],
             'is_featured' => $request->has('is_featured'),
         ]);
 
         // Create inventory record
         Inventory::create([
-            'product_id' => $product->product_id,
+            'product_id'    => $product->product_id,
             'available_qty' => $validated['stock_quantity'],
         ]);
 
         // Handle image uploads
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                ProductImage::create([
-                    'product_id' => $product->product_id,
-                    'image_path' => $path,
-                ]);
+            $images = $request->file('images');
+            if (!is_array($images)) {
+                $images = [$images];
             }
+            foreach ($images as $image) {
+                try {
+                    $path = $image->store('products', 'public');
+                    \Log::info('Image stored at: ' . $path);
+                    $record = ProductImage::create([
+                        'product_id' => $product->product_id,
+                        'img_url'    => $path,
+                    ]);
+                    \Log::info('ProductImage created with id: ' . $record->image_id);
+                } catch (\Exception $e) {
+                    \Log::error('Image upload error: ' . $e->getMessage());
+                }
+            }
+        } else {
+            \Log::info('No images found in request');
         }
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product created successfully!');
     }
 
-    /**
-     * Show the form for editing the specified product.
-     */
     public function edit(Product $product)
     {
         $product->load(['category', 'inventory', 'images']);
@@ -100,46 +103,58 @@ class AdminProductController extends Controller
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    /**
-     * Update the specified product in storage.
-     */
     public function update(UpdateProductRequest $request, Product $product)
     {
         $validated = $request->validated();
 
-        // Auto-generate slug if not provided
         if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $slug = Str::slug($validated['name']);
+            $original = $slug;
+            $i = 1;
+            while (Product::where('slug', $slug)->where('product_id', '!=', $product->product_id)->exists()) {
+                $slug = $original . '-' . ($i++);
+            }
+            $validated['slug'] = $slug;
         }
 
-        // Update product
         $product->update([
-            'name' => $validated['name'],
-            'slug' => $validated['slug'],
+            'name'        => $validated['name'],
+            'slug'        => $validated['slug'],
             'description' => $validated['description'],
-            'price' => $validated['price'],
+            'price'       => $validated['price'],
+            'sale_price'  => $validated['sale_price'] ?? null,
             'category_id' => $validated['category_id'],
+            'status'      => $validated['status'],
             'is_featured' => $request->has('is_featured'),
         ]);
 
-        // Update inventory
         if ($product->inventory) {
             $product->inventory->update(['available_qty' => $validated['stock_quantity']]);
         } else {
             Inventory::create([
-                'product_id' => $product->product_id,
+                'product_id'    => $product->product_id,
                 'available_qty' => $validated['stock_quantity'],
             ]);
         }
 
-        // Handle new image uploads
+        // Handle image uploads
         if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                ProductImage::create([
-                    'product_id' => $product->product_id,
-                    'image_path' => $path,
-                ]);
+            $images = $request->file('images');
+            if (!is_array($images)) {
+                $images = [$images];
+            }
+            foreach ($images as $image) {
+                try {
+                    $path = $image->store('products', 'public');
+                    \Log::info('Image stored at: ' . $path);
+                    $record = ProductImage::create([
+                        'product_id' => $product->product_id,
+                        'img_url'    => $path,
+                    ]);
+                    \Log::info('ProductImage updated with id: ' . $record->image_id);
+                } catch (\Exception $e) {
+                    \Log::error('Image upload error: ' . $e->getMessage());
+                }
             }
         }
 
@@ -147,23 +162,17 @@ class AdminProductController extends Controller
             ->with('success', 'Product updated successfully!');
     }
 
-    /**
-     * Remove the specified product from storage.
-     */
     public function destroy(Product $product)
     {
-        // Delete associated images
         foreach ($product->images as $image) {
-            \Storage::disk('public')->delete($image->image_path);
+            \Storage::disk('public')->delete($image->img_url);
             $image->delete();
         }
 
-        // Delete inventory
         if ($product->inventory) {
             $product->inventory->delete();
         }
 
-        // Delete product
         $product->delete();
 
         return redirect()->route('admin.products.index')

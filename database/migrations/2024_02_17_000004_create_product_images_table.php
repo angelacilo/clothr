@@ -6,27 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateProductImagesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('product_images', function (Blueprint $table) {
-            $table->id('image_id');
+            $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('product_id')->on('products');
-            $table->string('img_url');
+            $table->foreign('product_id')->references('product_id')->on('products')->onDelete('cascade');
+            $table->string('image_path');
+            $table->boolean('is_primary')->default(false);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('product_images');

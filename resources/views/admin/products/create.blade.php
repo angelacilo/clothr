@@ -13,23 +13,25 @@
 
                 <div class="form-group">
                     <label for="name" class="form-label">Product Name *</label>
-                    <input type="text" id="name" name="name" class="form-control @error('name') error @enderror" 
-                           placeholder="Enter product name" value="{{ old('name') }}" required>
+                    <input type="text" id="name" name="name"
+                        class="form-control @error('name') error @enderror"
+                        placeholder="Enter product name" value="{{ old('name') }}" required>
                     @error('name')
                         <span class="error-message">{{ $message }}</span>
                     @enderror
                 </div>
 
-                
                 <div class="form-group">
                     <label for="slug" class="form-label">Slug (auto-generated)</label>
-                    <input type="text" id="slug" name="slug" class="form-control" placeholder="leave blank to auto-generate" value="{{ old('slug') }}">
+                    <input type="text" id="slug" name="slug" class="form-control"
+                        placeholder="Leave blank to auto-generate" value="{{ old('slug') }}">
                 </div>
 
                 <div class="form-group">
                     <label for="description" class="form-label">Description *</label>
-                    <textarea id="description" name="description" class="form-control @error('description') error @enderror" 
-                              rows="4" placeholder="Enter product description" required>{{ old('description') }}</textarea>
+                    <textarea id="description" name="description"
+                        class="form-control @error('description') error @enderror"
+                        rows="4" placeholder="Enter product description" required>{{ old('description') }}</textarea>
                     @error('description')
                         <span class="error-message">{{ $message }}</span>
                     @enderror
@@ -38,10 +40,12 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="category_id" class="form-label">Category *</label>
-                        <select id="category_id" name="category_id" class="form-control @error('category_id') error @enderror" required>
+                        <select id="category_id" name="category_id"
+                            class="form-control @error('category_id') error @enderror" required>
                             <option value="">Select a category</option>
                             @foreach ($categories as $category)
-                                <option value="{{ $category->category_id }}" {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
+                                <option value="{{ $category->category_id }}"
+                                    {{ old('category_id') == $category->category_id ? 'selected' : '' }}>
                                     {{ $category->category_name }}
                                 </option>
                             @endforeach
@@ -53,8 +57,9 @@
 
                     <div class="form-group">
                         <label for="price" class="form-label">Price *</label>
-                        <input type="number" id="price" name="price" class="form-control @error('price') error @enderror" 
-                               placeholder="0.00" step="0.01" value="{{ old('price') }}" required>
+                        <input type="number" id="price" name="price"
+                            class="form-control @error('price') error @enderror"
+                            placeholder="0.00" step="0.01" value="{{ old('price') }}" required>
                         @error('price')
                             <span class="error-message">{{ $message }}</span>
                         @enderror
@@ -62,8 +67,8 @@
 
                     <div class="form-group">
                         <label for="sale_price" class="form-label">Sale Price</label>
-                        <input type="number" id="sale_price" name="sale_price" class="form-control" 
-                               placeholder="0.00" step="0.01" value="{{ old('sale_price') }}">
+                        <input type="number" id="sale_price" name="sale_price" class="form-control"
+                            placeholder="0.00" step="0.01" value="{{ old('sale_price') }}">
                     </div>
                 </div>
             </div>
@@ -73,8 +78,9 @@
 
                 <div class="form-group">
                     <label for="stock_quantity" class="form-label">Stock Quantity *</label>
-                    <input type="number" id="stock_quantity" name="stock_quantity" class="form-control @error('stock_quantity') error @enderror" 
-                           placeholder="0" value="{{ old('stock_quantity') }}" required>
+                    <input type="number" id="stock_quantity" name="stock_quantity"
+                        class="form-control @error('stock_quantity') error @enderror"
+                        placeholder="0" value="{{ old('stock_quantity') }}" required>
                     @error('stock_quantity')
                         <span class="error-message">{{ $message }}</span>
                     @enderror
@@ -86,9 +92,13 @@
 
                 <div class="form-group">
                     <label for="images" class="form-label">Product Images</label>
-                    <input type="file" id="images" name="images[]" class="form-control" multiple accept="image/*">
+                    <input type="file" id="images" name="images[]" class="form-control"
+                        multiple accept="image/*">
                     <small class="text-muted">You can upload multiple images</small>
                 </div>
+
+                {{-- Preview uploaded images --}}
+                <div id="image-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
             </div>
 
             <div class="form-section">
@@ -105,7 +115,8 @@
 
                     <div class="form-group checkbox-group">
                         <label for="is_featured" class="form-label">
-                            <input type="checkbox" id="is_featured" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }}>
+                            <input type="checkbox" id="is_featured" name="is_featured" value="1"
+                                {{ old('is_featured') ? 'checked' : '' }}>
                             Featured Product
                         </label>
                     </div>
@@ -118,4 +129,22 @@
             </div>
         </form>
     </div>
+
+    {{-- Live image preview script --}}
+    <script>
+        document.getElementById('images').addEventListener('change', function () {
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = '';
+            Array.from(this.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #ddd;';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
 @endsection
