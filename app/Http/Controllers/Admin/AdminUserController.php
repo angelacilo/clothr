@@ -107,7 +107,6 @@ class AdminUserController extends Controller
      */
     public function destroy(User $user)
     {
-        // Prevent deletion of the current user
         if ($user->user_id === auth()->user()->user_id) {
             return redirect()->route('admin.users.index')
                 ->with('error', 'Cannot delete your own account!');
@@ -117,5 +116,23 @@ class AdminUserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User deleted successfully!');
+    }
+
+    // --- API Methods ---------------------------------------------------------
+
+    /** GET /api/admin/users */
+    public function apiIndex(Request $request)
+    {
+        $query = User::query();
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+
+        return response()->json($query->latest()->paginate(20));
     }
 }

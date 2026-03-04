@@ -94,4 +94,45 @@ class AdminOrderController extends Controller
         return redirect()->route('admin.orders.index')
             ->with('success', 'Order deleted successfully!');
     }
+
+    // --- API Methods ---------------------------------------------------------
+
+    /** GET /api/admin/orders */
+    public function apiIndex(Request $request)
+    {
+        $query = Order::with(['user', 'items', 'payment']);
+
+        if ($request->filled('status')) {
+            $query->where('order_status', $request->status);
+        }
+        if ($request->filled('search')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        return response()->json($query->latest()->paginate(15));
+    }
+
+    /** GET /api/admin/orders/{order} */
+    public function apiShow(Order $order)
+    {
+        $order->load(['user', 'items.product.images', 'payment']);
+        return response()->json($order);
+    }
+
+    /** PUT /api/admin/orders/{order} */
+    public function apiUpdate(Request $request, Order $order)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+        ]);
+
+        $order->update(['order_status' => $request->status]);
+
+        return response()->json([
+            'success' => true,
+            'status' => $request->status,
+        ]);
+    }
 }

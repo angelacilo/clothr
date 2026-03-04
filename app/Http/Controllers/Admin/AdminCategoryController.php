@@ -61,7 +61,6 @@ class AdminCategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        // Check if category has products
         if ($category->products()->count() > 0) {
             return redirect()->route('admin.categories.index')
                 ->with('error', 'Cannot delete category with existing products!');
@@ -71,5 +70,39 @@ class AdminCategoryController extends Controller
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category deleted successfully!');
+    }
+
+    // --- API Methods ---------------------------------------------------------
+
+    /** GET /api/admin/categories */
+    public function apiIndex()
+    {
+        return response()->json(Category::withCount('products')->get());
+    }
+
+    /** POST /api/admin/categories */
+    public function apiStore(\Illuminate\Http\Request $request)
+    {
+        $request->validate(['category_name' => 'required|string|max:255|unique:categories,category_name']);
+        $category = Category::create(['category_name' => $request->category_name]);
+        return response()->json($category, 201);
+    }
+
+    /** PUT /api/admin/categories/{category} */
+    public function apiUpdate(\Illuminate\Http\Request $request, Category $category)
+    {
+        $request->validate(['category_name' => 'required|string|max:255|unique:categories,category_name,' . $category->category_id . ',category_id']);
+        $category->update(['category_name' => $request->category_name]);
+        return response()->json($category);
+    }
+
+    /** DELETE /api/admin/categories/{category} */
+    public function apiDestroy(Category $category)
+    {
+        if ($category->products()->count() > 0) {
+            return response()->json(['error' => 'Cannot delete category with existing products.'], 422);
+        }
+        $category->delete();
+        return response()->json(['success' => true]);
     }
 }

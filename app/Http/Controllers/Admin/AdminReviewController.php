@@ -54,4 +54,20 @@ class AdminReviewController extends Controller
             'message' => 'Reviews approved successfully!',
         ]);
     }
+
+    // --- API Methods ---------------------------------------------------------
+
+    /** GET /api/admin/reviews */
+    public function apiIndex()
+    {
+        $reviews = Review::with(['user', 'product'])->latest()->paginate(20);
+        return response()->json($reviews);
+    }
+
+    /** DELETE /api/admin/reviews/{review} */
+    public function apiDestroy(Review $review)
+    {
+        $review->delete();
+        return response()->json(['success' => true]);
+    }
 }

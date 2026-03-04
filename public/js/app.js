@@ -5070,29 +5070,72 @@ module.exports = {
   \*****************************/
 (__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes React and other helpers. It's a great starting point while
- * building robust, powerful web applications using React + Laravel.
- */
-
-//require('./bootstrap');
-
-/**
- * Next, we will create a fresh React component instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-//require('./components/Example');
-
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+
+// Admin components
 var AdminProducts = __webpack_require__(/*! ./components/Admin/AdminProducts */ "./resources/js/components/Admin/AdminProducts.js");
-if (document.getElementById('admin-products-root')) {
-  ReactDOM.render(React.createElement(AdminProducts), document.getElementById('admin-products-root'));
-}
+var AdminOrders = __webpack_require__(/*! ./components/Admin/AdminOrders */ "./resources/js/components/Admin/AdminOrders.js");
+var AdminCategories = __webpack_require__(/*! ./components/Admin/AdminCategories */ "./resources/js/components/Admin/AdminCategories.js");
+var AdminUsers = __webpack_require__(/*! ./components/Admin/AdminUsers */ "./resources/js/components/Admin/AdminUsers.js");
+var AdminReports = __webpack_require__(/*! ./components/Admin/AdminReports */ "./resources/js/components/Admin/AdminReports.js");
+var AdminReviews = __webpack_require__(/*! ./components/Admin/AdminReviews */ "./resources/js/components/Admin/AdminReviews.js");
+
+// Shop components
+var Home = __webpack_require__(/*! ./components/Shop/Home */ "./resources/js/components/Shop/Home.js");
+var ProductList = __webpack_require__(/*! ./components/Shop/ProductList */ "./resources/js/components/Shop/ProductList.js");
+var ProductDetail = __webpack_require__(/*! ./components/Shop/ProductDetail */ "./resources/js/components/Shop/ProductDetail.js");
+var Cart = __webpack_require__(/*! ./components/Shop/Cart */ "./resources/js/components/Shop/Cart.js");
+var Checkout = __webpack_require__(/*! ./components/Shop/Checkout */ "./resources/js/components/Shop/Checkout.js");
+var OrderHistory = __webpack_require__(/*! ./components/Shop/OrderHistory */ "./resources/js/components/Shop/OrderHistory.js");
+var OrderSuccess = __webpack_require__(/*! ./components/Shop/OrderSuccess */ "./resources/js/components/Shop/OrderSuccess.js");
+var mountPoints = [{
+  id: 'admin-products-root',
+  component: AdminProducts
+}, {
+  id: 'admin-orders-root',
+  component: AdminOrders
+}, {
+  id: 'admin-categories-root',
+  component: AdminCategories
+}, {
+  id: 'admin-users-root',
+  component: AdminUsers
+}, {
+  id: 'admin-reports-root',
+  component: AdminReports
+}, {
+  id: 'admin-reviews-root',
+  component: AdminReviews
+}, {
+  id: 'shop-home-root',
+  component: Home
+}, {
+  id: 'shop-products-root',
+  component: ProductList
+}, {
+  id: 'shop-product-detail-root',
+  component: ProductDetail
+}, {
+  id: 'shop-cart-root',
+  component: Cart
+}, {
+  id: 'shop-checkout-root',
+  component: Checkout
+}, {
+  id: 'shop-order-history-root',
+  component: OrderHistory
+}, {
+  id: 'shop-order-success-root',
+  component: OrderSuccess
+}];
+mountPoints.forEach(function (mount) {
+  var el = document.getElementById(mount.id);
+  if (el) {
+    ReactDOM.render(React.createElement(mount.component), el);
+  }
+});
 
 /***/ },
 
@@ -5132,6 +5175,401 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminCategories.js"
+/*!**********************************************************!*\
+  !*** ./resources/js/components/Admin/AdminCategories.js ***!
+  \**********************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function AdminCategories() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    categories = _React$useState2[0],
+    setCategories = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = React.useState('list'),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    view = _React$useState6[0],
+    setView = _React$useState6[1]; // 'list' | 'create' | 'edit'
+  var _React$useState7 = React.useState(null),
+    _React$useState8 = _slicedToArray(_React$useState7, 2),
+    selected = _React$useState8[0],
+    setSelected = _React$useState8[1];
+  var _React$useState9 = React.useState({
+      category_name: ''
+    }),
+    _React$useState0 = _slicedToArray(_React$useState9, 2),
+    form = _React$useState0[0],
+    setForm = _React$useState0[1];
+  var _React$useState1 = React.useState(''),
+    _React$useState10 = _slicedToArray(_React$useState1, 2),
+    msg = _React$useState10[0],
+    setMsg = _React$useState10[1];
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  function loadCategories() {
+    setLoading(true);
+    fetch('/api/admin/categories').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setCategories(data);
+      setLoading(false);
+    });
+  }
+  React.useEffect(function () {
+    loadCategories();
+  }, []);
+  function openCreate() {
+    setForm({
+      category_name: ''
+    });
+    setMsg('');
+    setView('create');
+  }
+  function openEdit(cat) {
+    setSelected(cat);
+    setForm({
+      category_name: cat.category_name
+    });
+    setMsg('');
+    setView('edit');
+  }
+  function handleSubmit(evt) {
+    evt.preventDefault();
+    var isEdit = view === 'edit';
+    var url = isEdit ? '/api/admin/categories/' + selected.category_id : '/api/admin/categories';
+    var method = isEdit ? 'PUT' : 'POST';
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify(form)
+    }).then(function (res) {
+      return res.json();
+    }).then(function () {
+      setMsg(isEdit ? 'Category updated.' : 'Category created.');
+      loadCategories();
+      setView('list');
+    });
+  }
+  function handleDelete(catId) {
+    if (!confirm('Delete this category?')) return;
+    fetch('/api/admin/categories/' + catId, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': csrf
+      }
+    }).then(function () {
+      loadCategories();
+    });
+  }
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem'
+    }
+  }, 'Loading categories...');
+  if (view === 'create' || view === 'edit') {
+    return e('div', {
+      style: {
+        padding: '2rem'
+      }
+    }, e('button', {
+      onClick: function onClick() {
+        setView('list');
+      }
+    }, '← Back'), e('h2', null, view === 'create' ? 'New Category' : 'Edit Category'), msg ? e('p', {
+      style: {
+        color: 'green'
+      }
+    }, msg) : null, e('form', {
+      onSubmit: handleSubmit
+    }, e('div', {
+      style: formGroup
+    }, e('label', null, 'Category Name'), e('input', {
+      type: 'text',
+      value: form.category_name,
+      onChange: function onChange(ev) {
+        setForm({
+          category_name: ev.target.value
+        });
+      },
+      required: true,
+      style: inputStyle
+    })), e('button', {
+      type: 'submit',
+      style: btnStyle
+    }, view === 'create' ? 'Create' : 'Update')));
+  }
+  return e('div', {
+    style: {
+      padding: '2rem'
+    }
+  }, e('div', {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '1rem'
+    }
+  }, e('h2', null, 'Categories'), e('button', {
+    onClick: openCreate,
+    style: btnStyle
+  }, '+ New Category')), msg ? e('p', {
+    style: {
+      color: 'green'
+    }
+  }, msg) : null, e('table', {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, e('thead', null, e('tr', null, e('th', {
+    style: tableTh
+  }, 'ID'), e('th', {
+    style: tableTh
+  }, 'Name'), e('th', {
+    style: tableTh
+  }, 'Actions'))), e('tbody', null, categories.map(function (cat) {
+    return e('tr', {
+      key: cat.category_id
+    }, e('td', {
+      style: tableTd
+    }, cat.category_id), e('td', {
+      style: tableTd
+    }, cat.category_name), e('td', {
+      style: tableTd
+    }, e('button', {
+      onClick: function onClick() {
+        openEdit(cat);
+      },
+      style: {
+        marginRight: '8px'
+      }
+    }, 'Edit'), e('button', {
+      onClick: function onClick() {
+        handleDelete(cat.category_id);
+      },
+      style: {
+        color: 'red'
+      }
+    }, 'Delete')));
+  }))));
+}
+var tableTh = {
+  textAlign: 'left',
+  padding: '10px 12px',
+  borderBottom: '2px solid #e0e0e0',
+  fontWeight: '600'
+};
+var tableTd = {
+  padding: '10px 12px',
+  borderBottom: '1px solid #eee'
+};
+var formGroup = {
+  marginBottom: '1rem'
+};
+var inputStyle = {
+  display: 'block',
+  width: '100%',
+  padding: '8px',
+  marginTop: '4px',
+  boxSizing: 'border-box'
+};
+var btnStyle = {
+  padding: '8px 16px',
+  background: '#222',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
+};
+module.exports = AdminCategories;
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminOrders.js"
+/*!******************************************************!*\
+  !*** ./resources/js/components/Admin/AdminOrders.js ***!
+  \******************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function AdminOrders() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    orders = _React$useState2[0],
+    setOrders = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = React.useState('list'),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    view = _React$useState6[0],
+    setView = _React$useState6[1]; // 'list' | 'detail'
+  var _React$useState7 = React.useState(null),
+    _React$useState8 = _slicedToArray(_React$useState7, 2),
+    selected = _React$useState8[0],
+    setSelected = _React$useState8[1];
+  var _React$useState9 = React.useState(''),
+    _React$useState0 = _slicedToArray(_React$useState9, 2),
+    statusMsg = _React$useState0[0],
+    setStatusMsg = _React$useState0[1];
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  function loadOrders() {
+    setLoading(true);
+    fetch('/api/admin/orders').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setOrders(data.data || data);
+      setLoading(false);
+    });
+  }
+  React.useEffect(function () {
+    loadOrders();
+  }, []);
+  function openDetail(order) {
+    setSelected(order);
+    setView('detail');
+    setStatusMsg('');
+  }
+  function updateStatus(orderId, status) {
+    fetch('/api/admin/orders/' + orderId, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify({
+        status: status
+      })
+    }).then(function (res) {
+      return res.json();
+    }).then(function (updated) {
+      setStatusMsg('Status updated to "' + status + '".');
+      setSelected(Object.assign({}, selected, {
+        status: updated.status || status
+      }));
+      loadOrders();
+    });
+  }
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem'
+    }
+  }, 'Loading orders...');
+  if (view === 'detail' && selected) {
+    return e('div', {
+      style: {
+        padding: '2rem'
+      }
+    }, e('button', {
+      onClick: function onClick() {
+        setView('list');
+        setSelected(null);
+      }
+    }, '← Back to Orders'), e('h2', null, 'Order #' + selected.id), e('p', null, 'Customer: ' + (selected.user ? selected.user.name : 'N/A')), e('p', null, 'Status: ' + selected.status), e('p', null, 'Total: $' + parseFloat(selected.total_amount || 0).toFixed(2)), e('p', null, 'Date: ' + new Date(selected.created_at).toLocaleDateString()), statusMsg ? e('p', {
+      style: {
+        color: 'green'
+      }
+    }, statusMsg) : null, e('div', {
+      style: {
+        marginTop: '1rem'
+      }
+    }, ['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map(function (s) {
+      return e('button', {
+        key: s,
+        onClick: function onClick() {
+          updateStatus(selected.id, s);
+        },
+        style: {
+          marginRight: '8px',
+          padding: '6px 12px',
+          background: selected.status === s ? '#333' : '#f0f0f0',
+          color: selected.status === s ? '#fff' : '#333',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }
+      }, s.charAt(0).toUpperCase() + s.slice(1));
+    })));
+  }
+  return e('div', {
+    style: {
+      padding: '2rem'
+    }
+  }, e('h2', null, 'Orders'), e('table', {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, e('thead', null, e('tr', null, e('th', {
+    style: tableTh
+  }, 'Order ID'), e('th', {
+    style: tableTh
+  }, 'Customer'), e('th', {
+    style: tableTh
+  }, 'Status'), e('th', {
+    style: tableTh
+  }, 'Total'), e('th', {
+    style: tableTh
+  }, 'Date'), e('th', {
+    style: tableTh
+  }, 'Actions'))), e('tbody', null, orders.map(function (order) {
+    return e('tr', {
+      key: order.id
+    }, e('td', {
+      style: tableTd
+    }, '#' + order.id), e('td', {
+      style: tableTd
+    }, order.user ? order.user.name : 'N/A'), e('td', {
+      style: tableTd
+    }, order.status), e('td', {
+      style: tableTd
+    }, '$' + parseFloat(order.total_amount || 0).toFixed(2)), e('td', {
+      style: tableTd
+    }, new Date(order.created_at).toLocaleDateString()), e('td', {
+      style: tableTd
+    }, e('button', {
+      onClick: function onClick() {
+        openDetail(order);
+      }
+    }, 'View')));
+  }))));
+}
+var tableTh = {
+  textAlign: 'left',
+  padding: '10px 12px',
+  borderBottom: '2px solid #e0e0e0',
+  fontWeight: '600'
+};
+var tableTd = {
+  padding: '10px 12px',
+  borderBottom: '1px solid #eee'
+};
+module.exports = AdminOrders;
 
 /***/ },
 
@@ -5431,6 +5869,1858 @@ function AdminProducts() {
   })))));
 }
 module.exports = AdminProducts;
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminReports.js"
+/*!*******************************************************!*\
+  !*** ./resources/js/components/Admin/AdminReports.js ***!
+  \*******************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function AdminReports() {
+  var _React$useState = React.useState(null),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    report = _React$useState2[0],
+    setReport = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  React.useEffect(function () {
+    fetch('/api/admin/reports').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setReport(data);
+      setLoading(false);
+    });
+  }, []);
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem'
+    }
+  }, 'Loading reports...');
+  var r = report || {};
+  return e('div', {
+    style: {
+      padding: '2rem'
+    }
+  }, e('h2', null, 'Reports & Analytics'), e('div', {
+    style: {
+      display: 'flex',
+      gap: '1.5rem',
+      flexWrap: 'wrap',
+      marginBottom: '2rem'
+    }
+  }, statCard('Total Revenue', '$' + parseFloat(r.total_revenue || 0).toFixed(2)), statCard('Total Orders', r.total_orders || 0), statCard('Total Users', r.total_users || 0), statCard('Total Products', r.total_products || 0)), r.top_products && r.top_products.length ? e('div', null, e('h3', null, 'Top Selling Products'), e('table', {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, e('thead', null, e('tr', null, e('th', {
+    style: tableTh
+  }, 'Product'), e('th', {
+    style: tableTh
+  }, 'Units Sold'), e('th', {
+    style: tableTh
+  }, 'Revenue'))), e('tbody', null, r.top_products.map(function (p, idx) {
+    return e('tr', {
+      key: idx
+    }, e('td', {
+      style: tableTd
+    }, p.name), e('td', {
+      style: tableTd
+    }, p.units_sold), e('td', {
+      style: tableTd
+    }, '$' + parseFloat(p.revenue || 0).toFixed(2)));
+  })))) : null, r.recent_orders && r.recent_orders.length ? e('div', {
+    style: {
+      marginTop: '2rem'
+    }
+  }, e('h3', null, 'Recent Orders'), e('table', {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, e('thead', null, e('tr', null, e('th', {
+    style: tableTh
+  }, 'Order #'), e('th', {
+    style: tableTh
+  }, 'Customer'), e('th', {
+    style: tableTh
+  }, 'Status'), e('th', {
+    style: tableTh
+  }, 'Total'))), e('tbody', null, r.recent_orders.map(function (o) {
+    return e('tr', {
+      key: o.id
+    }, e('td', {
+      style: tableTd
+    }, '#' + o.id), e('td', {
+      style: tableTd
+    }, o.user ? o.user.name : 'N/A'), e('td', {
+      style: tableTd
+    }, o.status), e('td', {
+      style: tableTd
+    }, '$' + parseFloat(o.total_amount || 0).toFixed(2)));
+  })))) : null);
+}
+function statCard(label, value) {
+  return e('div', {
+    key: label,
+    style: {
+      background: '#f7f7f7',
+      borderRadius: '8px',
+      padding: '1.5rem 2rem',
+      minWidth: '160px',
+      flex: '1',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
+    }
+  }, e('p', {
+    style: {
+      margin: 0,
+      fontSize: '13px',
+      color: '#888'
+    }
+  }, label), e('p', {
+    style: {
+      margin: '6px 0 0',
+      fontSize: '24px',
+      fontWeight: '700'
+    }
+  }, String(value)));
+}
+var tableTh = {
+  textAlign: 'left',
+  padding: '10px 12px',
+  borderBottom: '2px solid #e0e0e0',
+  fontWeight: '600'
+};
+var tableTd = {
+  padding: '10px 12px',
+  borderBottom: '1px solid #eee'
+};
+module.exports = AdminReports;
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminReviews.js"
+/*!*******************************************************!*\
+  !*** ./resources/js/components/Admin/AdminReviews.js ***!
+  \*******************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function AdminReviews() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    reviews = _React$useState2[0],
+    setReviews = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = React.useState(''),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    msg = _React$useState6[0],
+    setMsg = _React$useState6[1];
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  function loadReviews() {
+    setLoading(true);
+    fetch('/api/admin/reviews').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setReviews(data.data || data);
+      setLoading(false);
+    });
+  }
+  React.useEffect(function () {
+    loadReviews();
+  }, []);
+  function handleDelete(reviewId) {
+    if (!confirm('Delete this review?')) return;
+    fetch('/api/admin/reviews/' + reviewId, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': csrf
+      }
+    }).then(function () {
+      setMsg('Review deleted.');
+      loadReviews();
+    });
+  }
+  function handleApprove(reviewId) {
+    fetch('/api/admin/reviews/' + reviewId + '/approve', {
+      method: 'PUT',
+      headers: {
+        'X-CSRF-TOKEN': csrf
+      }
+    }).then(function (res) {
+      return res.json();
+    }).then(function () {
+      setMsg('Review approved.');
+      loadReviews();
+    });
+  }
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem'
+    }
+  }, 'Loading reviews...');
+  return e('div', {
+    style: {
+      padding: '2rem'
+    }
+  }, e('h2', null, 'Product Reviews'), msg ? e('p', {
+    style: {
+      color: 'green',
+      marginBottom: '1rem'
+    }
+  }, msg) : null, e('table', {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, e('thead', null, e('tr', null, e('th', {
+    style: tableTh
+  }, 'ID'), e('th', {
+    style: tableTh
+  }, 'Product'), e('th', {
+    style: tableTh
+  }, 'User'), e('th', {
+    style: tableTh
+  }, 'Rating'), e('th', {
+    style: tableTh
+  }, 'Comment'), e('th', {
+    style: tableTh
+  }, 'Approved'), e('th', {
+    style: tableTh
+  }, 'Actions'))), e('tbody', null, reviews.map(function (review) {
+    return e('tr', {
+      key: review.id
+    }, e('td', {
+      style: tableTd
+    }, review.id), e('td', {
+      style: tableTd
+    }, review.product ? review.product.name : 'N/A'), e('td', {
+      style: tableTd
+    }, review.user ? review.user.name : 'N/A'), e('td', {
+      style: tableTd
+    }, '★ ' + review.rating), e('td', {
+      style: Object.assign({}, tableTd, {
+        maxWidth: '200px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      })
+    }, review.comment), e('td', {
+      style: tableTd
+    }, review.is_approved ? 'Yes' : 'No'), e('td', {
+      style: tableTd
+    }, !review.is_approved ? e('button', {
+      onClick: function onClick() {
+        handleApprove(review.id);
+      },
+      style: {
+        marginRight: '6px'
+      }
+    }, 'Approve') : null, e('button', {
+      onClick: function onClick() {
+        handleDelete(review.id);
+      },
+      style: {
+        color: 'red'
+      }
+    }, 'Delete')));
+  }))));
+}
+var tableTh = {
+  textAlign: 'left',
+  padding: '10px 12px',
+  borderBottom: '2px solid #e0e0e0',
+  fontWeight: '600'
+};
+var tableTd = {
+  padding: '10px 12px',
+  borderBottom: '1px solid #eee'
+};
+module.exports = AdminReviews;
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminUsers.js"
+/*!*****************************************************!*\
+  !*** ./resources/js/components/Admin/AdminUsers.js ***!
+  \*****************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function AdminUsers() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    users = _React$useState2[0],
+    setUsers = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = React.useState(''),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    msg = _React$useState6[0],
+    setMsg = _React$useState6[1];
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  function loadUsers() {
+    setLoading(true);
+    fetch('/api/admin/users').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setUsers(data.data || data);
+      setLoading(false);
+    });
+  }
+  React.useEffect(function () {
+    loadUsers();
+  }, []);
+  function toggleRole(user) {
+    var newRole = user.role === 'admin' ? 'user' : 'admin';
+    fetch('/api/admin/users/' + user.id + '/role', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify({
+        role: newRole
+      })
+    }).then(function (res) {
+      return res.json();
+    }).then(function () {
+      setMsg('Role updated for ' + user.name + '.');
+      loadUsers();
+    });
+  }
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem'
+    }
+  }, 'Loading users...');
+  return e('div', {
+    style: {
+      padding: '2rem'
+    }
+  }, e('h2', null, 'Users'), msg ? e('p', {
+    style: {
+      color: 'green',
+      marginBottom: '1rem'
+    }
+  }, msg) : null, e('table', {
+    style: {
+      width: '100%',
+      borderCollapse: 'collapse'
+    }
+  }, e('thead', null, e('tr', null, e('th', {
+    style: tableTh
+  }, 'ID'), e('th', {
+    style: tableTh
+  }, 'Name'), e('th', {
+    style: tableTh
+  }, 'Email'), e('th', {
+    style: tableTh
+  }, 'Role'), e('th', {
+    style: tableTh
+  }, 'Joined'), e('th', {
+    style: tableTh
+  }, 'Actions'))), e('tbody', null, users.map(function (user) {
+    return e('tr', {
+      key: user.id
+    }, e('td', {
+      style: tableTd
+    }, user.id), e('td', {
+      style: tableTd
+    }, user.name), e('td', {
+      style: tableTd
+    }, user.email), e('td', {
+      style: tableTd
+    }, e('span', {
+      style: {
+        padding: '2px 8px',
+        borderRadius: '12px',
+        background: user.role === 'admin' ? '#222' : '#eee',
+        color: user.role === 'admin' ? '#fff' : '#555',
+        fontSize: '12px'
+      }
+    }, user.role || 'user')), e('td', {
+      style: tableTd
+    }, new Date(user.created_at).toLocaleDateString()), e('td', {
+      style: tableTd
+    }, e('button', {
+      onClick: function onClick() {
+        toggleRole(user);
+      },
+      style: {
+        padding: '4px 10px',
+        cursor: 'pointer'
+      }
+    }, user.role === 'admin' ? 'Make User' : 'Make Admin')));
+  }))));
+}
+var tableTh = {
+  textAlign: 'left',
+  padding: '10px 12px',
+  borderBottom: '2px solid #e0e0e0',
+  fontWeight: '600'
+};
+var tableTd = {
+  padding: '10px 12px',
+  borderBottom: '1px solid #eee'
+};
+module.exports = AdminUsers;
+
+/***/ },
+
+/***/ "./resources/js/components/Shop/Cart.js"
+/*!**********************************************!*\
+  !*** ./resources/js/components/Shop/Cart.js ***!
+  \**********************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function Cart() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    items = _React$useState2[0],
+    setItems = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = React.useState(''),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    msg = _React$useState6[0],
+    setMsg = _React$useState6[1];
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  function loadCart() {
+    setLoading(true);
+    fetch('/api/shop/cart').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setItems(data);
+      setLoading(false);
+    });
+  }
+  React.useEffect(function () {
+    loadCart();
+  }, []);
+  function removeItem(id) {
+    fetch('/api/shop/cart/' + id, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': csrf
+      }
+    }).then(function () {
+      loadCart();
+    });
+  }
+  function updateQty(id, qty) {
+    if (qty < 1) return;
+    fetch('/api/shop/cart/' + id, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify({
+        quantity: qty
+      })
+    }).then(function () {
+      loadCart();
+    });
+  }
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Loading cart...');
+  if (!items.length) {
+    return e('div', {
+      style: {
+        padding: '4rem 2rem',
+        textAlign: 'center',
+        fontFamily: 'sans-serif'
+      }
+    }, e('h2', null, 'Your cart is empty'), e('a', {
+      href: '/products',
+      style: {
+        color: '#222',
+        fontWeight: '600'
+      }
+    }, 'Continue Shopping'));
+  }
+  var total = items.reduce(function (sum, item) {
+    var price = item.product.sale_price || item.product.price;
+    return sum + parseFloat(price) * item.quantity;
+  }, 0);
+  return e('div', {
+    style: {
+      padding: '2rem',
+      fontFamily: 'sans-serif',
+      maxWidth: '900px',
+      margin: '0 auto'
+    }
+  }, e('h1', {
+    style: {
+      marginBottom: '2rem'
+    }
+  }, 'Shopping Cart'), msg ? e('p', {
+    style: {
+      color: 'green'
+    }
+  }, msg) : null, e('div', null, items.map(function (item) {
+    var product = item.product;
+    var imgUrl = product.images && product.images[0] ? '/storage/' + product.images[0].img_url : '/images/placeholder.jpg';
+    var unitPrice = product.sale_price || product.price;
+    return e('div', {
+      key: item.id,
+      style: {
+        display: 'flex',
+        gap: '1.5rem',
+        borderBottom: '1px solid #eee',
+        padding: '1.5rem 0',
+        alignItems: 'center'
+      }
+    }, e('img', {
+      src: imgUrl,
+      alt: product.name,
+      style: {
+        width: '90px',
+        height: '110px',
+        objectFit: 'cover',
+        borderRadius: '6px'
+      }
+    }), e('div', {
+      style: {
+        flex: 1
+      }
+    }, e('p', {
+      style: {
+        margin: '0 0 4px',
+        fontWeight: '600',
+        fontSize: '1rem'
+      }
+    }, product.name), e('p', {
+      style: {
+        margin: '0 0 12px',
+        color: '#888',
+        fontSize: '13px'
+      }
+    }, product.category ? product.category.category_name : ''), e('div', {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      }
+    }, e('button', {
+      onClick: function onClick() {
+        updateQty(item.id, item.quantity - 1);
+      },
+      style: qtyBtn
+    }, '−'), e('span', null, item.quantity), e('button', {
+      onClick: function onClick() {
+        updateQty(item.id, item.quantity + 1);
+      },
+      style: qtyBtn
+    }, '+'))), e('div', {
+      style: {
+        textAlign: 'right'
+      }
+    }, e('p', {
+      style: {
+        fontWeight: '700',
+        margin: '0 0 8px'
+      }
+    }, '$' + (parseFloat(unitPrice) * item.quantity).toFixed(2)), e('button', {
+      onClick: function onClick() {
+        removeItem(item.id);
+      },
+      style: {
+        color: '#e74c3c',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontSize: '13px'
+      }
+    }, 'Remove')));
+  })), e('div', {
+    style: {
+      textAlign: 'right',
+      marginTop: '2rem'
+    }
+  }, e('p', {
+    style: {
+      fontSize: '1.2rem',
+      fontWeight: '700'
+    }
+  }, 'Total: $' + total.toFixed(2)), e('a', {
+    href: '/checkout',
+    style: {
+      display: 'inline-block',
+      padding: '12px 32px',
+      background: '#222',
+      color: '#fff',
+      textDecoration: 'none',
+      borderRadius: '4px',
+      fontWeight: '700',
+      marginTop: '1rem'
+    }
+  }, 'Proceed to Checkout')));
+}
+var qtyBtn = {
+  width: '28px',
+  height: '28px',
+  border: '1px solid #ddd',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  background: '#f5f5f5'
+};
+module.exports = Cart;
+
+/***/ },
+
+/***/ "./resources/js/components/Shop/Checkout.js"
+/*!**************************************************!*\
+  !*** ./resources/js/components/Shop/Checkout.js ***!
+  \**************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function Checkout() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    cartItems = _React$useState2[0],
+    setCartItems = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = React.useState(false),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    submitting = _React$useState6[0],
+    setSubmitting = _React$useState6[1];
+  var _React$useState7 = React.useState({
+      full_name: '',
+      address: '',
+      city: '',
+      postal_code: '',
+      country: '',
+      payment_method: 'cod'
+    }),
+    _React$useState8 = _slicedToArray(_React$useState7, 2),
+    form = _React$useState8[0],
+    setForm = _React$useState8[1];
+  var _React$useState9 = React.useState(''),
+    _React$useState0 = _slicedToArray(_React$useState9, 2),
+    error = _React$useState0[0],
+    setError = _React$useState0[1];
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  React.useEffect(function () {
+    fetch('/api/shop/cart').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setCartItems(data);
+      setLoading(false);
+    });
+  }, []);
+  function setField(field, value) {
+    setForm(function (prev) {
+      var next = {};
+      Object.keys(prev).forEach(function (k) {
+        next[k] = prev[k];
+      });
+      next[field] = value;
+      return next;
+    });
+  }
+  function handleSubmit(evt) {
+    evt.preventDefault();
+    setSubmitting(true);
+    setError('');
+    fetch('/api/shop/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify(form)
+    }).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      if (data.order_id) {
+        window.location.href = '/order/' + data.order_id + '/confirmation';
+      } else {
+        setError(data.message || 'Something went wrong. Please try again.');
+        setSubmitting(false);
+      }
+    })["catch"](function () {
+      setError('Network error. Please try again.');
+      setSubmitting(false);
+    });
+  }
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Loading checkout...');
+  var total = cartItems.reduce(function (sum, item) {
+    var price = item.product.sale_price || item.product.price;
+    return sum + parseFloat(price) * item.quantity;
+  }, 0);
+  return e('div', {
+    style: {
+      padding: '2rem',
+      fontFamily: 'sans-serif',
+      maxWidth: '800px',
+      margin: '0 auto'
+    }
+  }, e('h1', {
+    style: {
+      marginBottom: '2rem'
+    }
+  }, 'Checkout'), error ? e('p', {
+    style: {
+      color: 'red',
+      marginBottom: '1rem'
+    }
+  }, error) : null, e('div', {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '2rem'
+    }
+  },
+  // Form
+  e('form', {
+    onSubmit: handleSubmit
+  }, e('h3', null, 'Shipping Information'), ['full_name', 'address', 'city', 'postal_code', 'country'].map(function (field) {
+    return e('div', {
+      key: field,
+      style: fGroup
+    }, e('label', {
+      style: fLabel
+    }, field.replace('_', ' ').replace(/\b\w/g, function (l) {
+      return l.toUpperCase();
+    })), e('input', {
+      type: 'text',
+      required: true,
+      value: form[field],
+      onChange: function onChange(ev) {
+        setField(field, ev.target.value);
+      },
+      style: fInput
+    }));
+  }), e('h3', {
+    style: {
+      marginTop: '1.5rem'
+    }
+  }, 'Payment Method'), e('div', {
+    style: fGroup
+  }, e('label', null, e('input', {
+    type: 'radio',
+    name: 'payment_method',
+    value: 'cod',
+    checked: form.payment_method === 'cod',
+    onChange: function onChange() {
+      setField('payment_method', 'cod');
+    },
+    style: {
+      marginRight: '8px'
+    }
+  }), 'Cash on Delivery')), e('div', {
+    style: fGroup
+  }, e('label', null, e('input', {
+    type: 'radio',
+    name: 'payment_method',
+    value: 'card',
+    checked: form.payment_method === 'card',
+    onChange: function onChange() {
+      setField('payment_method', 'card');
+    },
+    style: {
+      marginRight: '8px'
+    }
+  }), 'Credit / Debit Card')), e('button', {
+    type: 'submit',
+    disabled: submitting,
+    style: {
+      marginTop: '1.5rem',
+      padding: '12px 28px',
+      background: '#222',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      fontWeight: '700',
+      width: '100%'
+    }
+  }, submitting ? 'Placing Order...' : 'Place Order — $' + total.toFixed(2))),
+  // Order summary
+  e('div', null, e('h3', null, 'Order Summary'), cartItems.map(function (item) {
+    var price = item.product.sale_price || item.product.price;
+    return e('div', {
+      key: item.id,
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '8px 0',
+        borderBottom: '1px solid #eee'
+      }
+    }, e('span', null, item.product.name + ' × ' + item.quantity), e('span', {
+      style: {
+        fontWeight: '600'
+      }
+    }, '$' + (parseFloat(price) * item.quantity).toFixed(2)));
+  }), e('div', {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginTop: '12px',
+      fontWeight: '700',
+      fontSize: '1.1rem'
+    }
+  }, e('span', null, 'Total'), e('span', null, '$' + total.toFixed(2))))));
+}
+var fGroup = {
+  marginBottom: '12px'
+};
+var fLabel = {
+  display: 'block',
+  marginBottom: '4px',
+  fontSize: '14px',
+  fontWeight: '500'
+};
+var fInput = {
+  display: 'block',
+  width: '100%',
+  padding: '8px',
+  boxSizing: 'border-box',
+  border: '1px solid #ddd',
+  borderRadius: '4px'
+};
+module.exports = Checkout;
+
+/***/ },
+
+/***/ "./resources/js/components/Shop/Home.js"
+/*!**********************************************!*\
+  !*** ./resources/js/components/Shop/Home.js ***!
+  \**********************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function Home() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    featuredProducts = _React$useState2[0],
+    setFeaturedProducts = _React$useState2[1];
+  var _React$useState3 = React.useState([]),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    categories = _React$useState4[0],
+    setCategories = _React$useState4[1];
+  var _React$useState5 = React.useState(true),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    loading = _React$useState6[0],
+    setLoading = _React$useState6[1];
+  React.useEffect(function () {
+    Promise.all([fetch('/api/shop/products?featured=1').then(function (r) {
+      return r.json();
+    }), fetch('/api/shop/categories').then(function (r) {
+      return r.json();
+    })]).then(function (results) {
+      setFeaturedProducts(results[0].data || results[0]);
+      setCategories(results[1]);
+      setLoading(false);
+    });
+  }, []);
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Loading...');
+  return e('div', {
+    style: {
+      fontFamily: 'sans-serif'
+    }
+  },
+  // Hero
+  e('section', {
+    style: {
+      background: '#111',
+      color: '#fff',
+      padding: '80px 2rem',
+      textAlign: 'center'
+    }
+  }, e('h1', {
+    style: {
+      fontSize: '3rem',
+      margin: '0 0 1rem',
+      letterSpacing: '2px'
+    }
+  }, 'CLOTHR'), e('p', {
+    style: {
+      fontSize: '1.2rem',
+      color: '#ccc',
+      marginBottom: '2rem'
+    }
+  }, 'Modern Women\'s Fashion'), e('a', {
+    href: '/products',
+    style: ctaBtn
+  }, 'Shop Now')),
+  // Categories
+  categories.length ? e('section', {
+    style: sectionPad
+  }, e('h2', {
+    style: sectionTitle
+  }, 'Shop by Category'), e('div', {
+    style: {
+      display: 'flex',
+      gap: '1rem',
+      flexWrap: 'wrap'
+    }
+  }, categories.map(function (cat) {
+    return e('a', {
+      key: cat.category_id,
+      href: '/products?category=' + cat.category_id,
+      style: catCard
+    }, cat.category_name);
+  }))) : null,
+  // Featured Products
+  featuredProducts.length ? e('section', {
+    style: sectionPad
+  }, e('h2', {
+    style: sectionTitle
+  }, 'Featured Products'), e('div', {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+      gap: '1.5rem'
+    }
+  }, featuredProducts.slice(0, 8).map(function (product) {
+    var imgUrl = product.images && product.images[0] ? '/storage/' + product.images[0].img_url : '/images/placeholder.jpg';
+    var price = product.sale_price ? e('span', null, e('span', {
+      style: {
+        textDecoration: 'line-through',
+        color: '#999',
+        marginRight: '6px'
+      }
+    }, '$' + parseFloat(product.price).toFixed(2)), e('span', {
+      style: {
+        color: '#c0392b',
+        fontWeight: '700'
+      }
+    }, '$' + parseFloat(product.sale_price).toFixed(2))) : e('span', {
+      style: {
+        fontWeight: '700'
+      }
+    }, '$' + parseFloat(product.price).toFixed(2));
+    return e('a', {
+      key: product.product_id,
+      href: '/products/' + product.slug,
+      style: {
+        textDecoration: 'none',
+        color: 'inherit',
+        display: 'block',
+        border: '1px solid #eee',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        transition: 'box-shadow 0.2s'
+      }
+    }, e('img', {
+      src: imgUrl,
+      alt: product.name,
+      style: {
+        width: '100%',
+        height: '260px',
+        objectFit: 'cover',
+        display: 'block'
+      }
+    }), e('div', {
+      style: {
+        padding: '12px'
+      }
+    }, e('p', {
+      style: {
+        margin: '0 0 4px',
+        fontWeight: '600'
+      }
+    }, product.name), price));
+  }))) : null);
+}
+var sectionPad = {
+  padding: '3rem 2rem'
+};
+var sectionTitle = {
+  fontSize: '1.5rem',
+  fontWeight: '700',
+  marginBottom: '1.5rem'
+};
+var ctaBtn = {
+  display: 'inline-block',
+  padding: '14px 36px',
+  background: '#fff',
+  color: '#111',
+  textDecoration: 'none',
+  fontWeight: '700',
+  letterSpacing: '1px',
+  borderRadius: '4px'
+};
+var catCard = {
+  display: 'inline-block',
+  padding: '10px 20px',
+  border: '1px solid #ddd',
+  borderRadius: '20px',
+  textDecoration: 'none',
+  color: '#333',
+  background: '#f7f7f7',
+  fontWeight: '500'
+};
+module.exports = Home;
+
+/***/ },
+
+/***/ "./resources/js/components/Shop/OrderHistory.js"
+/*!******************************************************!*\
+  !*** ./resources/js/components/Shop/OrderHistory.js ***!
+  \******************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function OrderHistory() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    orders = _React$useState2[0],
+    setOrders = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  React.useEffect(function () {
+    fetch('/api/shop/orders').then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setOrders(data.data || data);
+      setLoading(false);
+    });
+  }, []);
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Loading orders...');
+  if (!orders.length) {
+    return e('div', {
+      style: {
+        padding: '4rem 2rem',
+        textAlign: 'center',
+        fontFamily: 'sans-serif'
+      }
+    }, e('h2', null, 'No orders yet'), e('a', {
+      href: '/products',
+      style: {
+        color: '#222',
+        fontWeight: '600'
+      }
+    }, 'Start Shopping'));
+  }
+  return e('div', {
+    style: {
+      padding: '2rem',
+      fontFamily: 'sans-serif',
+      maxWidth: '900px',
+      margin: '0 auto'
+    }
+  }, e('h1', {
+    style: {
+      marginBottom: '2rem'
+    }
+  }, 'My Orders'), e('div', null, orders.map(function (order) {
+    return e('div', {
+      key: order.id,
+      style: {
+        border: '1px solid #eee',
+        borderRadius: '8px',
+        padding: '1.5rem',
+        marginBottom: '1.5rem'
+      }
+    }, e('div', {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '12px'
+      }
+    }, e('div', null, e('strong', null, 'Order #' + order.id), e('span', {
+      style: {
+        marginLeft: '12px',
+        color: '#888',
+        fontSize: '13px'
+      }
+    }, new Date(order.created_at).toLocaleDateString())), e('span', {
+      style: {
+        padding: '4px 12px',
+        borderRadius: '12px',
+        fontSize: '13px',
+        fontWeight: '600',
+        background: statusBg(order.status),
+        color: statusColor(order.status)
+      }
+    }, order.status)), order.items && order.items.map(function (item) {
+      var imgUrl = item.product && item.product.images && item.product.images[0] ? '/storage/' + item.product.images[0].img_url : '/images/placeholder.jpg';
+      return e('div', {
+        key: item.id,
+        style: {
+          display: 'flex',
+          gap: '1rem',
+          alignItems: 'center',
+          padding: '8px 0',
+          borderTop: '1px solid #f5f5f5'
+        }
+      }, e('img', {
+        src: imgUrl,
+        alt: item.product ? item.product.name : '',
+        style: {
+          width: '50px',
+          height: '60px',
+          objectFit: 'cover',
+          borderRadius: '4px'
+        }
+      }), e('div', {
+        style: {
+          flex: 1
+        }
+      }, e('p', {
+        style: {
+          margin: 0,
+          fontWeight: '600'
+        }
+      }, item.product ? item.product.name : 'N/A'), e('p', {
+        style: {
+          margin: 0,
+          color: '#888',
+          fontSize: '13px'
+        }
+      }, 'Qty: ' + item.quantity)), e('span', {
+        style: {
+          fontWeight: '600'
+        }
+      }, '$' + parseFloat(item.price).toFixed(2)));
+    }), e('div', {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginTop: '12px'
+      }
+    }, e('a', {
+      href: '/orders/' + order.id,
+      style: {
+        color: '#222',
+        fontWeight: '600',
+        fontSize: '14px'
+      }
+    }, 'View Details'), e('strong', null, 'Total: $' + parseFloat(order.total_amount).toFixed(2))));
+  })));
+}
+function statusBg(status) {
+  var map = {
+    pending: '#fff3cd',
+    processing: '#cce5ff',
+    shipped: '#d4edda',
+    delivered: '#d4edda',
+    cancelled: '#f8d7da'
+  };
+  return map[status] || '#eee';
+}
+function statusColor(status) {
+  var map = {
+    pending: '#856404',
+    processing: '#004085',
+    shipped: '#155724',
+    delivered: '#155724',
+    cancelled: '#721c24'
+  };
+  return map[status] || '#333';
+}
+module.exports = OrderHistory;
+
+/***/ },
+
+/***/ "./resources/js/components/Shop/OrderSuccess.js"
+/*!******************************************************!*\
+  !*** ./resources/js/components/Shop/OrderSuccess.js ***!
+  \******************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function OrderSuccess() {
+  var _React$useState = React.useState(null),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    order = _React$useState2[0],
+    setOrder = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  React.useEffect(function () {
+    var root = document.getElementById('shop-order-success-root');
+    var orderId = root ? root.dataset.orderId : null;
+    if (!orderId) {
+      setLoading(false);
+      return;
+    }
+    fetch('/api/shop/orders/' + orderId).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setOrder(data);
+      setLoading(false);
+    });
+  }, []);
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Loading...');
+  return e('div', {
+    style: {
+      padding: '4rem 2rem',
+      textAlign: 'center',
+      fontFamily: 'sans-serif',
+      maxWidth: '600px',
+      margin: '0 auto'
+    }
+  },
+  // Success icon
+  e('div', {
+    style: {
+      marginBottom: '1.5rem'
+    }
+  }, e('svg', {
+    width: '72',
+    height: '72',
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: '#27ae60',
+    strokeWidth: '2',
+    style: {
+      display: 'block',
+      margin: '0 auto'
+    }
+  }, e('circle', {
+    cx: '12',
+    cy: '12',
+    r: '10'
+  }), e('polyline', {
+    points: '9 12 11 14 15 10'
+  }))), e('h1', {
+    style: {
+      fontSize: '2rem',
+      marginBottom: '0.5rem'
+    }
+  }, 'Order Confirmed!'), e('p', {
+    style: {
+      color: '#555',
+      marginBottom: '2rem'
+    }
+  }, 'Thank you for your purchase. Your order has been placed successfully.'), order ? e('div', {
+    style: {
+      border: '1px solid #eee',
+      borderRadius: '8px',
+      padding: '1.5rem',
+      textAlign: 'left',
+      marginBottom: '2rem'
+    }
+  }, e('div', {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '8px'
+    }
+  }, e('span', {
+    style: {
+      color: '#888',
+      fontSize: '14px'
+    }
+  }, 'Order Number'), e('strong', null, '#' + order.id)), e('div', {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '8px'
+    }
+  }, e('span', {
+    style: {
+      color: '#888',
+      fontSize: '14px'
+    }
+  }, 'Status'), e('strong', null, order.status)), e('div', {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between'
+    }
+  }, e('span', {
+    style: {
+      color: '#888',
+      fontSize: '14px'
+    }
+  }, 'Total'), e('strong', null, '$' + parseFloat(order.total_amount).toFixed(2)))) : null, e('div', {
+    style: {
+      display: 'flex',
+      gap: '1rem',
+      justifyContent: 'center'
+    }
+  }, e('a', {
+    href: '/orders',
+    style: outlineBtn
+  }, 'View My Orders'), e('a', {
+    href: '/products',
+    style: filledBtn
+  }, 'Continue Shopping')));
+}
+var outlineBtn = {
+  display: 'inline-block',
+  padding: '12px 24px',
+  border: '2px solid #222',
+  color: '#222',
+  textDecoration: 'none',
+  borderRadius: '4px',
+  fontWeight: '700'
+};
+var filledBtn = {
+  display: 'inline-block',
+  padding: '12px 24px',
+  background: '#222',
+  color: '#fff',
+  textDecoration: 'none',
+  borderRadius: '4px',
+  fontWeight: '700'
+};
+module.exports = OrderSuccess;
+
+/***/ },
+
+/***/ "./resources/js/components/Shop/ProductDetail.js"
+/*!*******************************************************!*\
+  !*** ./resources/js/components/Shop/ProductDetail.js ***!
+  \*******************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function ProductDetail() {
+  var _React$useState = React.useState(null),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    product = _React$useState2[0],
+    setProduct = _React$useState2[1];
+  var _React$useState3 = React.useState(true),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    loading = _React$useState4[0],
+    setLoading = _React$useState4[1];
+  var _React$useState5 = React.useState(1),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    qty = _React$useState6[0],
+    setQty = _React$useState6[1];
+  var _React$useState7 = React.useState(''),
+    _React$useState8 = _slicedToArray(_React$useState7, 2),
+    msg = _React$useState8[0],
+    setMsg = _React$useState8[1];
+  var _React$useState9 = React.useState(0),
+    _React$useState0 = _slicedToArray(_React$useState9, 2),
+    activeImg = _React$useState0[0],
+    setActiveImg = _React$useState0[1];
+  var csrf = document.querySelector('meta[name="csrf-token"]').content;
+  React.useEffect(function () {
+    // Slug is embedded in the page via a data attribute on the root element
+    var root = document.getElementById('shop-product-detail-root');
+    var slug = root ? root.dataset.slug : null;
+    var url = slug ? '/api/shop/products/' + slug : null;
+    if (!url) {
+      setLoading(false);
+      return;
+    }
+    fetch(url).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setProduct(data);
+      setLoading(false);
+    });
+  }, []);
+  function addToCart() {
+    fetch('/api/shop/cart', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify({
+        product_id: product.product_id,
+        quantity: qty
+      })
+    }).then(function (res) {
+      return res.json();
+    }).then(function () {
+      setMsg('Added to cart!');
+    });
+  }
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Loading product...');
+  if (!product) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Product not found.');
+  var images = product.images || [];
+  var mainImg = images[activeImg] ? '/storage/' + images[activeImg].img_url : '/images/placeholder.jpg';
+  var price = product.sale_price ? e('div', null, e('span', {
+    style: {
+      textDecoration: 'line-through',
+      color: '#999',
+      marginRight: '10px',
+      fontSize: '1.1rem'
+    }
+  }, '$' + parseFloat(product.price).toFixed(2)), e('span', {
+    style: {
+      color: '#c0392b',
+      fontWeight: '700',
+      fontSize: '1.5rem'
+    }
+  }, '$' + parseFloat(product.sale_price).toFixed(2))) : e('span', {
+    style: {
+      fontWeight: '700',
+      fontSize: '1.5rem'
+    }
+  }, '$' + parseFloat(product.price).toFixed(2));
+  var stock = product.inventory ? product.inventory.available_qty : 0;
+  return e('div', {
+    style: {
+      padding: '2rem',
+      fontFamily: 'sans-serif',
+      maxWidth: '1100px',
+      margin: '0 auto'
+    }
+  }, e('div', {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '3rem'
+    }
+  },
+  // Images
+  e('div', null, e('img', {
+    src: mainImg,
+    alt: product.name,
+    style: {
+      width: '100%',
+      borderRadius: '8px',
+      objectFit: 'cover',
+      maxHeight: '500px'
+    }
+  }), images.length > 1 ? e('div', {
+    style: {
+      display: 'flex',
+      gap: '8px',
+      marginTop: '12px'
+    }
+  }, images.map(function (img, idx) {
+    return e('img', {
+      key: img.image_id,
+      src: '/storage/' + img.img_url,
+      alt: 'thumb',
+      onClick: function onClick() {
+        setActiveImg(idx);
+      },
+      style: {
+        width: '60px',
+        height: '60px',
+        objectFit: 'cover',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        border: activeImg === idx ? '2px solid #222' : '2px solid transparent'
+      }
+    });
+  })) : null),
+  // Info
+  e('div', null, product.category ? e('p', {
+    style: {
+      color: '#888',
+      fontSize: '13px',
+      margin: '0 0 8px'
+    }
+  }, product.category.category_name) : null, e('h1', {
+    style: {
+      margin: '0 0 12px',
+      fontSize: '2rem'
+    }
+  }, product.name), price, e('p', {
+    style: {
+      margin: '16px 0',
+      color: '#555'
+    }
+  }, product.description || ''), e('p', {
+    style: {
+      margin: '8px 0',
+      color: stock > 0 ? '#27ae60' : '#e74c3c',
+      fontWeight: '600'
+    }
+  }, stock > 0 ? 'In Stock (' + stock + ' available)' : 'Out of Stock'), stock > 0 ? e('div', {
+    style: {
+      marginTop: '1.5rem'
+    }
+  }, e('div', {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      marginBottom: '1rem'
+    }
+  }, e('label', null, 'Qty:'), e('input', {
+    type: 'number',
+    min: '1',
+    max: String(stock),
+    value: qty,
+    onChange: function onChange(ev) {
+      setQty(parseInt(ev.target.value, 10) || 1);
+    },
+    style: {
+      width: '60px',
+      padding: '6px',
+      border: '1px solid #ddd',
+      borderRadius: '4px'
+    }
+  })), e('button', {
+    onClick: addToCart,
+    style: {
+      padding: '14px 36px',
+      background: '#222',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      fontWeight: '700',
+      fontSize: '1rem'
+    }
+  }, 'Add to Cart')) : null, msg ? e('p', {
+    style: {
+      color: 'green',
+      marginTop: '1rem'
+    }
+  }, msg) : null,
+  // Reviews
+  product.reviews && product.reviews.length ? e('div', {
+    style: {
+      marginTop: '3rem'
+    }
+  }, e('h3', null, 'Customer Reviews (' + product.reviews.length + ')'), product.reviews.map(function (rev) {
+    return e('div', {
+      key: rev.id,
+      style: {
+        borderTop: '1px solid #eee',
+        padding: '16px 0'
+      }
+    }, e('p', {
+      style: {
+        margin: '0 0 4px',
+        fontWeight: '600'
+      }
+    }, (rev.user ? rev.user.name : 'Anonymous') + ' — ' + '★'.repeat(rev.rating)), e('p', {
+      style: {
+        margin: 0,
+        color: '#555'
+      }
+    }, rev.comment));
+  })) : null)));
+}
+module.exports = ProductDetail;
+
+/***/ },
+
+/***/ "./resources/js/components/Shop/ProductList.js"
+/*!*****************************************************!*\
+  !*** ./resources/js/components/Shop/ProductList.js ***!
+  \*****************************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var e = React.createElement;
+function ProductList() {
+  var _React$useState = React.useState([]),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    products = _React$useState2[0],
+    setProducts = _React$useState2[1];
+  var _React$useState3 = React.useState([]),
+    _React$useState4 = _slicedToArray(_React$useState3, 2),
+    categories = _React$useState4[0],
+    setCategories = _React$useState4[1];
+  var _React$useState5 = React.useState(true),
+    _React$useState6 = _slicedToArray(_React$useState5, 2),
+    loading = _React$useState6[0],
+    setLoading = _React$useState6[1];
+  var _React$useState7 = React.useState(''),
+    _React$useState8 = _slicedToArray(_React$useState7, 2),
+    search = _React$useState8[0],
+    setSearch = _React$useState8[1];
+  var _React$useState9 = React.useState(''),
+    _React$useState0 = _slicedToArray(_React$useState9, 2),
+    category = _React$useState0[0],
+    setCategory = _React$useState0[1];
+  var _React$useState1 = React.useState(1),
+    _React$useState10 = _slicedToArray(_React$useState1, 2),
+    page = _React$useState10[0],
+    setPage = _React$useState10[1];
+  var _React$useState11 = React.useState(1),
+    _React$useState12 = _slicedToArray(_React$useState11, 2),
+    lastPage = _React$useState12[0],
+    setLastPage = _React$useState12[1];
+  function loadProducts(s, c, p) {
+    setLoading(true);
+    var params = new URLSearchParams({
+      page: p
+    });
+    if (s) params.set('search', s);
+    if (c) params.set('category', c);
+    fetch('/api/shop/products?' + params.toString()).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      setProducts(data.data || data);
+      setLastPage(data.last_page || 1);
+      setLoading(false);
+    });
+  }
+  React.useEffect(function () {
+    fetch('/api/shop/categories').then(function (r) {
+      return r.json();
+    }).then(setCategories);
+  }, []);
+  React.useEffect(function () {
+    loadProducts(search, category, page);
+  }, [search, category, page]);
+  if (loading) return e('p', {
+    style: {
+      padding: '2rem',
+      textAlign: 'center'
+    }
+  }, 'Loading products...');
+  return e('div', {
+    style: {
+      padding: '2rem',
+      fontFamily: 'sans-serif'
+    }
+  }, e('h1', {
+    style: {
+      marginBottom: '1.5rem'
+    }
+  }, 'All Products'),
+  // Filters
+  e('div', {
+    style: {
+      display: 'flex',
+      gap: '1rem',
+      marginBottom: '2rem',
+      flexWrap: 'wrap'
+    }
+  }, e('input', {
+    type: 'text',
+    placeholder: 'Search products...',
+    value: search,
+    onChange: function onChange(ev) {
+      setSearch(ev.target.value);
+      setPage(1);
+    },
+    style: {
+      padding: '8px 12px',
+      flex: '1',
+      minWidth: '200px',
+      border: '1px solid #ddd',
+      borderRadius: '4px'
+    }
+  }), e('select', {
+    value: category,
+    onChange: function onChange(ev) {
+      setCategory(ev.target.value);
+      setPage(1);
+    },
+    style: {
+      padding: '8px 12px',
+      border: '1px solid #ddd',
+      borderRadius: '4px'
+    }
+  }, e('option', {
+    value: ''
+  }, 'All Categories'), categories.map(function (cat) {
+    return e('option', {
+      key: cat.category_id,
+      value: cat.category_id
+    }, cat.category_name);
+  }))),
+  // Grid
+  e('div', {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+      gap: '1.5rem'
+    }
+  }, products.map(function (product) {
+    var imgUrl = product.images && product.images[0] ? '/storage/' + product.images[0].img_url : '/images/placeholder.jpg';
+    var price = product.sale_price ? e('span', null, e('span', {
+      style: {
+        textDecoration: 'line-through',
+        color: '#999',
+        marginRight: '6px'
+      }
+    }, '$' + parseFloat(product.price).toFixed(2)), e('span', {
+      style: {
+        color: '#c0392b',
+        fontWeight: '700'
+      }
+    }, '$' + parseFloat(product.sale_price).toFixed(2))) : e('span', {
+      style: {
+        fontWeight: '700'
+      }
+    }, '$' + parseFloat(product.price).toFixed(2));
+    return e('a', {
+      key: product.product_id,
+      href: '/products/' + product.slug,
+      style: {
+        textDecoration: 'none',
+        color: 'inherit',
+        display: 'block',
+        border: '1px solid #eee',
+        borderRadius: '8px',
+        overflow: 'hidden'
+      }
+    }, e('img', {
+      src: imgUrl,
+      alt: product.name,
+      style: {
+        width: '100%',
+        height: '260px',
+        objectFit: 'cover',
+        display: 'block'
+      }
+    }), e('div', {
+      style: {
+        padding: '12px'
+      }
+    }, e('p', {
+      style: {
+        margin: '0 0 4px',
+        fontWeight: '600'
+      }
+    }, product.name), price));
+  })),
+  // Pagination
+  lastPage > 1 ? e('div', {
+    style: {
+      display: 'flex',
+      gap: '8px',
+      marginTop: '2rem',
+      justifyContent: 'center'
+    }
+  }, Array.from({
+    length: lastPage
+  }, function (_, i) {
+    return i + 1;
+  }).map(function (p) {
+    return e('button', {
+      key: p,
+      onClick: function onClick() {
+        setPage(p);
+      },
+      style: {
+        padding: '6px 12px',
+        cursor: 'pointer',
+        background: page === p ? '#222' : '#f0f0f0',
+        color: page === p ? '#fff' : '#333',
+        border: '1px solid #ccc',
+        borderRadius: '4px'
+      }
+    }, p);
+  })) : null);
+}
+module.exports = ProductList;
 
 /***/ },
 

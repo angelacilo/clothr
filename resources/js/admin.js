@@ -8,7 +8,7 @@ function getCsrfToken() {
 }
 
 // Initialize AJAX with CSRF token
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Set CSRF token for all AJAX requests
     if (getCsrfToken()) {
         fetch.headers = fetch.headers || {};
@@ -38,18 +38,18 @@ function updateOrderStatus(orderId, status) {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Order status updated successfully!', 'success');
-        } else {
-            showNotification('Failed to update order status', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('An error occurred while updating order status', 'error');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Order status updated successfully!', 'success');
+            } else {
+                showNotification('Failed to update order status', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while updating order status', 'error');
+        });
 }
 
 /**
@@ -74,18 +74,18 @@ function updateUserRole(userId, role) {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('User role updated successfully!', 'success');
-        } else {
-            showNotification('Failed to update user role', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('An error occurred while updating user role', 'error');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('User role updated successfully!', 'success');
+            } else {
+                showNotification('Failed to update user role', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while updating user role', 'error');
+        });
 }
 
 /**
@@ -149,20 +149,20 @@ function bulkApprove() {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(`${selected.length} reviews approved successfully!`, 'success');
-            // Reload page after 1 second
-            setTimeout(() => location.reload(), 1000);
-        } else {
-            showNotification('Failed to approve reviews', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('An error occurred while approving reviews', 'error');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(`${selected.length} reviews approved successfully!`, 'success');
+                // Reload page after 1 second
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification('Failed to approve reviews', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while approving reviews', 'error');
+        });
 }
 
 /**
@@ -241,12 +241,12 @@ function searchProducts(query) {
 /**
  * Auto-generate slug from product name
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const nameInput = document.getElementById('name');
     const slugInput = document.getElementById('slug');
 
     if (nameInput && slugInput) {
-        nameInput.addEventListener('input', function() {
+        nameInput.addEventListener('input', function () {
             if (!slugInput.value || slugInput.value === '') {
                 slugInput.value = nameInput.value
                     .toLowerCase()
@@ -262,18 +262,18 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Image preview before upload
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const imageInputs = document.querySelectorAll('input[type="file"][accept*="image"]');
 
     imageInputs.forEach(input => {
-        input.addEventListener('change', function(e) {
+        input.addEventListener('change', function (e) {
             const files = Array.from(this.files);
             console.log(`Selected ${files.length} image(s)`);
 
             // Optional: Show preview
             files.forEach(file => {
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     console.log('Image loaded:', file.name);
                 };
                 reader.readAsDataURL(file);
@@ -285,11 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Real-time search/filter
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const searchInputs = document.querySelectorAll('.search-input');
 
     searchInputs.forEach(input => {
-        input.addEventListener('keyup', function(e) {
+        input.addEventListener('keyup', function (e) {
             if (e.key === 'Enter') {
                 this.closest('form').submit();
             }
@@ -310,7 +310,7 @@ function loadNotifications() {
     // For now, we'll set it to the low stock count from dashboard
     // You can create an API endpoint for this later
 
-    notificationBell?.addEventListener('click', function() {
+    notificationBell?.addEventListener('click', function () {
         // Show notification dropdown (to be implemented)
         console.log('Notifications clicked');
     });
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', loadNotifications);
 /**
  * Success/Error message auto-dismiss
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const alerts = document.querySelectorAll('.alert');
 
     alerts.forEach(alert => {
@@ -349,11 +349,11 @@ function toggleSidebar() {
 /**
  * Table Row Selection
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const selectAllCheckbox = document.getElementById('selectAll');
 
     if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
+        selectAllCheckbox.addEventListener('change', function () {
             toggleAllCheckboxes(this);
         });
     }

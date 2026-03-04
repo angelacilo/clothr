@@ -1,29 +1,44 @@
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes React and other helpers. It's a great starting point while
- * building robust, powerful web applications using React + Laravel.
- */
-
-//require('./bootstrap');
-
-/**
- * Next, we will create a fresh React component instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-//require('./components/Example');
-
-
 require('./bootstrap');
 
 const React = require('react');
 const ReactDOM = require('react-dom');
-const AdminProducts = require('./components/Admin/AdminProducts');
 
-if (document.getElementById('admin-products-root')) {
-    ReactDOM.render(
-        React.createElement(AdminProducts),
-        document.getElementById('admin-products-root')
-    );
-}
+// Admin components
+const AdminProducts = require('./components/Admin/AdminProducts');
+const AdminOrders = require('./components/Admin/AdminOrders');
+const AdminCategories = require('./components/Admin/AdminCategories');
+const AdminUsers = require('./components/Admin/AdminUsers');
+const AdminReports = require('./components/Admin/AdminReports');
+const AdminReviews = require('./components/Admin/AdminReviews');
+
+// Shop components
+const Home = require('./components/Shop/Home');
+const ProductList = require('./components/Shop/ProductList');
+const ProductDetail = require('./components/Shop/ProductDetail');
+const Cart = require('./components/Shop/Cart');
+const Checkout = require('./components/Shop/Checkout');
+const OrderHistory = require('./components/Shop/OrderHistory');
+const OrderSuccess = require('./components/Shop/OrderSuccess');
+
+var mountPoints = [
+    { id: 'admin-products-root', component: AdminProducts },
+    { id: 'admin-orders-root', component: AdminOrders },
+    { id: 'admin-categories-root', component: AdminCategories },
+    { id: 'admin-users-root', component: AdminUsers },
+    { id: 'admin-reports-root', component: AdminReports },
+    { id: 'admin-reviews-root', component: AdminReviews },
+    { id: 'shop-home-root', component: Home },
+    { id: 'shop-products-root', component: ProductList },
+    { id: 'shop-product-detail-root', component: ProductDetail },
+    { id: 'shop-cart-root', component: Cart },
+    { id: 'shop-checkout-root', component: Checkout },
+    { id: 'shop-order-history-root', component: OrderHistory },
+    { id: 'shop-order-success-root', component: OrderSuccess },
+];
+
+mountPoints.forEach(function (mount) {
+    var el = document.getElementById(mount.id);
+    if (el) {
+        ReactDOM.render(React.createElement(mount.component), el);
+    }
+});

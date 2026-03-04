@@ -19,8 +19,8 @@ class OrderController extends Controller
     {
         $user = auth()->user();
         $cart = Cart::with('items.product')
-                    ->where('user_id', $user->user_id)
-                    ->first();
+            ->where('user_id', $user->user_id)
+            ->first();
 
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty!');
@@ -30,7 +30,7 @@ class OrderController extends Controller
         $subtotal = $cart->items->sum(function ($item) {
             return $item->quantity * ($item->product->sale_price ?? $item->product->price);
         });
-        
+
         $shippingCost = $subtotal >= 50 ? 0 : 5; // Free shipping on $50+
         $tax = $subtotal * 0.10; // 10% tax
         $total = $subtotal + $shippingCost + $tax;
@@ -54,8 +54,8 @@ class OrderController extends Controller
 
         $user = auth()->user();
         $cart = Cart::with('items.product')
-                    ->where('user_id', $user->user_id)
-                    ->first();
+            ->where('user_id', $user->user_id)
+            ->first();
 
         if (!$cart || $cart->items->isEmpty()) {
             return back()->with('error', 'Your cart is empty!');
@@ -68,7 +68,7 @@ class OrderController extends Controller
             $subtotal = $cart->items->sum(function ($item) {
                 return $item->quantity * ($item->product->sale_price ?? $item->product->price);
             });
-            
+
             $shippingCost = $subtotal >= 50 ? 0 : 5;
             $tax = $subtotal * 0.10;
             $total = $subtotal + $shippingCost + $tax;
@@ -118,9 +118,10 @@ class OrderController extends Controller
             DB::commit();
 
             return redirect()->route('order.confirmation', $order->order_id)
-                           ->with('success', 'Order placed successfully!');
+                ->with('success', 'Order placed successfully!');
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Failed to place order: ' . $e->getMessage());
         }
@@ -147,9 +148,9 @@ class OrderController extends Controller
     public function history()
     {
         $orders = Order::where('user_id', auth()->user()->user_id)
-                       ->with(['items.product', 'payment'])
-                       ->orderByDesc('created_at')
-                       ->paginate(10);
+            ->with(['items.product', 'payment'])
+            ->orderByDesc('created_at')
+            ->paginate(10);
 
         return view('orders.history', compact('orders'));
     }
@@ -167,5 +168,114 @@ class OrderController extends Controller
         }
 
         return view('orders.show', compact('order'));
+    }
+
+    // --- API Methods ---------------------------------------------------------
+
+    /**
+     * POST /api/shop/checkout - place order from cart, return JSON.
+     */
+    public function apiCheckout(Request $request)
+    {
+        $request->validate([
+            'full_name' => 'required|string',
+            'address' => 'required|string',
+            'city' => 'required|string',
+            'postal_code' => 'required|string',
+            'country' => 'required|string',
+            'payment_method' => 'required|in:cod,card,paypal,bank_transfer',
+        ]);
+
+        $user = auth()->user();
+        $cart = Cart::with('items.product')->where('user_id', $user->user_id)->first();
+
+        if (!$cart || $cart->items->isEmpty()) {
+            return response()->json(['message' => 'Your cart is empty.'], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $subtotal = $cart->items->sum(function ($i) {
+                return $i->quantity * ($i->product->sale_price ?? $i->product->price);
+            });
+            $shippingCost = $subtotal >= 50 ? 0 : 5;
+            $tax = $subtotal * 0.10;
+            $total = $subtotal + $shippingCost + $tax;
+
+            $order = Order::create([
+                'user_id' => $user->user_id,
+                'total_amount' => $total,
+                'order_status' => 'pending',
+                'order_date' => now(),
+                'shipping_address' => implode(', ', array_filter([
+                    $request->full_name,
+                    $request->address,
+                    $request->city,
+                    $request->postal_code,
+                    $request->country,
+                ])),
+            ]);
+
+            foreach ($cart->items as $item) {
+                OrderItem::create([
+                    'order_id' => $order->order_id,
+                    'product_id' => $item->product->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->product->sale_price ?? $item->product->price,
+                ]);
+
+                $inventory = Inventory::where('product_id', $item->product->product_id)->first();
+                if ($inventory) {
+                    $inventory->available_qty -= $item->quantity;
+                    $inventory->save();
+                }
+            }
+
+            \App\Models\Payment::create([
+                'order_id' => $order->order_id,
+                'payment_method' => $request->payment_method,
+                'payment_status' => 'pending',
+                'amount' => $total,
+            ]);
+
+            CartItem::where('cart_id', $cart->cart_id)->delete();
+
+            DB::commit();
+
+            return response()->json(['order_id' => $order->order_id]);
+
+        }
+        catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to place order: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/shop/orders - current user's order history as JSON.
+     */
+    public function apiHistory()
+    {
+        $orders = Order::where('user_id', auth()->user()->user_id)
+            ->with(['items.product.images', 'payment'])
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        return response()->json($orders);
+    }
+
+    /**
+     * GET /api/shop/orders/{id} - single order as JSON.
+     */
+    public function apiShow($orderId)
+    {
+        $order = Order::with(['items.product.images', 'payment'])->findOrFail($orderId);
+
+        if ($order->user_id !== auth()->user()->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($order);
     }
 }
