@@ -23,6 +23,7 @@ function AdminProducts() {
             headers: { 'Accept': 'application/json' }
         });
         const data = await res.json();
+        console.log('IMAGES:', data.data?.[0]?.images);
         setProducts(data.data || []);
         setLoading(false);
     };
@@ -56,7 +57,7 @@ function AdminProducts() {
         e('div', { style: { height: '180px', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
             product.images && product.images.length > 0
                 ? e('img', {
-                    src: `/storage/${product.images[0].img_url}`,
+                    src: `/storage/${product.images[0].image_path}`,
                     alt: product.name,
                     style: { height: '100%', width: '100%', objectFit: 'cover' }
                 })

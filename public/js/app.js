@@ -5184,6 +5184,7 @@ function AdminProducts() {
   }, [search, category]);
   var fetchProducts = /*#__PURE__*/function () {
     var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      var _data$data;
       var params, res, data;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.n) {
@@ -5204,6 +5205,7 @@ function AdminProducts() {
             return res.json();
           case 2:
             data = _context.v;
+            console.log('IMAGES:', (_data$data = data.data) === null || _data$data === void 0 || (_data$data = _data$data[0]) === null || _data$data === void 0 ? void 0 : _data$data.images);
             setProducts(data.data || []);
             setLoading(false);
           case 3:
@@ -5295,7 +5297,7 @@ function AdminProducts() {
         justifyContent: 'center'
       }
     }, product.images && product.images.length > 0 ? e('img', {
-      src: "/storage/".concat(product.images[0].img_url),
+      src: "/storage/".concat(product.images[0].image_path),
       alt: product.name,
       style: {
         height: '100%',

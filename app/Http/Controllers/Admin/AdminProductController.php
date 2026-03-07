@@ -81,7 +81,7 @@ class AdminProductController extends Controller
                     \Log::info('Image stored at: ' . $path);
                     $record = ProductImage::create([
                         'product_id' => $product->product_id,
-                        'img_url'    => $path,
+                        'image_path'    => $path,
                     ]);
                     \Log::info('ProductImage created with id: ' . $record->image_id);
                 } catch (\Exception $e) {
@@ -149,7 +149,7 @@ class AdminProductController extends Controller
                     \Log::info('Image stored at: ' . $path);
                     $record = ProductImage::create([
                         'product_id' => $product->product_id,
-                        'img_url'    => $path,
+                        'image_path'    => $path,
                     ]);
                     \Log::info('ProductImage updated with id: ' . $record->image_id);
                 } catch (\Exception $e) {
@@ -165,7 +165,7 @@ class AdminProductController extends Controller
     public function destroy(Product $product)
     {
         foreach ($product->images as $image) {
-            \Storage::disk('public')->delete($image->img_url);
+            \Storage::disk('public')->delete($image->image_path);
             $image->delete();
         }
 
