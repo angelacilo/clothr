@@ -147,7 +147,7 @@
             <div class="navbar__actions">
                 <button class="navbar__icon-btn"><i data-lucide="search" size="22"></i></button>
                 <div id="auth-nav">
-                    <a href="/login" class="navbar__login-link"><i data-lucide="user" size="22"></i> Login</a>
+                    <button class="navbar__login-link" onclick="openModal()"><i data-lucide="user" size="22"></i> Login</button>
                 </div>
                 <button class="navbar__icon-btn">
                     <i data-lucide="shopping-bag" size="22"></i>
@@ -330,39 +330,30 @@
             <div class="modal__title">LOGIN</div>
             
             <div id="step-sso" class="modal__sso">
-                <button class="btn-full btn-outline" onclick="showStep('customer')">Sign In / Register</button>
+                <button class="btn-full btn-outline" onclick="window.location.href='/login'">Sign In / Register</button>
                 <button class="btn-full btn-black" onclick="showStep('admin')">Admin log in</button>
             </div>
 
             <div id="step-customer" class="modal__form">
-                <div class="form-group">
-                    <label>User ID</label>
-                    <input type="text" id="cust-id" placeholder="Enter your User ID">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="cust-pass" placeholder="Enter your password">
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin: 5px 0 10px;">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox"> Remember me</label>
-                    <a href="#" style="color:#2563eb; font-weight: 500;">Forgot password??</a>
-                </div>
-                <button class="btn-full btn-blue" onclick="doLogin('customer', 'User')">Log in</button>
-                <div class="modal__back" onclick="showStep('sso')">Back to SSO</div>
+                <!-- This step is now unused as the button above redirects to /login -->
             </div>
 
             <div id="step-admin" class="modal__form">
+                <div class="modal__title" style="font-size: 14px; text-transform: uppercase; text-align: left; margin-bottom: 15px; font-weight: 800;">Admin Log In</div>
                 <div class="form-group">
                     <label>User ID</label>
-                    <input type="text" id="admin-id" placeholder="Admin email">
+                    <input type="text" id="admin-id" placeholder="">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-top: 15px;">
                     <label>Password</label>
-                    <input type="password" id="admin-pass" placeholder="Admin password">
+                    <input type="password" id="admin-pass" placeholder="">
                 </div>
-                <div style="height: 10px;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin: 15px 0;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox"> Remember me</label>
+                    <a href="#" style="color:#2563eb; font-weight: 600;">Forgot password?</a>
+                </div>
                 <button class="btn-full btn-blue" onclick="doLogin('admin', 'Admin')">Log in</button>
-                <div class="modal__back" onclick="showStep('sso')">Back to SSO</div>
+                <div class="modal__back" onclick="showStep('sso')" style="margin-top: 10px;">Back to SSO</div>
             </div>
         </div>
     </div>
