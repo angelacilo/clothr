@@ -394,7 +394,7 @@
             lucide.createIcons();
             closeModal();
             if (role === 'admin') {
-                alert('Success! Redirecing to Admin Dashboard...');
+                window.location.href = '/admin/dashboard';
             }
         }
 

@@ -1,0 +1,273 @@
+@extends('layouts.admin')
+
+@section('title', 'Dashboard')
+@section('subtitle', 'Sales analytics & insights')
+
+@section('content')
+<div class="dashboard-container">
+    <!-- Row 1: KPI Cards -->
+    <div class="grid kpi-grid">
+        <div class="card kpi-card">
+            <div class="kpi-top">
+                <div class="kpi-icon" style="background-color: #eff6ff; color: #3b82f6;">
+                    <i data-lucide="dollar-sign"></i>
+                </div>
+                <span style="color: #10b981; font-weight: 600; font-size: 12px;">+32.5%</span>
+            </div>
+            <span class="kpi-value">$0.00</span>
+            <span class="kpi-label">Total Revenue</span>
+            <span class="kpi-subtext" style="color: var(--text-medium);">vs. last month</span>
+        </div>
+        
+        <div class="card kpi-card">
+            <div class="kpi-top">
+                <div class="kpi-icon" style="background-color: #f3e8ff; color: #a855f7;">
+                    <i data-lucide="shopping-bag"></i>
+                </div>
+                <span style="color: #10b981; font-weight: 600; font-size: 12px;">+5.2%</span>
+            </div>
+            <span class="kpi-value">0</span>
+            <span class="kpi-label">Today's Orders</span>
+            <span class="kpi-subtext" style="color: var(--text-medium);">vs. yesterday</span>
+        </div>
+        
+        <div class="card kpi-card">
+            <div class="kpi-top">
+                <div class="kpi-icon" style="background-color: #ccfbf1; color: #14b8a6;">
+                    <i data-lucide="help-circle"></i>
+                </div>
+                <span style="color: #10b981; font-weight: 600; font-size: 12px;">+3.1%</span>
+            </div>
+            <span class="kpi-value">$0.00</span>
+            <span class="kpi-label">Average Order Value</span>
+            <span class="kpi-subtext" style="color: var(--text-medium);">vs. last week</span>
+        </div>
+        
+        <div class="card kpi-card">
+            <div class="kpi-top">
+                <div class="kpi-icon" style="background-color: #ffedd5; color: #f97316;">
+                    <i data-lucide="users"></i>
+                </div>
+                <span class="status-badge" style="background-color: #dbeafe; color: #3b82f6;">new today</span>
+            </div>
+            <span class="kpi-value">1</span>
+            <span class="kpi-label">Total Customers</span>
+            <span class="kpi-subtext" style="color: #10b981;">+3.1%</span>
+        </div>
+    </div>
+
+    <!-- Row 2: Order Status Pills -->
+    <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+        <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #fef9c3; border-color: #fde047;">
+            <i data-lucide="clock" style="margin-bottom: 8px; color: #854d0e;"></i>
+            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 12px; color: #854d0e; font-weight: 600;">Pending</span>
+        </div>
+        <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #dbeafe; border-color: #93c5fd;">
+            <i data-lucide="settings" style="margin-bottom: 8px; color: #1e40af;"></i>
+            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 12px; color: #1e40af; font-weight: 600;">Processing</span>
+        </div>
+        <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #f3e8ff; border-color: #d8b4fe;">
+            <i data-lucide="truck" style="margin-bottom: 8px; color: #6b21a8;"></i>
+            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 12px; color: #6b21a8; font-weight: 600;">Shipped</span>
+        </div>
+        <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #dcfce7; border-color: #86efac;">
+            <i data-lucide="check-circle" style="margin-bottom: 8px; color: #166534;"></i>
+            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 12px; color: #166534; font-weight: 600;">Delivered</span>
+        </div>
+        <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #fee2e2; border-color: #fca5a5;">
+            <i data-lucide="x-circle" style="margin-bottom: 8px; color: #991b1b;"></i>
+            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 12px; color: #991b1b; font-weight: 600;">Cancelled</span>
+        </div>
+    </div>
+
+    <!-- Row 3: Charts -->
+    <div class="grid chart-row">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                <div>
+                    <h3 style="font-size: 18px; font-weight: 700;">Sales Trend</h3>
+                    <p style="color: var(--text-medium); font-size: 14px;">Last 8 days performance</p>
+                </div>
+                <span class="status-badge" style="background-color: #dcfce7; color: #10b981;">+18.2%</span>
+            </div>
+            <canvas id="salesTrendChart" height="250"></canvas>
+        </div>
+        <div class="card">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 700;">Revenue by Category</h3>
+                <p style="color: var(--text-medium); font-size: 14px; margin-bottom: 20px;">Distribution breakdown</p>
+            </div>
+            <canvas id="revenueCategoryChart" height="250"></canvas>
+        </div>
+    </div>
+
+    <!-- Row 4: Panels -->
+    <div class="grid panel-row">
+        <div class="card">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Top Selling Products</h3>
+            <p style="color: var(--text-medium); font-size: 12px; margin-bottom: 20px;">Best performers this month</p>
+            <canvas id="topProductsChart" height="300"></canvas>
+        </div>
+        <div class="card">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Category Performance</h3>
+            <p style="color: var(--text-medium); font-size: 12px; margin-bottom: 20px;">Sales by category</p>
+            <canvas id="categoryPerfChart" height="300"></canvas>
+        </div>
+        <div class="panel-column">
+            <div class="card" style="margin-bottom: 24px;">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center;">
+                    <i data-lucide="alert-triangle" style="color: #f59e0b; margin-right: 8px; width: 18px;"></i>
+                    Alerts & Notifications
+                </h3>
+                
+                <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                    <p style="font-size: 13px; color: #92400e; margin-bottom: 12px;">10 items have less than 10 units in stock</p>
+                    <button class="btn" style="background-color: #f97316; color: white; padding: 6px 16px; font-size: 12px;">View</button>
+                </div>
+                
+                <div style="background-color: #f0fdf4; border: 1px solid #dcfce7; border-radius: 8px; padding: 16px;">
+                    <p style="font-size: 13px; color: #166534; font-weight: 600;">All systems operational</p>
+                    <p style="font-size: 12px; color: #15803d;">No critical issues detected</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 20px;">Quick Stats</h3>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
+                            <i data-lucide="package" style="width: 16px;"></i>
+                            <span style="font-size: 14px;">Total Products</span>
+                        </div>
+                        <span style="font-weight: 700;">8</span>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
+                            <i data-lucide="shopping-cart" style="width: 16px;"></i>
+                            <span style="font-size: 14px;">Total Orders</span>
+                        </div>
+                        <span style="font-weight: 700;">0</span>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
+                            <i data-lucide="star" style="width: 16px;"></i>
+                            <span style="font-size: 14px;">Avg Rating</span>
+                        </div>
+                        <span style="font-weight: 700;">4.8</span>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
+                            <i data-lucide="user-check" style="width: 16px;"></i>
+                            <span style="font-size: 14px;">Active Users</span>
+                        </div>
+                        <span style="font-weight: 700;">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    // Sales Trend Chart
+    const ctxTrend = document.getElementById('salesTrendChart').getContext('2d');
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: ['Feb 01', 'Feb 02', 'Feb 03', 'Feb 04', 'Feb 05', 'Feb 06', 'Feb 07', 'Feb 08'],
+            datasets: [{
+                label: 'Sales',
+                data: [2500, 3200, 2800, 4000, 3500, 4800, 5200, 6000],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, max: 6000 },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Revenue by Category Chart
+    const ctxCat = document.getElementById('revenueCategoryChart').getContext('2d');
+    new Chart(ctxCat, {
+        type: 'doughnut',
+        data: {
+            labels: ['Women', 'Men', 'Accessories', 'Shoes'],
+            datasets: [{
+                data: [45, 30, 15, 10],
+                backgroundColor: ['#ec4899', '#3b82f6', '#f59e0b', '#a855f7'],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'right' }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Top Selling Products
+    const ctxTop = document.getElementById('topProductsChart').getContext('2d');
+    new Chart(ctxTop, {
+        type: 'bar',
+        data: {
+            labels: ['Summer Dress', 'Midi Dress', 'Ruffle Top', 'Silk Blouse', 'Denim Jkt', 'Trousers'],
+            datasets: [{
+                label: 'Units Sold',
+                data: [130, 115, 95, 80, 65, 50],
+                backgroundColor: '#10b981',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            indexAxis: 'x',
+            scales: {
+                y: { beginAtZero: true },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // Category Performance
+    const ctxPerf = document.getElementById('categoryPerfChart').getContext('2d');
+    new Chart(ctxPerf, {
+        type: 'bar',
+        data: {
+            labels: ['Dresses', 'Tops & Blouses', 'Bottoms', 'Outerwear', 'Accessories'],
+            datasets: [{
+                label: 'Sales Volume',
+                data: [0.85, 0.75, 0.6, 0.65, 0.8],
+                backgroundColor: '#3b82f6',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true, max: 1 },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+@endsection
