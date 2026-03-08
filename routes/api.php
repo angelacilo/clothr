@@ -2,9 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Product;
-use App\Models\Category;
-use App\Http\Controllers\Admin\AdminProductController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -12,8 +9,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('admin')->group(function () {
 
+    // Dashboard
+    Route::get('/stats', [App\Http\Controllers\Admin\AdminDashboardController::class, 'apiStats']);
+
+    // Products
     Route::get('/products', function (Request $request) {
-        $query = Product::with(['category', 'inventory', 'images']);
+        $query = App\Models\Product::with(['category', 'inventory', 'images']);
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
@@ -23,10 +24,47 @@ Route::prefix('admin')->group(function () {
         return $query->latest()->paginate(12);
     });
 
-    Route::delete('/products/{product}', [AdminProductController::class, 'destroy']);
+    Route::get('/products/{id}', function ($id) {
+        return App\Models\Product::with(['category', 'inventory', 'images'])->findOrFail($id);
+    });
 
+    Route::delete('/products/{product}', [App\Http\Controllers\Admin\AdminProductController::class, 'destroy']);
+
+    // Categories
     Route::get('/categories', function () {
-        return Category::all();
+        return App\Models\Category::all();
+    });
+
+    // Orders
+    Route::get('/orders', function (Request $request) {
+        $query = App\Models\Order::with(['user']);
+        if ($request->filled('status')) {
+            $query->where('order_status', $request->status);
+        }
+        return $query->latest()->paginate(15);
+    });
+
+    Route::get('/orders/{id}', function ($id) {
+        return App\Models\Order::with(['user', 'items.product'])->findOrFail($id);
+    });
+
+    // Users
+    Route::get('/users', function (Request $request) {
+        $query = App\Models\User::query();
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+        return $query->latest()->paginate(15);
+    });
+
+    // Reviews
+    Route::get('/reviews', function (Request $request) {
+        $query = App\Models\Review::with(['user', 'product']);
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        return $query->latest()->paginate(15);
     });
 
 });

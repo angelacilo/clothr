@@ -5139,8 +5139,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /*!********************************************************!*\
   !*** ./resources/js/components/Admin/AdminProducts.js ***!
   \********************************************************/
-(module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
@@ -5155,30 +5161,30 @@ function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) 
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var e = React.createElement;
+
+var e = react__WEBPACK_IMPORTED_MODULE_0__.createElement;
 function AdminProducts() {
-  var _React$useState = React.useState([]),
+  var _React$useState = react__WEBPACK_IMPORTED_MODULE_0__.useState([]),
     _React$useState2 = _slicedToArray(_React$useState, 2),
     products = _React$useState2[0],
     setProducts = _React$useState2[1];
-  var _React$useState3 = React.useState([]),
+  var _React$useState3 = react__WEBPACK_IMPORTED_MODULE_0__.useState([]),
     _React$useState4 = _slicedToArray(_React$useState3, 2),
     categories = _React$useState4[0],
     setCategories = _React$useState4[1];
-  var _React$useState5 = React.useState(''),
+  var _React$useState5 = react__WEBPACK_IMPORTED_MODULE_0__.useState(''),
     _React$useState6 = _slicedToArray(_React$useState5, 2),
     search = _React$useState6[0],
     setSearch = _React$useState6[1];
-  var _React$useState7 = React.useState(''),
+  var _React$useState7 = react__WEBPACK_IMPORTED_MODULE_0__.useState(''),
     _React$useState8 = _slicedToArray(_React$useState7, 2),
     category = _React$useState8[0],
     setCategory = _React$useState8[1];
-  var _React$useState9 = React.useState(true),
+  var _React$useState9 = react__WEBPACK_IMPORTED_MODULE_0__.useState(true),
     _React$useState0 = _slicedToArray(_React$useState9, 2),
     loading = _React$useState0[0],
     setLoading = _React$useState0[1];
-  React.useEffect(function () {
+  react__WEBPACK_IMPORTED_MODULE_0__.useEffect(function () {
     fetchProducts();
     fetchCategories();
   }, [search, category]);
@@ -5432,7 +5438,7 @@ function AdminProducts() {
     return productCard(product);
   })))));
 }
-module.exports = AdminProducts;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminProducts);
 
 /***/ },
 

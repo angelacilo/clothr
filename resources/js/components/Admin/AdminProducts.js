@@ -1,4 +1,4 @@
-const React = require('react');
+import React from 'react';
 
 const e = React.createElement;
 
@@ -130,4 +130,4 @@ function AdminProducts() {
     );
 }
 
-module.exports = AdminProducts;
+export default AdminProducts;

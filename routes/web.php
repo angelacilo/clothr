@@ -62,29 +62,34 @@ Route::middleware('auth')->group(function () {
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    // Dashboard
-    Route::get('/', [App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-    // Products
-    Route::resource('products', App\Http\Controllers\Admin\AdminProductController::class, ['names' => 'admin.products']);
+    // Keep these POST/PUT/DELETE routes for React to submit data
+    Route::post('products', [App\Http\Controllers\Admin\AdminProductController::class, 'store'])->name('admin.products.store');
+    Route::put('products/{product}', [App\Http\Controllers\Admin\AdminProductController::class, 'update'])->name('admin.products.update');
+    Route::delete('products/{product}', [App\Http\Controllers\Admin\AdminProductController::class, 'destroy'])->name('admin.products.destroy');
 
-    // Orders
-    Route::resource('orders', App\Http\Controllers\Admin\AdminOrderController::class, ['names' => 'admin.orders']);
     Route::post('orders/{order}/status', [App\Http\Controllers\Admin\AdminOrderController::class, 'updateStatus']);
+    Route::put('orders/{order}', [App\Http\Controllers\Admin\AdminOrderController::class, 'update'])->name('admin.orders.update');
+    Route::delete('orders/{order}', [App\Http\Controllers\Admin\AdminOrderController::class, 'destroy'])->name('admin.orders.destroy');
 
-    // Categories
-    Route::resource('categories', App\Http\Controllers\Admin\AdminCategoryController::class, ['names' => 'admin.categories']);
+    Route::post('categories', [App\Http\Controllers\Admin\AdminCategoryController::class, 'store'])->name('admin.categories.store');
+    Route::put('categories/{category}', [App\Http\Controllers\Admin\AdminCategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('categories/{category}', [App\Http\Controllers\Admin\AdminCategoryController::class, 'destroy'])->name('admin.categories.destroy');
 
-    // Users
-    Route::resource('users', App\Http\Controllers\Admin\AdminUserController::class, ['names' => 'admin.users']);
+    Route::post('users', [App\Http\Controllers\Admin\AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::put('users/{user}', [App\Http\Controllers\Admin\AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('users/{user}', [App\Http\Controllers\Admin\AdminUserController::class, 'destroy'])->name('admin.users.destroy');
     Route::post('users/{user}/role', [App\Http\Controllers\Admin\AdminUserController::class, 'updateRole']);
 
-    // Reviews
-    Route::resource('reviews', App\Http\Controllers\Admin\AdminReviewController::class, ['names' => 'admin.reviews']);
     Route::post('reviews/{review}/approve', [App\Http\Controllers\Admin\AdminReviewController::class, 'approve']);
     Route::post('reviews/bulk-approve', [App\Http\Controllers\Admin\AdminReviewController::class, 'bulkApprove']);
+    Route::delete('reviews/{review}', [App\Http\Controllers\Admin\AdminReviewController::class, 'destroy'])->name('admin.reviews.destroy');
 
-    // Reports
-    Route::get('reports', [App\Http\Controllers\Admin\AdminReportController::class, 'index'])->name('admin.reports');
     Route::get('reports/export', [App\Http\Controllers\Admin\AdminReportController::class, 'export'])->name('admin.reports.export');
+
+    // Catch-all — sends ALL /admin/* GET requests to the single blade
+    Route::get('/{any?}', function () {
+        return view('admin');
+    })->where('any', '.*')->name('admin.app');
+
 });

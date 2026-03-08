@@ -151,7 +151,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="{{ asset('js/admin.js') }}"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+    
     @stack('scripts')
 </body>
 </html>
