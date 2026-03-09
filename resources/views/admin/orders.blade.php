@@ -30,7 +30,7 @@
                 <span style="font-size: 14px; color: var(--text-medium);">Revenue Today</span>
                 <i data-lucide="dollar-sign" style="color: #3b82f6; width: 16px;"></i>
             </div>
-            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">$4,521</div>
+            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">₱4,521</div>
             <div style="font-size: 12px; color: #10b981; font-weight: 600;">+8% from yesterday</div>
         </div>
         
@@ -87,140 +87,47 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td><a href="#" style="color: var(--primary); font-weight: 600; text-decoration: none;">#ORD-10234</a></td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="avatar" style="width: 32px; height: 32px;">
-                                <img src="https://i.pravatar.cc/150?u=sarah" alt="">
+                @foreach($orders as $order)
+                    @php
+                        $customer = $order->customer_info;
+                        $items = $order->items;
+                        $firstItem = isset($items[0]) ? $items[0] : null;
+                    @endphp
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td><span style="color: var(--primary); font-weight: 600;">#{{ 1000 + $order->id }}</span></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-weight: 600;">{{ $customer['first_name'] ?? ($customer['firstName'] ?? 'Guest') }} {{ $customer['last_name'] ?? ($customer['lastName'] ?? '') }}</span>
+                                    <span style="font-size: 12px; color: var(--text-medium);">{{ $customer['email'] ?? 'N/A' }}</span>
+                                </div>
                             </div>
+                        </td>
+                        <td>
                             <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: 600;">Sarah Johnson</span>
-                                <span style="font-size: 12px; color: var(--text-medium);">sarah.j@email.com</span>
+                                <span>{{ $order->created_at->format('M d, Y') }}</span>
+                                <span style="font-size: 12px; color: var(--text-medium);">{{ $order->created_at->format('g:i A') }}</span>
                             </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; flex-direction: column;">
-                            <span>Feb 08, 2026</span>
-                            <span style="font-size: 12px; color: var(--text-medium);">2:34 PM</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                            <img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                            <img src="https://images.unsplash.com/photo-1539109132333-68997f80521e?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                            <span style="font-size: 12px; color: var(--text-medium); margin-left: 4px;">+1</span>
-                        </div>
-                    </td>
-                    <td style="font-weight: 700;">$247.50</td>
-                    <td><span class="status-badge" style="background-color: #dcfce7; color: #166534;">Paid</span></td>
-                    <td><span class="status-badge" style="background-color: #f3e8ff; color: #6b21a8; display: flex; align-items: center; gap: 4px; width: fit-content;">
-                        <i data-lucide="truck" style="width: 12px;"></i> Shipped</span>
-                    </td>
-                    <td><i data-lucide="more-vertical" style="color: var(--text-medium); cursor: pointer;"></i></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td><a href="#" style="color: var(--primary); font-weight: 600; text-decoration: none;">#ORD-10233</a></td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="avatar" style="width: 32px; height: 32px;">
-                                <img src="https://i.pravatar.cc/150?u=michael" alt="">
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 4px;">
+                                @if($firstItem)
+                                    <img src="{{ $firstItem['image'] ?? '/placeholder.png' }}" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
+                                @endif
+                                @if(count($items) > 1)
+                                    <span style="font-size: 12px; color: var(--text-medium); margin-left: 4px;">+{{ count($items) - 1 }} more</span>
+                                @endif
                             </div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: 600;">Michael Chen</span>
-                                <span style="font-size: 12px; color: var(--text-medium);">m.chen@email.com</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; flex-direction: column;">
-                            <span>Feb 08, 2026</span>
-                            <span style="font-size: 12px; color: var(--text-medium);">11:12 AM</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                            <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                        </div>
-                    </td>
-                    <td style="font-weight: 700;">$183.99</td>
-                    <td><span class="status-badge" style="background-color: #dcfce7; color: #166534;">Paid</span></td>
-                    <td><span class="status-badge" style="background-color: #dbeafe; color: #1e40af; display: flex; align-items: center; gap: 4px; width: fit-content;">
-                        <i data-lucide="refresh-cw" style="width: 12px;"></i> Processing</span>
-                    </td>
-                    <td><i data-lucide="more-vertical" style="color: var(--text-medium); cursor: pointer;"></i></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td><a href="#" style="color: var(--primary); font-weight: 600; text-decoration: none;">#ORD-10232</a></td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="avatar" style="width: 32px; height: 32px;">
-                                <img src="https://i.pravatar.cc/150?u=emma" alt="">
-                            </div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: 600;">Emma Wilson</span>
-                                <span style="font-size: 12px; color: var(--text-medium);">emma.w@email.com</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; flex-direction: column;">
-                            <span>Feb 07, 2026</span>
-                            <span style="font-size: 12px; color: var(--text-medium);">8:45 PM</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                        </div>
-                    </td>
-                    <td style="font-weight: 700;">$89.50</td>
-                    <td><span class="status-badge" style="background-color: #fef9c3; color: #854d0e;">Pending</span></td>
-                    <td><span class="status-badge" style="background-color: #fef9c3; color: #854d0e; display: flex; align-items: center; gap: 4px; width: fit-content;">
-                        <i data-lucide="clock" style="width: 12px;"></i> Pending</span>
-                    </td>
-                    <td><i data-lucide="more-vertical" style="color: var(--text-medium); cursor: pointer;"></i></td>
-                </tr>
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td><a href="#" style="color: var(--primary); font-weight: 600; text-decoration: none;">#ORD-10231</a></td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="avatar" style="width: 32px; height: 32px;">
-                                <img src="https://i.pravatar.cc/150?u=david" alt="">
-                            </div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: 600;">David Kim</span>
-                                <span style="font-size: 12px; color: var(--text-medium);">d.kim@email.com</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; flex-direction: column;">
-                            <span>Feb 07, 2026</span>
-                            <span style="font-size: 12px; color: var(--text-medium);">4:22 PM</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 4px;">
-                            <img src="https://images.unsplash.com/photo-1544441893-675973e31985?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                            <img src="https://images.unsplash.com/photo-1548123380-197607a0a6fa?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=100" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover;">
-                        </div>
-                    </td>
-                    <td style="font-weight: 700;">$312.00</td>
-                    <td><span class="status-badge" style="background-color: #dcfce7; color: #166534;">Paid</span></td>
-                    <td><span class="status-badge" style="background-color: #dcfce7; color: #166534; display: flex; align-items: center; gap: 4px; width: fit-content;">
-                        <i data-lucide="check-circle" style="width: 12px;"></i> Delivered</span>
-                    </td>
-                    <td><i data-lucide="more-vertical" style="color: var(--text-medium); cursor: pointer;"></i></td>
-                </tr>
+                        </td>
+                        <td style="font-weight: 700;">₱{{ number_format($order->total, 2) }}</td>
+                        <td><span class="status-badge" style="background-color: #dcfce7; color: #166534;">Paid</span></td>
+                        <td><span class="status-badge" style="background-color: {{ $order->status == 'Pending' ? '#fef9c3' : '#dcfce7' }}; color: {{ $order->status == 'Pending' ? '#854d0e' : '#166534' }}; display: flex; align-items: center; gap: 4px; width: fit-content;">
+                            <i data-lucide="{{ $order->status == 'Pending' ? 'clock' : 'check-circle' }}" style="width: 12px;"></i> {{ $order->status }}</span>
+                        </td>
+                        <td><i data-lucide="more-vertical" style="color: var(--text-medium); cursor: pointer;"></i></td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

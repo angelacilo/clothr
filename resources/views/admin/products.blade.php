@@ -1,195 +1,174 @@
 @extends('layouts.admin')
 
 @section('title', 'Products')
-@section('subtitle', 'Add, edit, and manage products')
+@section('subtitle', 'Manage your product catalog')
 
 @section('content')
 <div class="products-container">
-    <!-- Top Bar -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <span style="font-size: 14px; color: var(--text-medium); font-style: italic;">Manage your product catalog</span>
-        <div style="display: flex; gap: 12px;">
-            <button class="btn btn-outline" style="display: flex; align-items: center; gap: 8px; border-color: var(--border-color); color: var(--text-dark);">
-                <i data-lucide="upload" style="width: 18px;"></i>
-                Bulk Import
-            </button>
-            <button class="btn btn-dark" style="display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="plus" style="width: 18px;"></i>
-                Add Product
-            </button>
-        </div>
-    </div>
-
-    <!-- Search + Filter -->
-    <div class="card" style="display: flex; gap: 16px; align-items: center; margin-bottom: 32px; padding: 16px 24px;">
-        <div style="position: relative; flex: 1;">
-            <i data-lucide="search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-light); width: 18px;"></i>
-            <input type="text" placeholder="Search products..." 
-                   style="width: 100%; padding: 12px 12px 12px 48px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-size: 14px;">
-        </div>
-        
-        <select style="padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-size: 14px; color: var(--text-dark); background-color: white; width: 220px;">
-            <option>All Categories</option>
-            <option>Dresses</option>
-            <option>Tops</option>
-            <option>Bottoms</option>
-        </select>
+        <span style="font-size: 14px; color: var(--text-medium); font-style: italic;">Add, edit, and archive products</span>
+        <button class="btn btn-dark" onclick="openAddProductModal()">Add Product</button>
     </div>
 
     <!-- Product Grid -->
     <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 24px;">
-        <!-- Product 1 -->
-        <div class="card" style="padding: 0; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400" style="width: 100%; height: 280px; object-fit: cover;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <h4 style="font-size: 15px; font-weight: 700;">Floral Summer Dress</h4>
-                    <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">Dresses</span>
+        @foreach($products as $product)
+            <div class="card" style="padding: 0; overflow: hidden; position: relative; display: flex; flex-direction: column;">
+                @if($product->isNew)
+                    <span style="position: absolute; top: 12px; left: 12px; background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; z-index: 2;">NEW</span>
+                @endif
+                @if($product->isOnSale)
+                    <span style="position: absolute; top: 12px; right: 12px; background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; z-index: 2;">SALE</span>
+                @endif
+                <div style="width: 100%; height: 280px; background: #f4f4f4; overflow: hidden;">
+                    <img src="{{ $product->images[0] ?? '/placeholder.png' }}" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                    Beautiful floral print dress perfect for sunny days and outdoor events.
-                </p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <span style="font-size: 18px; font-weight: 800; color: var(--primary);">$49.99</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-outline" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px;">
-                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit
-                    </button>
-                    <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; width: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="trash-2" style="width: 16px;"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product 2 -->
-        <div class="card" style="padding: 0; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400" style="width: 100%; height: 280px; object-fit: cover;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <h4 style="font-size: 15px; font-weight: 700;">Chic Midi Dress</h4>
-                    <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">Dresses</span>
-                </div>
-                <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                    Elegant midi dress with a modern silhouette for office or evening wear.
-                </p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <span style="font-size: 18px; font-weight: 800; color: var(--primary);">$59.99</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-outline" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px;">
-                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit
-                    </button>
-                    <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; width: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="trash-2" style="width: 16px;"></i>
-                    </button>
+                <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <h4 style="font-size: 15px; font-weight: 700;">{{ $product->name }}</h4>
+                        <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                        {{ $product->description }}
+                    </p>
+                    <div style="margin-top: auto;">
+                        <span style="font-size: 18px; font-weight: 800; color: var(--primary); display: block; margin-bottom: 20px;">₱{{ number_format($product->price, 2) }}</span>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-outline" style="flex: 1; font-size: 12px; padding: 8px;" 
+                                    onclick="openEditProductModal({{ json_encode($product) }})">Edit</button>
+                            <form action="{{ route('admin.products.archive', $product->id) }}" method="POST" style="flex: 1;">
+                                @csrf
+                                <button class="btn btn-outline" style="width: 100%; font-size: 12px; padding: 8px; color: #f59e0b; border-color: #f59e0b;">Archive</button>
+                            </form>
+                            <form action="{{ route('admin.products.delete', $product->id) }}" method="POST" onsubmit="return confirm('Really delete?')">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <i data-lucide="trash-2" style="width: 16px;"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Product 3 (On Sale) -->
-        <div class="card" style="padding: 0; overflow: hidden; position: relative;">
-            <span style="position: absolute; top: 12px; right: 12px; background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">SALE</span>
-            <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400" style="width: 100%; height: 280px; object-fit: cover;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <h4 style="font-size: 15px; font-weight: 700;">Floral Ruffle Top</h4>
-                    <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">Tops</span>
-                </div>
-                <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                    Trendy floral top with ruffle details. Adds a feminine touch to any outfit.
-                </p>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-                    <span style="font-size: 18px; font-weight: 800; color: #ef4444;">$34.99</span>
-                    <span style="font-size: 14px; color: var(--text-light); text-decoration: line-through;">$49.99</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-outline" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px;">
-                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit
-                    </button>
-                    <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; width: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="trash-2" style="width: 16px;"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product 4 -->
-        <div class="card" style="padding: 0; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400" style="width: 100%; height: 280px; object-fit: cover;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <h4 style="font-size: 15px; font-weight: 700;">Casual Silk Blouse</h4>
-                    <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">Tops</span>
-                </div>
-                <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                    Luxurious silk blouse for everyday elegance and comfort.
-                </p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <span style="font-size: 18px; font-weight: 800; color: var(--primary);">$44.99</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-outline" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px;">
-                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit
-                    </button>
-                    <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; width: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="trash-2" style="width: 16px;"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product 5 -->
-        <div class="card" style="padding: 0; overflow: hidden; position: relative;">
-            <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400" style="width: 100%; height: 280px; object-fit: cover;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <h4 style="font-size: 15px; font-weight: 700;">High-Waist Denim Jeans</h4>
-                    <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">Bottoms</span>
-                </div>
-                <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                    Classic high-waist jeans with comfortable stretch and vintage wash.
-                </p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <span style="font-size: 18px; font-weight: 800; color: var(--primary);">$64.99</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-outline" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px;">
-                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit
-                    </button>
-                    <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; width: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="trash-2" style="width: 16px;"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product 6 (New) -->
-        <div class="card" style="padding: 0; overflow: hidden; position: relative;">
-            <span style="position: absolute; top: 12px; left: 12px; background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">NEW</span>
-            <img src="https://images.unsplash.com/photo-1539109132314-d4a8c62e41dc?w=400" style="width: 100%; height: 280px; object-fit: cover;">
-            <div style="padding: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                    <h4 style="font-size: 15px; font-weight: 700;">Tailored Trousers</h4>
-                    <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">Bottoms</span>
-                </div>
-                <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                    Professional tailored trousers for a polished look.
-                </p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <span style="font-size: 18px; font-weight: 800; color: var(--primary);">$54.99</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-outline" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px;">
-                        <i data-lucide="edit-3" style="width: 16px;"></i> Edit
-                    </button>
-                    <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; width: 40px; display: flex; align-items: center; justify-content: center;">
-                        <i data-lucide="trash-2" style="width: 16px;"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+        @endforeach
     </div>
 </div>
+
+<!-- Add Modal -->
+<div id="addProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+    <div class="card" style="width:500px; padding:32px; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-bottom:24px;">Add New Product</h2>
+        <form action="{{ route('admin.products.store') }}" method="POST">
+            @csrf
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">NAME</label>
+                <input type="text" name="name" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">CATEGORY</label>
+                <select name="category_id" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">PRICE ($)</label>
+                    <input type="number" step="0.01" name="price" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+                </div>
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">STOCK</label>
+                    <input type="number" name="stock" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+                </div>
+            </div>
+            <div style="margin-bottom:24px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">DESCRIPTION</label>
+                <textarea name="description" rows="3" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;"></textarea>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" class="btn btn-outline" onclick="closeAddProductModal()">Cancel</button>
+                <button type="submit" class="btn btn-dark">Save Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+    <div class="card" style="width:500px; padding:32px; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-bottom:24px;">Edit Product</h2>
+        <form id="editProductForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">NAME</label>
+                <input type="text" name="name" id="editProdName" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">CATEGORY</label>
+                <select name="category_id" id="editProdCat" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">PRICE ($)</label>
+                    <input type="number" step="0.01" name="price" id="editProdPrice" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+                </div>
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">STOCK</label>
+                    <input type="number" name="stock" id="editProdStock" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
+                </div>
+            </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">DESCRIPTION</label>
+                <textarea name="description" id="editProdDesc" rows="3" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;"></textarea>
+            </div>
+            <div style="margin-bottom:24px; display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                 <label style="display:flex; align-items:center; gap:8px; font-size:14px;">
+                    <input type="checkbox" name="isFeatured" id="editProdFeatured"> Featured
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:14px;">
+                    <input type="checkbox" name="isOnSale" id="editProdSale"> On Sale
+                </label>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" class="btn btn-outline" onclick="closeEditProductModal()">Cancel</button>
+                <button type="submit" class="btn btn-dark">Update Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddProductModal() {
+        document.getElementById('addProductModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeAddProductModal() {
+        document.getElementById('addProductModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    function openEditProductModal(product) {
+        document.getElementById('editProductForm').action = '/admin/products/' + product.id;
+        document.getElementById('editProdName').value = product.name;
+        document.getElementById('editProdCat').value = product.category_id;
+        document.getElementById('editProdPrice').value = product.price;
+        document.getElementById('editProdStock').value = product.stock;
+        document.getElementById('editProdDesc').value = product.description;
+        document.getElementById('editProdFeatured').checked = !!product.isFeatured;
+        document.getElementById('editProdSale').checked = !!product.isOnSale;
+        
+        document.getElementById('editProductModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    function closeEditProductModal() {
+        document.getElementById('editProductModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+</script>
 @endsection

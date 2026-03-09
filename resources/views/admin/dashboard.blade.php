@@ -12,11 +12,11 @@
                 <div class="kpi-icon" style="background-color: #eff6ff; color: #3b82f6;">
                     <i data-lucide="dollar-sign"></i>
                 </div>
-                <span style="color: #10b981; font-weight: 600; font-size: 12px;">+32.5%</span>
+                <span style="color: #10b981; font-weight: 600; font-size: 12px;">Live</span>
             </div>
-            <span class="kpi-value">$0.00</span>
+            <span class="kpi-value">₱{{ number_format($stats['total_sales'], 2) }}</span>
             <span class="kpi-label">Total Revenue</span>
-            <span class="kpi-subtext" style="color: var(--text-medium);">vs. last month</span>
+            <span class="kpi-subtext" style="color: var(--text-medium);">All time total</span>
         </div>
         
         <div class="card kpi-card">
@@ -24,11 +24,11 @@
                 <div class="kpi-icon" style="background-color: #f3e8ff; color: #a855f7;">
                     <i data-lucide="shopping-bag"></i>
                 </div>
-                <span style="color: #10b981; font-weight: 600; font-size: 12px;">+5.2%</span>
+                <span style="color: #10b981; font-weight: 600; font-size: 12px;">Active</span>
             </div>
-            <span class="kpi-value">0</span>
-            <span class="kpi-label">Today's Orders</span>
-            <span class="kpi-subtext" style="color: var(--text-medium);">vs. yesterday</span>
+            <span class="kpi-value">{{ $stats['orders'] }}</span>
+            <span class="kpi-label">Total Orders</span>
+            <span class="kpi-subtext" style="color: var(--text-medium);">Count of orders</span>
         </div>
         
         <div class="card kpi-card">
@@ -36,11 +36,10 @@
                 <div class="kpi-icon" style="background-color: #ccfbf1; color: #14b8a6;">
                     <i data-lucide="help-circle"></i>
                 </div>
-                <span style="color: #10b981; font-weight: 600; font-size: 12px;">+3.1%</span>
             </div>
-            <span class="kpi-value">$0.00</span>
+            <span class="kpi-value">₱{{ $stats['orders'] > 0 ? number_format($stats['total_sales'] / $stats['orders'], 2) : '0.00' }}</span>
             <span class="kpi-label">Average Order Value</span>
-            <span class="kpi-subtext" style="color: var(--text-medium);">vs. last week</span>
+            <span class="kpi-subtext" style="color: var(--text-medium);">Global average</span>
         </div>
         
         <div class="card kpi-card">
@@ -48,11 +47,10 @@
                 <div class="kpi-icon" style="background-color: #ffedd5; color: #f97316;">
                     <i data-lucide="users"></i>
                 </div>
-                <span class="status-badge" style="background-color: #dbeafe; color: #3b82f6;">new today</span>
             </div>
-            <span class="kpi-value">1</span>
+            <span class="kpi-value">{{ $stats['customers'] }}</span>
             <span class="kpi-label">Total Customers</span>
-            <span class="kpi-subtext" style="color: #10b981;">+3.1%</span>
+            <span class="kpi-subtext" style="color: #10b981;">Registered users</span>
         </div>
     </div>
 
@@ -108,10 +106,37 @@
 
     <!-- Row 4: Panels -->
     <div class="grid panel-row">
-        <div class="card">
-            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Top Selling Products</h3>
-            <p style="color: var(--text-medium); font-size: 12px; margin-bottom: 20px;">Best performers this month</p>
-            <canvas id="topProductsChart" height="300"></canvas>
+        <div class="card" style="grid-column: span 2;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 700;">Recent Orders</h3>
+                <a href="{{ route('admin.orders') }}" style="font-size: 12px; color: var(--primary); font-weight: 600;">View All</a>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-medium);">
+                        <th style="padding: 12px 0;">ORDER</th>
+                        <th style="padding: 12px 0;">CUSTOMER</th>
+                        <th style="padding: 12px 0;">DATE</th>
+                        <th style="padding: 12px 0;">TOTAL</th>
+                        <th style="padding: 12px 0;">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($recent_orders as $order)
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 12px 0; font-weight: 600;">#{{ 1000 + $order->id }}</td>
+                            <td style="padding: 12px 0;">{{ $order->customer_info['first_name'] ?? ($order->customer_info['firstName'] ?? 'Guest') }}</td>
+                            <td style="padding: 12px 0; color: var(--text-medium);">{{ $order->created_at->format('M d') }}</td>
+                            <td style="padding: 12px 0; font-weight: 700;">₱{{ number_format($order->total, 2) }}</td>
+                            <td style="padding: 12px 0;">
+                                <span style="background: {{ $order->status == 'Pending' ? '#fffbeb' : '#f0fdf4' }}; color: {{ $order->status == 'Pending' ? '#92400e' : '#166534' }}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                    {{ $order->status }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
         <div class="card">
             <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Category Performance</h3>
@@ -144,14 +169,14 @@
                             <i data-lucide="package" style="width: 16px;"></i>
                             <span style="font-size: 14px;">Total Products</span>
                         </div>
-                        <span style="font-weight: 700;">8</span>
+                        <span style="font-weight: 700;">{{ $stats['products'] }}</span>
                     </div>
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
                             <i data-lucide="shopping-cart" style="width: 16px;"></i>
                             <span style="font-size: 14px;">Total Orders</span>
                         </div>
-                        <span style="font-weight: 700;">0</span>
+                        <span style="font-weight: 700;">{{ $stats['orders'] }}</span>
                     </div>
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
@@ -163,9 +188,9 @@
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
                             <i data-lucide="user-check" style="width: 16px;"></i>
-                            <span style="font-size: 14px;">Active Users</span>
+                            <span style="font-size: 14px;">Total Customers</span>
                         </div>
-                        <span style="font-weight: 700;">1</span>
+                        <span style="font-weight: 700;">{{ $stats['customers'] }}</span>
                     </div>
                 </div>
             </div>
@@ -219,30 +244,6 @@
                 legend: { position: 'right' }
             },
             cutout: '60%'
-        }
-    });
-
-    // Top Selling Products
-    const ctxTop = document.getElementById('topProductsChart').getContext('2d');
-    new Chart(ctxTop, {
-        type: 'bar',
-        data: {
-            labels: ['Summer Dress', 'Midi Dress', 'Ruffle Top', 'Silk Blouse', 'Denim Jkt', 'Trousers'],
-            datasets: [{
-                label: 'Units Sold',
-                data: [130, 115, 95, 80, 65, 50],
-                backgroundColor: '#10b981',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            indexAxis: 'x',
-            scales: {
-                y: { beginAtZero: true },
-                x: { grid: { display: false } }
-            }
         }
     });
 

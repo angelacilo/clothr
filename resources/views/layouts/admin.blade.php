@@ -35,6 +35,10 @@
                     <i data-lucide="package"></i>
                     Products
                 </a>
+                <a href="{{ route('admin.categories') }}" class="nav-item {{ request()->routeIs('admin.categories') ? 'active' : '' }}">
+                    <i data-lucide="layers"></i>
+                    Categories
+                </a>
                 <a href="{{ route('admin.archive') }}" class="nav-item {{ request()->routeIs('admin.archive') ? 'active' : '' }}">
                     <i data-lucide="archive"></i>
                     Archive
@@ -58,7 +62,7 @@
             </nav>
             
             <div class="sidebar-footer">
-                <a href="/" class="logout-btn">
+                <a href="{{ route('logout') }}" class="logout-btn">
                     <i data-lucide="log-out" style="margin-right: 12px; height: 18px; width: 18px;"></i>
                     Logout
                     <i data-lucide="arrow-right" style="margin-left: auto; width: 16px; height: 16px;"></i>
