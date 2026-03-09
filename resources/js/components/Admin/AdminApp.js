@@ -4,7 +4,7 @@ import AdminLayout from './AdminLayout';
 import AdminDashboard from './AdminDashboard';
 import AdminProducts from './AdminProducts';
 import AdminProductForm from './AdminProductForm';
-
+import AdminOrders from './AdminOrders';
 const e = React.createElement;
 
 function AdminProductFormWrapper() {
@@ -17,6 +17,7 @@ function AdminApp() {
         e(AdminLayout, null,
             e(Routes, null,
                 e(Route, { path: '/admin', element: e(AdminDashboard) }),
+                e(Route, { path: '/admin/orders', element: e(AdminOrders) }),
                 e(Route, { path: '/admin/products', element: e(AdminProducts) }),
                 e(Route, { path: '/admin/products/create', element: e(AdminProductForm, {}) }),
                 e(Route, { path: '/admin/products/:id/edit', element: e(AdminProductFormWrapper) }),
@@ -25,5 +26,4 @@ function AdminApp() {
         )
     );
 }
-
 export default AdminApp;
