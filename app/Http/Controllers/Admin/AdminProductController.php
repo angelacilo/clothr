@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -43,7 +42,6 @@ class AdminProductController extends Controller
     {
         $validated = $request->validated();
 
-        // Auto-generate unique slug from name
         $slug = Str::slug($validated['name']);
         $original = $slug;
         $i = 1;
@@ -51,7 +49,6 @@ class AdminProductController extends Controller
             $slug = $original . '-' . ($i++);
         }
 
-        // Create product
         $product = Product::create([
             'name'        => $validated['name'],
             'slug'        => $slug,
@@ -63,13 +60,11 @@ class AdminProductController extends Controller
             'is_featured' => $request->has('is_featured'),
         ]);
 
-        // Create inventory record
         Inventory::create([
             'product_id'    => $product->product_id,
             'available_qty' => $validated['stock_quantity'],
         ]);
 
-        // Handle image uploads
         if ($request->hasFile('images')) {
             $images = $request->file('images');
             if (!is_array($images)) {
@@ -78,22 +73,20 @@ class AdminProductController extends Controller
             foreach ($images as $image) {
                 try {
                     $path = $image->store('products', 'public');
-                    \Log::info('Image stored at: ' . $path);
-                    $record = ProductImage::create([
+                    ProductImage::create([
                         'product_id' => $product->product_id,
-                        'image_path'    => $path,
+                        'image_path' => $path,
                     ]);
-                    \Log::info('ProductImage created with id: ' . $record->image_id);
                 } catch (\Exception $e) {
                     \Log::error('Image upload error: ' . $e->getMessage());
                 }
             }
-        } else {
-            \Log::info('No images found in request');
         }
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product created successfully!');
+        return response()->json([
+            'success' => true,
+            'product' => $product->load(['category', 'inventory', 'images']),
+        ]);
     }
 
     public function edit(Product $product)
@@ -137,7 +130,6 @@ class AdminProductController extends Controller
             ]);
         }
 
-        // Handle image uploads
         if ($request->hasFile('images')) {
             $images = $request->file('images');
             if (!is_array($images)) {
@@ -146,20 +138,20 @@ class AdminProductController extends Controller
             foreach ($images as $image) {
                 try {
                     $path = $image->store('products', 'public');
-                    \Log::info('Image stored at: ' . $path);
-                    $record = ProductImage::create([
+                    ProductImage::create([
                         'product_id' => $product->product_id,
-                        'image_path'    => $path,
+                        'image_path' => $path,
                     ]);
-                    \Log::info('ProductImage updated with id: ' . $record->image_id);
                 } catch (\Exception $e) {
                     \Log::error('Image upload error: ' . $e->getMessage());
                 }
             }
         }
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product updated successfully!');
+        return response()->json([
+            'success' => true,
+            'product' => $product->load(['category', 'inventory', 'images']),
+        ]);
     }
 
     public function destroy(Product $product)
@@ -175,7 +167,6 @@ class AdminProductController extends Controller
 
         $product->delete();
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Product deleted successfully!');
+        return response()->json(['success' => true]);
     }
 }

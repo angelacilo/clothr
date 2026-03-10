@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,7 +32,7 @@ Route::prefix('admin')->group(function () {
 
     // Categories
     Route::get('/categories', function () {
-        return App\Models\Category::all();
+        return App\Models\Category::withCount('products')->get();
     });
 
     // Orders

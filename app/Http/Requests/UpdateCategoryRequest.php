@@ -1,44 +1,24 @@
 <?php
-
 namespace App\Http\Requests;
-
 use Illuminate\Foundation\Http\FormRequest;
-
 class UpdateCategoryRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         return auth()->check() && auth()->user()->role === 'admin';
     }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-            'category_name' => 'required|string|max:255|unique:categories,category_name,' . $this->category,
-            'gender_type' => 'required|in:male,female,unisex',
+            'category_name' => 'required|string|max:255|unique:categories,category_name,' . $this->category . ',category_id',
+            'gender_type' => 'nullable|in:Men,Women,Unisex,Kids',
         ];
     }
-
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array
-     */
     public function messages()
     {
         return [
             'category_name.required' => 'Category name is required',
-            'gender_type.required' => 'Gender type is required',
+            'gender_type.in' => 'The selected gender type is invalid.',
         ];
     }
 }

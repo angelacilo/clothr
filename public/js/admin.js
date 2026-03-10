@@ -5145,6 +5145,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AdminProducts__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./AdminProducts */ "./resources/js/components/Admin/AdminProducts.js");
 /* harmony import */ var _AdminProductForm__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./AdminProductForm */ "./resources/js/components/Admin/AdminProductForm.js");
 /* harmony import */ var _AdminOrders__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./AdminOrders */ "./resources/js/components/Admin/AdminOrders.js");
+/* harmony import */ var _AdminCategories__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./AdminCategories */ "./resources/js/components/Admin/AdminCategories.js");
+
 
 
 
@@ -5177,6 +5179,9 @@ function AdminApp() {
     path: '/admin/products/:id/edit',
     element: e(AdminProductFormWrapper)
   }), e(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.Route, {
+    path: '/admin/categories',
+    element: e(_AdminCategories__WEBPACK_IMPORTED_MODULE_8__["default"])
+  }), e(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.Route, {
     path: '*',
     element: e(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.Navigate, {
       to: '/admin',
@@ -5185,6 +5190,690 @@ function AdminApp() {
   }))));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminApp);
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminCategories.js"
+/*!**********************************************************!*\
+  !*** ./resources/js/components/Admin/AdminCategories.js ***!
+  \**********************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+
+
+var GENDER_OPTIONS = ['Men', 'Women', 'Unisex', 'Kids'];
+function AdminCategories() {
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState2 = _slicedToArray(_useState, 2),
+    categories = _useState2[0],
+    setCategories = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
+    _useState4 = _slicedToArray(_useState3, 2),
+    loading = _useState4[0],
+    setLoading = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState6 = _slicedToArray(_useState5, 2),
+    error = _useState6[0],
+    setError = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState8 = _slicedToArray(_useState7, 2),
+    showModal = _useState8[0],
+    setShowModal = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState0 = _slicedToArray(_useState9, 2),
+    editingCategory = _useState0[0],
+    setEditingCategory = _useState0[1];
+  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+      category_name: '',
+      gender_type: ''
+    }),
+    _useState10 = _slicedToArray(_useState1, 2),
+    form = _useState10[0],
+    setForm = _useState10[1];
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState12 = _slicedToArray(_useState11, 2),
+    formError = _useState12[0],
+    setFormError = _useState12[1];
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState14 = _slicedToArray(_useState13, 2),
+    saving = _useState14[0],
+    setSaving = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState16 = _slicedToArray(_useState15, 2),
+    deleteConfirm = _useState16[0],
+    setDeleteConfirm = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState18 = _slicedToArray(_useState17, 2),
+    successMsg = _useState18[0],
+    setSuccessMsg = _useState18[1];
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    fetchCategories();
+  }, []);
+  function fetchCategories() {
+    setLoading(true);
+    fetch('/api/admin/categories', {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then(function (r) {
+      return r.json();
+    }).then(function (data) {
+      setCategories(Array.isArray(data) ? data : data.data || []);
+      setLoading(false);
+    })["catch"](function () {
+      setError('Failed to load categories.');
+      setLoading(false);
+    });
+  }
+  function openCreate() {
+    setEditingCategory(null);
+    setForm({
+      category_name: '',
+      gender_type: ''
+    });
+    setFormError('');
+    setShowModal(true);
+  }
+  function openEdit(cat) {
+    setEditingCategory(cat);
+    setForm({
+      category_name: cat.category_name,
+      gender_type: cat.gender_type || ''
+    });
+    setFormError('');
+    setShowModal(true);
+  }
+  function closeModal() {
+    setShowModal(false);
+    setEditingCategory(null);
+    setFormError('');
+  }
+  function handleFormChange(e) {
+    setForm(function (prev) {
+      return _objectSpread(_objectSpread({}, prev), {}, _defineProperty({}, e.target.name, e.target.value));
+    });
+  }
+  function showSuccess(msg) {
+    setSuccessMsg(msg);
+    setTimeout(function () {
+      return setSuccessMsg('');
+    }, 3000);
+  }
+  function handleSave() {
+    if (!form.category_name.trim()) {
+      setFormError('Category name is required.');
+      return;
+    }
+    setSaving(true);
+    var csrf = document.querySelector('meta[name="csrf-token"]').content;
+    var isEdit = !!editingCategory;
+    var url = isEdit ? "/admin/categories/".concat(editingCategory.category_id) : "/admin/categories";
+    var method = isEdit ? 'PUT' : 'POST';
+    fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      },
+      body: JSON.stringify(form)
+    }).then(function (r) {
+      return r.json();
+    }).then(function (data) {
+      setSaving(false);
+      if (data.errors) {
+        setFormError(Object.values(data.errors).flat().join(' '));
+        return;
+      }
+      closeModal();
+      fetchCategories();
+      showSuccess(isEdit ? 'Category updated!' : 'Category created!');
+    })["catch"](function () {
+      setSaving(false);
+      setFormError('Something went wrong. Please try again.');
+    });
+  }
+  function handleDelete(cat) {
+    if (cat.products_count > 0) {
+      alert("Cannot delete \"".concat(cat.category_name, "\" \u2014 it has ").concat(cat.products_count, " product(s)."));
+      return;
+    }
+    setDeleteConfirm(cat);
+  }
+  function confirmDelete() {
+    var csrf = document.querySelector('meta[name="csrf-token"]').content;
+    fetch("/admin/categories/".concat(deleteConfirm.category_id), {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      }
+    }).then(function () {
+      setDeleteConfirm(null);
+      fetchCategories();
+      showSuccess('Category deleted!');
+    })["catch"](function () {
+      return setDeleteConfirm(null);
+    });
+  }
+  if (error) return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+    style: {
+      color: '#dc2626',
+      padding: 24
+    },
+    children: error
+  });
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+    style: {
+      padding: 24
+    },
+    children: [successMsg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+      style: {
+        position: 'fixed',
+        top: 20,
+        right: 20,
+        background: '#16a34a',
+        color: '#fff',
+        padding: '12px 20px',
+        borderRadius: 8,
+        fontSize: 14,
+        fontWeight: 500,
+        zIndex: 9999,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+      },
+      children: ["\u2713 ", successMsg]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h2", {
+        style: {
+          fontSize: 22,
+          fontWeight: 700,
+          color: '#1e293b'
+        },
+        children: "Categories"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        onClick: openCreate,
+        style: {
+          padding: '9px 18px',
+          background: '#2563eb',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: 'pointer'
+        },
+        children: "+ Add Category"
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 16,
+        marginBottom: 24
+      },
+      children: [{
+        label: 'Total Categories',
+        value: categories.length,
+        color: '#2563eb'
+      }, {
+        label: 'Total Products',
+        value: categories.reduce(function (s, c) {
+          return s + (c.products_count || 0);
+        }, 0),
+        color: '#16a34a'
+      }, {
+        label: 'Empty Categories',
+        value: categories.filter(function (c) {
+          return !c.products_count;
+        }).length,
+        color: '#f59e0b'
+      }].map(function (stat) {
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 12,
+            padding: 20
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            style: {
+              fontSize: 13,
+              color: '#94a3b8',
+              marginBottom: 6
+            },
+            children: stat.label
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            style: {
+              fontSize: 28,
+              fontWeight: 700,
+              color: stat.color
+            },
+            children: stat.value
+          })]
+        }, stat.label);
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        background: '#fff',
+        borderRadius: 12,
+        border: '1px solid #e2e8f0',
+        overflow: 'hidden'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("table", {
+        style: {
+          width: '100%',
+          borderCollapse: 'collapse'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("thead", {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            style: {
+              background: '#f8fafc',
+              borderBottom: '1px solid #e2e8f0'
+            },
+            children: ['#', 'Category Name', 'Gender Type', 'Products', 'Actions'].map(function (h) {
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("th", {
+                style: {
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                },
+                children: h
+              }, h);
+            })
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tbody", {
+          children: loading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+              colSpan: 5,
+              style: {
+                padding: 40,
+                textAlign: 'center',
+                color: '#94a3b8'
+              },
+              children: "Loading..."
+            })
+          }) : categories.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+              colSpan: 5,
+              style: {
+                padding: 40,
+                textAlign: 'center',
+                color: '#94a3b8'
+              },
+              children: "No categories found."
+            })
+          }) : categories.map(function (cat, i) {
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("tr", {
+              style: {
+                borderBottom: '1px solid #f1f5f9'
+              },
+              onMouseEnter: function onMouseEnter(e) {
+                return e.currentTarget.style.background = '#f8fafc';
+              },
+              onMouseLeave: function onMouseLeave(e) {
+                return e.currentTarget.style.background = '#fff';
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#94a3b8'
+                },
+                children: i + 1
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#1e293b'
+                },
+                children: cat.category_name
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px'
+                },
+                children: cat.gender_type ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+                  style: {
+                    background: '#eff6ff',
+                    color: '#2563eb',
+                    border: '1px solid #bfdbfe',
+                    padding: '2px 10px',
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontWeight: 600
+                  },
+                  children: cat.gender_type
+                }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+                  style: {
+                    color: '#94a3b8',
+                    fontSize: 13
+                  },
+                  children: "\u2014"
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 14,
+                  color: '#374151'
+                },
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("span", {
+                  style: {
+                    background: cat.products_count > 0 ? '#f0fdf4' : '#f8fafc',
+                    color: cat.products_count > 0 ? '#16a34a' : '#94a3b8',
+                    padding: '2px 10px',
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    border: "1px solid ".concat(cat.products_count > 0 ? '#bbf7d0' : '#e2e8f0')
+                  },
+                  children: [cat.products_count || 0, " products"]
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px'
+                },
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+                  style: {
+                    display: 'flex',
+                    gap: 8
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+                    onClick: function onClick() {
+                      return openEdit(cat);
+                    },
+                    style: {
+                      padding: '6px 14px',
+                      background: '#f1f5f9',
+                      color: '#374151',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 6,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      fontWeight: 500
+                    },
+                    children: "Edit"
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+                    onClick: function onClick() {
+                      return handleDelete(cat);
+                    },
+                    style: {
+                      padding: '6px 14px',
+                      background: '#fef2f2',
+                      color: '#dc2626',
+                      border: '1px solid #fecaca',
+                      borderRadius: 6,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                      fontWeight: 500
+                    },
+                    children: "Delete"
+                  })]
+                })
+              })]
+            }, cat.category_id);
+          })
+        })]
+      })
+    }), showModal && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      onClick: closeModal,
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          background: '#fff',
+          borderRadius: 16,
+          width: 440,
+          padding: 28
+        },
+        onClick: function onClick(e) {
+          return e.stopPropagation();
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 20
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h3", {
+            style: {
+              fontSize: 18,
+              fontWeight: 700,
+              color: '#1e293b'
+            },
+            children: editingCategory ? 'Edit Category' : 'Add Category'
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: closeModal,
+            style: {
+              background: 'none',
+              border: 'none',
+              fontSize: 20,
+              cursor: 'pointer',
+              color: '#94a3b8'
+            },
+            children: "\u2715"
+          })]
+        }), formError && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+          style: {
+            background: '#fef2f2',
+            color: '#dc2626',
+            padding: '10px 14px',
+            borderRadius: 8,
+            fontSize: 13,
+            marginBottom: 16
+          },
+          children: formError
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            marginBottom: 16
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("label", {
+            style: {
+              display: 'block',
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#374151',
+              marginBottom: 6
+            },
+            children: "Category Name *"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("input", {
+            type: "text",
+            name: "category_name",
+            value: form.category_name,
+            onChange: handleFormChange,
+            placeholder: "e.g. T-Shirts",
+            style: {
+              width: '100%',
+              padding: '10px 14px',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              fontSize: 14,
+              outline: 'none',
+              boxSizing: 'border-box'
+            }
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            marginBottom: 24
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("label", {
+            style: {
+              display: 'block',
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#374151',
+              marginBottom: 6
+            },
+            children: "Gender Type"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("select", {
+            name: "gender_type",
+            value: form.gender_type,
+            onChange: handleFormChange,
+            style: {
+              width: '100%',
+              padding: '10px 14px',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              fontSize: 14,
+              outline: 'none',
+              background: '#fff',
+              boxSizing: 'border-box'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+              value: "",
+              children: "Select gender type"
+            }), GENDER_OPTIONS.map(function (g) {
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+                value: g,
+                children: g
+              }, g);
+            })]
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            display: 'flex',
+            gap: 10,
+            justifyContent: 'flex-end'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: closeModal,
+            style: {
+              padding: '9px 18px',
+              background: '#f1f5f9',
+              color: '#374151',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              fontSize: 14,
+              cursor: 'pointer'
+            },
+            children: "Cancel"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: handleSave,
+            disabled: saving,
+            style: {
+              padding: '9px 18px',
+              background: '#2563eb',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              opacity: saving ? 0.7 : 1
+            },
+            children: saving ? 'Saving...' : editingCategory ? 'Update' : 'Create'
+          })]
+        })]
+      })
+    }), deleteConfirm && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          background: '#fff',
+          borderRadius: 16,
+          width: 380,
+          padding: 28
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h3", {
+          style: {
+            fontSize: 18,
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: 12
+          },
+          children: "Delete Category"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("p", {
+          style: {
+            fontSize: 14,
+            color: '#64748b',
+            marginBottom: 24
+          },
+          children: ["Are you sure you want to delete ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("strong", {
+            children: ["\"", deleteConfirm.category_name, "\""]
+          }), "? This cannot be undone."]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            display: 'flex',
+            gap: 10,
+            justifyContent: 'flex-end'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: function onClick() {
+              return setDeleteConfirm(null);
+            },
+            style: {
+              padding: '9px 18px',
+              background: '#f1f5f9',
+              color: '#374151',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              fontSize: 14,
+              cursor: 'pointer'
+            },
+            children: "Cancel"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: confirmDelete,
+            style: {
+              padding: '9px 18px',
+              background: '#dc2626',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer'
+            },
+            children: "Delete"
+          })]
+        })]
+      })
+    })]
+  });
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminCategories);
 
 /***/ },
 

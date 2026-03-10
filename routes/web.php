@@ -87,7 +87,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::get('reports/export', [App\Http\Controllers\Admin\AdminReportController::class, 'export'])->name('admin.reports.export');
 
-    // Catch-all Ã¢â‚¬â€ sends ALL /admin/* GET requests to the single blade
+    // Catch-all ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â sends ALL /admin/* GET requests to the single blade
     Route::get('/{any?}', function () {
         return view('admin');
     })->where('any', '.*')->name('admin.app');
