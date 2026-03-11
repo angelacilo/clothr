@@ -5146,6 +5146,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AdminProductForm__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./AdminProductForm */ "./resources/js/components/Admin/AdminProductForm.js");
 /* harmony import */ var _AdminOrders__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./AdminOrders */ "./resources/js/components/Admin/AdminOrders.js");
 /* harmony import */ var _AdminCategories__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./AdminCategories */ "./resources/js/components/Admin/AdminCategories.js");
+/* harmony import */ var _AdminReports__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./AdminReports */ "./resources/js/components/Admin/AdminReports.js");
+/* harmony import */ var _AdminUsers__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./AdminUsers */ "./resources/js/components/Admin/AdminUsers.js");
+/* harmony import */ var _AdminReviews__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./AdminReviews */ "./resources/js/components/Admin/AdminReviews.js");
+
+
+
 
 
 
@@ -5187,6 +5193,15 @@ function AdminApp() {
       to: '/admin',
       replace: true
     })
+  }), e(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.Route, {
+    path: '/admin/reviews',
+    element: e(_AdminReviews__WEBPACK_IMPORTED_MODULE_11__["default"])
+  }), e(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.Route, {
+    path: '/admin/users',
+    element: e(_AdminUsers__WEBPACK_IMPORTED_MODULE_10__["default"])
+  }), e(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.Route, {
+    path: '/admin/reports',
+    element: e(_AdminReports__WEBPACK_IMPORTED_MODULE_9__["default"])
   }))));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminApp);
@@ -8022,6 +8037,1661 @@ function AdminProducts() {
   })))));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminProducts);
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminReports.js"
+/*!*******************************************************!*\
+  !*** ./resources/js/components/Admin/AdminReports.js ***!
+  \*******************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+
+
+function StatCard(_ref) {
+  var label = _ref.label,
+    value = _ref.value,
+    sub = _ref.sub,
+    color = _ref.color;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+    style: {
+      background: '#fff',
+      border: '1px solid #e2e8f0',
+      borderRadius: 12,
+      padding: 20
+    },
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        fontSize: 13,
+        color: '#94a3b8',
+        marginBottom: 6
+      },
+      children: label
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        fontSize: 28,
+        fontWeight: 700,
+        color: color || '#1e293b'
+      },
+      children: value
+    }), sub && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        fontSize: 12,
+        color: '#94a3b8',
+        marginTop: 4
+      },
+      children: sub
+    })]
+  });
+}
+function AdminReports() {
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState2 = _slicedToArray(_useState, 2),
+    stats = _useState2[0],
+    setStats = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState4 = _slicedToArray(_useState3, 2),
+    orders = _useState4[0],
+    setOrders = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState6 = _slicedToArray(_useState5, 2),
+    topProducts = _useState6[0],
+    setTopProducts = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
+    _useState8 = _slicedToArray(_useState7, 2),
+    loading = _useState8[0],
+    setLoading = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState0 = _slicedToArray(_useState9, 2),
+    error = _useState0[0],
+    setError = _useState0[1];
+  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('all'),
+    _useState10 = _slicedToArray(_useState1, 2),
+    dateRange = _useState10[0],
+    setDateRange = _useState10[1];
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    fetchReports();
+  }, [dateRange]);
+  function fetchReports() {
+    setLoading(true);
+    Promise.all([fetch("/api/admin/reports/summary?range=".concat(dateRange), {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then(function (r) {
+      return r.json();
+    }), fetch("/api/admin/reports/top-products?range=".concat(dateRange), {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then(function (r) {
+      return r.json();
+    }), fetch("/api/admin/reports/orders-by-status", {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then(function (r) {
+      return r.json();
+    })]).then(function (_ref2) {
+      var _ref3 = _slicedToArray(_ref2, 3),
+        summary = _ref3[0],
+        top = _ref3[1],
+        orderStats = _ref3[2];
+      setStats(_objectSpread(_objectSpread({}, summary), {}, {
+        orderStats: orderStats
+      }));
+      setTopProducts(top);
+      setLoading(false);
+    })["catch"](function () {
+      setError('Failed to load reports.');
+      setLoading(false);
+    });
+  }
+  var STATUS_COLORS = {
+    pending: {
+      bg: '#fef9c3',
+      color: '#854d0e',
+      border: '#fef08a'
+    },
+    processing: {
+      bg: '#dbeafe',
+      color: '#1e40af',
+      border: '#bfdbfe'
+    },
+    shipped: {
+      bg: '#ede9fe',
+      color: '#5b21b6',
+      border: '#ddd6fe'
+    },
+    delivered: {
+      bg: '#dcfce7',
+      color: '#166534',
+      border: '#bbf7d0'
+    },
+    cancelled: {
+      bg: '#fee2e2',
+      color: '#991b1b',
+      border: '#fecaca'
+    }
+  };
+  if (error) return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+    style: {
+      color: '#dc2626',
+      padding: 24
+    },
+    children: error
+  });
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+    style: {
+      padding: 24
+    },
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h2", {
+        style: {
+          fontSize: 22,
+          fontWeight: 700,
+          color: '#1e293b'
+        },
+        children: "Reports"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("select", {
+        value: dateRange,
+        onChange: function onChange(e) {
+          return setDateRange(e.target.value);
+        },
+        style: {
+          padding: '8px 14px',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          fontSize: 14,
+          background: '#fff',
+          cursor: 'pointer'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+          value: "all",
+          children: "All Time"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+          value: "today",
+          children: "Today"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+          value: "week",
+          children: "This Week"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+          value: "month",
+          children: "This Month"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+          value: "year",
+          children: "This Year"
+        })]
+      })]
+    }), loading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        textAlign: 'center',
+        padding: 60,
+        color: '#94a3b8',
+        fontSize: 16
+      },
+      children: "Loading reports..."
+    }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.Fragment, {
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          marginBottom: 8
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+          style: {
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: 12
+          },
+          children: "Revenue"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 16,
+            marginBottom: 24
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
+            label: "Total Revenue",
+            value: "PHP ".concat(Number((stats === null || stats === void 0 ? void 0 : stats.total_revenue) || 0).toLocaleString('en-PH', {
+              minimumFractionDigits: 2
+            })),
+            color: "#16a34a"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
+            label: "Total Orders",
+            value: (stats === null || stats === void 0 ? void 0 : stats.total_orders) || 0,
+            color: "#2563eb"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
+            label: "Avg Order Value",
+            value: "PHP ".concat(Number((stats === null || stats === void 0 ? void 0 : stats.avg_order_value) || 0).toLocaleString('en-PH', {
+              minimumFractionDigits: 2
+            })),
+            color: "#7c3aed"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
+            label: "Total Discounts",
+            value: "PHP ".concat(Number((stats === null || stats === void 0 ? void 0 : stats.total_discounts) || 0).toLocaleString('en-PH', {
+              minimumFractionDigits: 2
+            })),
+            color: "#f59e0b"
+          })]
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          marginBottom: 8
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+          style: {
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: 12
+          },
+          children: "Orders by Status"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, 1fr)',
+            gap: 12,
+            marginBottom: 24
+          },
+          children: [((stats === null || stats === void 0 ? void 0 : stats.orderStats) || []).map(function (s) {
+            var _s$order_status;
+            var style = STATUS_COLORS[(_s$order_status = s.order_status) === null || _s$order_status === void 0 ? void 0 : _s$order_status.toLowerCase()] || {
+              bg: '#f1f5f9',
+              color: '#374151',
+              border: '#e2e8f0'
+            };
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+              style: {
+                background: style.bg,
+                border: "1px solid ".concat(style.border),
+                borderRadius: 12,
+                padding: 16,
+                textAlign: 'center'
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+                style: {
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: style.color,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  marginBottom: 8
+                },
+                children: s.order_status
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+                style: {
+                  fontSize: 26,
+                  fontWeight: 700,
+                  color: style.color
+                },
+                children: s.count
+              })]
+            }, s.order_status);
+          }), (!(stats !== null && stats !== void 0 && stats.orderStats) || stats.orderStats.length === 0) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            style: {
+              gridColumn: '1/-1',
+              padding: 20,
+              textAlign: 'center',
+              color: '#94a3b8',
+              background: '#f8fafc',
+              borderRadius: 12,
+              border: '1px solid #e2e8f0'
+            },
+            children: "No order data yet."
+          })]
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          marginBottom: 8
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+          style: {
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: 12
+          },
+          children: "Top Selling Products"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+          style: {
+            background: '#fff',
+            borderRadius: 12,
+            border: '1px solid #e2e8f0',
+            overflow: 'hidden'
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("table", {
+            style: {
+              width: '100%',
+              borderCollapse: 'collapse'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("thead", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+                style: {
+                  background: '#f8fafc',
+                  borderBottom: '1px solid #e2e8f0'
+                },
+                children: ['Rank', 'Product', 'Category', 'Units Sold', 'Revenue'].map(function (h) {
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("th", {
+                    style: {
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#64748b',
+                      textTransform: 'uppercase'
+                    },
+                    children: h
+                  }, h);
+                })
+              })
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tbody", {
+              children: topProducts.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                  colSpan: 5,
+                  style: {
+                    padding: 40,
+                    textAlign: 'center',
+                    color: '#94a3b8'
+                  },
+                  children: "No sales data yet."
+                })
+              }) : topProducts.map(function (p, i) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("tr", {
+                  style: {
+                    borderBottom: '1px solid #f1f5f9'
+                  },
+                  onMouseEnter: function onMouseEnter(e) {
+                    return e.currentTarget.style.background = '#f8fafc';
+                  },
+                  onMouseLeave: function onMouseLeave(e) {
+                    return e.currentTarget.style.background = '#fff';
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                    style: {
+                      padding: '12px 16px'
+                    },
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+                      style: {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        background: i === 0 ? '#fef9c3' : i === 1 ? '#f1f5f9' : i === 2 ? '#fef3c7' : '#f8fafc',
+                        color: i === 0 ? '#854d0e' : i === 1 ? '#475569' : i === 2 ? '#92400e' : '#64748b'
+                      },
+                      children: i + 1
+                    })
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                    style: {
+                      padding: '12px 16px',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#1e293b'
+                    },
+                    children: p.name
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                    style: {
+                      padding: '12px 16px',
+                      fontSize: 13,
+                      color: '#64748b'
+                    },
+                    children: p.category_name || '-'
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                    style: {
+                      padding: '12px 16px',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#2563eb'
+                    },
+                    children: p.total_sold
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("td", {
+                    style: {
+                      padding: '12px 16px',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#16a34a'
+                    },
+                    children: ["PHP ", Number(p.total_revenue || 0).toLocaleString('en-PH', {
+                      minimumFractionDigits: 2
+                    })]
+                  })]
+                }, p.product_id);
+              })
+            })]
+          })
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          marginTop: 24
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+          style: {
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#64748b',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            marginBottom: 12
+          },
+          children: "Low Stock Alerts"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+          style: {
+            background: '#fff',
+            borderRadius: 12,
+            border: '1px solid #e2e8f0',
+            overflow: 'hidden'
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("table", {
+            style: {
+              width: '100%',
+              borderCollapse: 'collapse'
+            },
+            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("thead", {
+              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+                style: {
+                  background: '#f8fafc',
+                  borderBottom: '1px solid #e2e8f0'
+                },
+                children: ['Product', 'Category', 'Stock'].map(function (h) {
+                  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("th", {
+                    style: {
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: '#64748b',
+                      textTransform: 'uppercase'
+                    },
+                    children: h
+                  }, h);
+                })
+              })
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tbody", {
+              children: !(stats !== null && stats !== void 0 && stats.low_stock) || stats.low_stock.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                  colSpan: 3,
+                  style: {
+                    padding: 40,
+                    textAlign: 'center',
+                    color: '#16a34a',
+                    fontSize: 14
+                  },
+                  children: "All products are well stocked!"
+                })
+              }) : stats.low_stock.map(function (p) {
+                return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("tr", {
+                  style: {
+                    borderBottom: '1px solid #f1f5f9'
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                    style: {
+                      padding: '12px 16px',
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#1e293b'
+                    },
+                    children: p.name
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                    style: {
+                      padding: '12px 16px',
+                      fontSize: 13,
+                      color: '#64748b'
+                    },
+                    children: p.category_name || '-'
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                    style: {
+                      padding: '12px 16px'
+                    },
+                    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+                      style: {
+                        background: p.available_qty === 0 ? '#fee2e2' : '#fef9c3',
+                        color: p.available_qty === 0 ? '#991b1b' : '#854d0e',
+                        border: "1px solid ".concat(p.available_qty === 0 ? '#fecaca' : '#fef08a'),
+                        padding: '2px 10px',
+                        borderRadius: 20,
+                        fontSize: 12,
+                        fontWeight: 700
+                      },
+                      children: p.available_qty === 0 ? 'Out of Stock' : "".concat(p.available_qty, " left")
+                    })
+                  })]
+                }, p.product_id);
+              })
+            })]
+          })
+        })]
+      })]
+    })]
+  });
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminReports);
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminReviews.js"
+/*!*******************************************************!*\
+  !*** ./resources/js/components/Admin/AdminReviews.js ***!
+  \*******************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+
+
+var STAR_COLORS = {
+  5: '#16a34a',
+  4: '#2563eb',
+  3: '#f59e0b',
+  2: '#f97316',
+  1: '#dc2626'
+};
+function Stars(_ref) {
+  var rating = _ref.rating;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("span", {
+    style: {
+      color: STAR_COLORS[rating] || '#94a3b8',
+      fontSize: 15,
+      fontWeight: 700
+    },
+    children: [rating, "/5"]
+  });
+}
+function AdminReviews() {
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState2 = _slicedToArray(_useState, 2),
+    reviews = _useState2[0],
+    setReviews = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
+    _useState4 = _slicedToArray(_useState3, 2),
+    loading = _useState4[0],
+    setLoading = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState6 = _slicedToArray(_useState5, 2),
+    error = _useState6[0],
+    setError = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    _useState8 = _slicedToArray(_useState7, 2),
+    page = _useState8[0],
+    setPage = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    _useState0 = _slicedToArray(_useState9, 2),
+    lastPage = _useState0[0],
+    setLastPage = _useState0[1];
+  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
+    _useState10 = _slicedToArray(_useState1, 2),
+    total = _useState10[0],
+    setTotal = _useState10[1];
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState12 = _slicedToArray(_useState11, 2),
+    filterRating = _useState12[0],
+    setFilterRating = _useState12[1];
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState14 = _slicedToArray(_useState13, 2),
+    deleteConfirm = _useState14[0],
+    setDeleteConfirm = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState16 = _slicedToArray(_useState15, 2),
+    successMsg = _useState16[0],
+    setSuccessMsg = _useState16[1];
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    fetchReviews();
+  }, [page, filterRating]);
+  function fetchReviews() {
+    setLoading(true);
+    var url = "/api/admin/reviews?page=".concat(page);
+    if (filterRating) url += "&rating=".concat(filterRating);
+    fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then(function (r) {
+      return r.json();
+    }).then(function (data) {
+      setReviews(data.data || []);
+      setLastPage(data.last_page || 1);
+      setTotal(data.total || 0);
+      setLoading(false);
+    })["catch"](function () {
+      setError('Failed to load reviews.');
+      setLoading(false);
+    });
+  }
+  function showSuccess(msg) {
+    setSuccessMsg(msg);
+    setTimeout(function () {
+      return setSuccessMsg('');
+    }, 3000);
+  }
+  function confirmDelete() {
+    var csrf = document.querySelector('meta[name="csrf-token"]').content;
+    fetch("/api/admin/reviews/".concat(deleteConfirm.review_id), {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      }
+    }).then(function (r) {
+      return r.json();
+    }).then(function () {
+      setDeleteConfirm(null);
+      fetchReviews();
+      showSuccess('Review deleted!');
+    })["catch"](function () {
+      return setDeleteConfirm(null);
+    });
+  }
+  var avgRating = reviews.length ? (reviews.reduce(function (s, r) {
+    return s + r.rating;
+  }, 0) / reviews.length).toFixed(1) : null;
+  if (error) return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+    style: {
+      color: '#dc2626',
+      padding: 24
+    },
+    children: error
+  });
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+    style: {
+      padding: 24
+    },
+    children: [successMsg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        position: 'fixed',
+        top: 20,
+        right: 20,
+        background: '#16a34a',
+        color: '#fff',
+        padding: '12px 20px',
+        borderRadius: 8,
+        fontSize: 14,
+        fontWeight: 500,
+        zIndex: 9999
+      },
+      children: successMsg
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h2", {
+        style: {
+          fontSize: 22,
+          fontWeight: 700,
+          color: '#1e293b'
+        },
+        children: "Reviews"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("select", {
+        value: filterRating,
+        onChange: function onChange(e) {
+          setFilterRating(e.target.value);
+          setPage(1);
+        },
+        style: {
+          padding: '8px 14px',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          fontSize: 14,
+          background: '#fff'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+          value: "",
+          children: "All Ratings"
+        }), [5, 4, 3, 2, 1].map(function (n) {
+          return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("option", {
+            value: n,
+            children: [n, " Star", n !== 1 ? 's' : '']
+          }, n);
+        })]
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 16,
+        marginBottom: 24
+      },
+      children: [{
+        label: 'Total Reviews',
+        value: total,
+        color: '#2563eb'
+      }, {
+        label: 'Average Rating',
+        value: avgRating ? "".concat(avgRating, " / 5") : 'N/A',
+        color: '#f59e0b'
+      }, {
+        label: 'This Page',
+        value: reviews.length,
+        color: '#16a34a'
+      }].map(function (stat) {
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 12,
+            padding: 20
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            style: {
+              fontSize: 13,
+              color: '#94a3b8',
+              marginBottom: 6
+            },
+            children: stat.label
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            style: {
+              fontSize: 28,
+              fontWeight: 700,
+              color: stat.color
+            },
+            children: stat.value
+          })]
+        }, stat.label);
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        background: '#fff',
+        borderRadius: 12,
+        border: '1px solid #e2e8f0',
+        overflow: 'hidden'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("table", {
+        style: {
+          width: '100%',
+          borderCollapse: 'collapse'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("thead", {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            style: {
+              background: '#f8fafc',
+              borderBottom: '1px solid #e2e8f0'
+            },
+            children: ['#', 'Product', 'User', 'Rating', 'Comment', 'Date', 'Actions'].map(function (h) {
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("th", {
+                style: {
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#64748b',
+                  textTransform: 'uppercase'
+                },
+                children: h
+              }, h);
+            })
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tbody", {
+          children: loading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+              colSpan: 7,
+              style: {
+                padding: 40,
+                textAlign: 'center',
+                color: '#94a3b8'
+              },
+              children: "Loading..."
+            })
+          }) : reviews.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+              colSpan: 7,
+              style: {
+                padding: 40,
+                textAlign: 'center',
+                color: '#94a3b8'
+              },
+              children: "No reviews found."
+            })
+          }) : reviews.map(function (review, i) {
+            var _review$product, _review$user;
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("tr", {
+              style: {
+                borderBottom: '1px solid #f1f5f9'
+              },
+              onMouseEnter: function onMouseEnter(e) {
+                return e.currentTarget.style.background = '#f8fafc';
+              },
+              onMouseLeave: function onMouseLeave(e) {
+                return e.currentTarget.style.background = '#fff';
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#94a3b8'
+                },
+                children: (page - 1) * 15 + i + 1
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#1e293b'
+                },
+                children: ((_review$product = review.product) === null || _review$product === void 0 ? void 0 : _review$product.name) || '-'
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#374151'
+                },
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+                  style: {
+                    fontWeight: 500
+                  },
+                  children: review.user ? "".concat(review.user.first_name, " ").concat(review.user.last_name) : '-'
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+                  style: {
+                    fontSize: 12,
+                    color: '#94a3b8'
+                  },
+                  children: (_review$user = review.user) === null || _review$user === void 0 ? void 0 : _review$user.email
+                })]
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px'
+                },
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(Stars, {
+                  rating: review.rating
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#374151',
+                  maxWidth: 220
+                },
+                children: review.comment ? review.comment.length > 80 ? review.comment.slice(0, 80) + '...' : review.comment : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+                  style: {
+                    color: '#94a3b8'
+                  },
+                  children: "No comment"
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 12,
+                  color: '#94a3b8',
+                  whiteSpace: 'nowrap'
+                },
+                children: review.created_at ? new Date(review.created_at).toLocaleDateString() : '-'
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px'
+                },
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+                  onClick: function onClick() {
+                    return setDeleteConfirm(review);
+                  },
+                  style: {
+                    padding: '6px 14px',
+                    background: '#fef2f2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    borderRadius: 6,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    fontWeight: 500
+                  },
+                  children: "Delete"
+                })
+              })]
+            }, review.review_id);
+          })
+        })]
+      })
+    }), lastPage > 1 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 8,
+        marginTop: 20
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        onClick: function onClick() {
+          return setPage(function (p) {
+            return Math.max(1, p - 1);
+          });
+        },
+        disabled: page === 1,
+        style: {
+          padding: '7px 16px',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          background: page === 1 ? '#f8fafc' : '#fff',
+          cursor: page === 1 ? 'default' : 'pointer',
+          color: page === 1 ? '#94a3b8' : '#374151',
+          fontSize: 13
+        },
+        children: "Prev"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("span", {
+        style: {
+          fontSize: 13,
+          color: '#64748b',
+          lineHeight: '34px'
+        },
+        children: ["Page ", page, " of ", lastPage]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        onClick: function onClick() {
+          return setPage(function (p) {
+            return Math.min(lastPage, p + 1);
+          });
+        },
+        disabled: page === lastPage,
+        style: {
+          padding: '7px 16px',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          background: page === lastPage ? '#f8fafc' : '#fff',
+          cursor: page === lastPage ? 'default' : 'pointer',
+          color: page === lastPage ? '#94a3b8' : '#374151',
+          fontSize: 13
+        },
+        children: "Next"
+      })]
+    }), deleteConfirm && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          background: '#fff',
+          borderRadius: 16,
+          width: 380,
+          padding: 28
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h3", {
+          style: {
+            fontSize: 18,
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: 12
+          },
+          children: "Delete Review"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("p", {
+          style: {
+            fontSize: 14,
+            color: '#64748b',
+            marginBottom: 24
+          },
+          children: "Are you sure you want to delete this review? This cannot be undone."
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            display: 'flex',
+            gap: 10,
+            justifyContent: 'flex-end'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: function onClick() {
+              return setDeleteConfirm(null);
+            },
+            style: {
+              padding: '9px 18px',
+              background: '#f1f5f9',
+              color: '#374151',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              fontSize: 14,
+              cursor: 'pointer'
+            },
+            children: "Cancel"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: confirmDelete,
+            style: {
+              padding: '9px 18px',
+              background: '#dc2626',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer'
+            },
+            children: "Delete"
+          })]
+        })]
+      })
+    })]
+  });
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminReviews);
+
+/***/ },
+
+/***/ "./resources/js/components/Admin/AdminUsers.js"
+/*!*****************************************************!*\
+  !*** ./resources/js/components/Admin/AdminUsers.js ***!
+  \*****************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+
+
+function AdminUsers() {
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]),
+    _useState2 = _slicedToArray(_useState, 2),
+    users = _useState2[0],
+    setUsers = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(true),
+    _useState4 = _slicedToArray(_useState3, 2),
+    loading = _useState4[0],
+    setLoading = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState6 = _slicedToArray(_useState5, 2),
+    error = _useState6[0],
+    setError = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    _useState8 = _slicedToArray(_useState7, 2),
+    page = _useState8[0],
+    setPage = _useState8[1];
+  var _useState9 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(1),
+    _useState0 = _slicedToArray(_useState9, 2),
+    lastPage = _useState0[0],
+    setLastPage = _useState0[1];
+  var _useState1 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0),
+    _useState10 = _slicedToArray(_useState1, 2),
+    total = _useState10[0],
+    setTotal = _useState10[1];
+  var _useState11 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState12 = _slicedToArray(_useState11, 2),
+    search = _useState12[0],
+    setSearch = _useState12[1];
+  var _useState13 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState14 = _slicedToArray(_useState13, 2),
+    searchInput = _useState14[0],
+    setSearchInput = _useState14[1];
+  var _useState15 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState16 = _slicedToArray(_useState15, 2),
+    filterRole = _useState16[0],
+    setFilterRole = _useState16[1];
+  var _useState17 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null),
+    _useState18 = _slicedToArray(_useState17, 2),
+    deleteConfirm = _useState18[0],
+    setDeleteConfirm = _useState18[1];
+  var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState20 = _slicedToArray(_useState19, 2),
+    successMsg = _useState20[0],
+    setSuccessMsg = _useState20[1];
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    fetchUsers();
+  }, [page, search, filterRole]);
+  function fetchUsers() {
+    setLoading(true);
+    var url = "/api/admin/users?page=".concat(page);
+    if (search) url += "&search=".concat(encodeURIComponent(search));
+    if (filterRole) url += "&role=".concat(filterRole);
+    fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    }).then(function (r) {
+      return r.json();
+    }).then(function (data) {
+      setUsers(data.data || []);
+      setLastPage(data.last_page || 1);
+      setTotal(data.total || 0);
+      setLoading(false);
+    })["catch"](function () {
+      setError('Failed to load users.');
+      setLoading(false);
+    });
+  }
+  function handleSearch(e) {
+    e.preventDefault();
+    setPage(1);
+    setSearch(searchInput);
+  }
+  function showSuccess(msg) {
+    setSuccessMsg(msg);
+    setTimeout(function () {
+      return setSuccessMsg('');
+    }, 3000);
+  }
+  function confirmDelete() {
+    var csrf = document.querySelector('meta[name="csrf-token"]').content;
+    fetch("/api/admin/users/".concat(deleteConfirm.user_id), {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': csrf
+      }
+    }).then(function (r) {
+      return r.json();
+    }).then(function () {
+      setDeleteConfirm(null);
+      fetchUsers();
+      showSuccess('User deleted!');
+    })["catch"](function () {
+      return setDeleteConfirm(null);
+    });
+  }
+  var adminCount = users.filter(function (u) {
+    return u.role === 'admin';
+  }).length;
+  var customerCount = users.filter(function (u) {
+    return u.role === 'customer';
+  }).length;
+  if (error) return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+    style: {
+      color: '#dc2626',
+      padding: 24
+    },
+    children: error
+  });
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+    style: {
+      padding: 24
+    },
+    children: [successMsg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        position: 'fixed',
+        top: 20,
+        right: 20,
+        background: '#16a34a',
+        color: '#fff',
+        padding: '12px 20px',
+        borderRadius: 8,
+        fontSize: 14,
+        fontWeight: 500,
+        zIndex: 9999,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+      },
+      children: successMsg
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h2", {
+        style: {
+          fontSize: 22,
+          fontWeight: 700,
+          color: '#1e293b'
+        },
+        children: "Users"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+        style: {
+          display: 'flex',
+          gap: 10
+        },
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("select", {
+          value: filterRole,
+          onChange: function onChange(e) {
+            setFilterRole(e.target.value);
+            setPage(1);
+          },
+          style: {
+            padding: '8px 14px',
+            border: '1px solid #e2e8f0',
+            borderRadius: 8,
+            fontSize: 14,
+            background: '#fff'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+            value: "",
+            children: "All Roles"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+            value: "admin",
+            children: "Admin"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("option", {
+            value: "customer",
+            children: "Customer"
+          })]
+        })
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("form", {
+      onSubmit: handleSearch,
+      style: {
+        display: 'flex',
+        gap: 8,
+        marginBottom: 20
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("input", {
+        type: "text",
+        value: searchInput,
+        onChange: function onChange(e) {
+          return setSearchInput(e.target.value);
+        },
+        placeholder: "Search by name or email...",
+        style: {
+          flex: 1,
+          padding: '10px 14px',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          fontSize: 14,
+          outline: 'none'
+        }
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        type: "submit",
+        style: {
+          padding: '10px 20px',
+          background: '#2563eb',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: 'pointer'
+        },
+        children: "Search"
+      }), search && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        type: "button",
+        onClick: function onClick() {
+          setSearch('');
+          setSearchInput('');
+          setPage(1);
+        },
+        style: {
+          padding: '10px 16px',
+          background: '#f1f5f9',
+          color: '#374151',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          fontSize: 14,
+          cursor: 'pointer'
+        },
+        children: "Clear"
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 16,
+        marginBottom: 24
+      },
+      children: [{
+        label: 'Total Users',
+        value: total,
+        color: '#2563eb'
+      }, {
+        label: 'Admins',
+        value: adminCount,
+        color: '#7c3aed'
+      }, {
+        label: 'Customers',
+        value: customerCount,
+        color: '#16a34a'
+      }].map(function (stat) {
+        return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 12,
+            padding: 20
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            style: {
+              fontSize: 13,
+              color: '#94a3b8',
+              marginBottom: 6
+            },
+            children: stat.label
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+            style: {
+              fontSize: 28,
+              fontWeight: 700,
+              color: stat.color
+            },
+            children: stat.value
+          })]
+        }, stat.label);
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        background: '#fff',
+        borderRadius: 12,
+        border: '1px solid #e2e8f0',
+        overflow: 'hidden'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("table", {
+        style: {
+          width: '100%',
+          borderCollapse: 'collapse'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("thead", {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            style: {
+              background: '#f8fafc',
+              borderBottom: '1px solid #e2e8f0'
+            },
+            children: ['#', 'Name', 'Email', 'Phone', 'Role', 'Joined', 'Actions'].map(function (h) {
+              return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("th", {
+                style: {
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                },
+                children: h
+              }, h);
+            })
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tbody", {
+          children: loading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+              colSpan: 7,
+              style: {
+                padding: 40,
+                textAlign: 'center',
+                color: '#94a3b8'
+              },
+              children: "Loading..."
+            })
+          }) : users.length === 0 ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("tr", {
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+              colSpan: 7,
+              style: {
+                padding: 40,
+                textAlign: 'center',
+                color: '#94a3b8'
+              },
+              children: "No users found."
+            })
+          }) : users.map(function (user, i) {
+            return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("tr", {
+              style: {
+                borderBottom: '1px solid #f1f5f9'
+              },
+              onMouseEnter: function onMouseEnter(e) {
+                return e.currentTarget.style.background = '#f8fafc';
+              },
+              onMouseLeave: function onMouseLeave(e) {
+                return e.currentTarget.style.background = '#fff';
+              },
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#94a3b8'
+                },
+                children: (page - 1) * 15 + i + 1
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px'
+                },
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+                  style: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10
+                  },
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+                    style: {
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      background: user.role === 'admin' ? '#ede9fe' : '#dbeafe',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: user.role === 'admin' ? '#7c3aed' : '#2563eb',
+                      flexShrink: 0
+                    },
+                    children: user.name ? user.name.charAt(0).toUpperCase() : '?'
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+                    style: {
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: '#1e293b'
+                    },
+                    children: user.name
+                  })]
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#374151'
+                },
+                children: user.email
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 13,
+                  color: '#374151'
+                },
+                children: user.phone_num || '-'
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px'
+                },
+                children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("span", {
+                  style: {
+                    background: user.role === 'admin' ? '#ede9fe' : '#dbeafe',
+                    color: user.role === 'admin' ? '#7c3aed' : '#2563eb',
+                    border: "1px solid ".concat(user.role === 'admin' ? '#ddd6fe' : '#bfdbfe'),
+                    padding: '2px 10px',
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontWeight: 600
+                  },
+                  children: user.role
+                })
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px',
+                  fontSize: 12,
+                  color: '#94a3b8',
+                  whiteSpace: 'nowrap'
+                },
+                children: user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("td", {
+                style: {
+                  padding: '12px 16px'
+                },
+                children: user.role !== 'admin' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+                  onClick: function onClick() {
+                    return setDeleteConfirm(user);
+                  },
+                  style: {
+                    padding: '6px 14px',
+                    background: '#fef2f2',
+                    color: '#dc2626',
+                    border: '1px solid #fecaca',
+                    borderRadius: 6,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    fontWeight: 500
+                  },
+                  children: "Delete"
+                })
+              })]
+            }, user.user_id);
+          })
+        })]
+      })
+    }), lastPage > 1 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 8,
+        marginTop: 20
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        onClick: function onClick() {
+          return setPage(function (p) {
+            return Math.max(1, p - 1);
+          });
+        },
+        disabled: page === 1,
+        style: {
+          padding: '7px 16px',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          background: page === 1 ? '#f8fafc' : '#fff',
+          cursor: page === 1 ? 'default' : 'pointer',
+          color: page === 1 ? '#94a3b8' : '#374151',
+          fontSize: 13
+        },
+        children: "Prev"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("span", {
+        style: {
+          fontSize: 13,
+          color: '#64748b',
+          lineHeight: '34px'
+        },
+        children: ["Page ", page, " of ", lastPage]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+        onClick: function onClick() {
+          return setPage(function (p) {
+            return Math.min(lastPage, p + 1);
+          });
+        },
+        disabled: page === lastPage,
+        style: {
+          padding: '7px 16px',
+          border: '1px solid #e2e8f0',
+          borderRadius: 8,
+          background: page === lastPage ? '#f8fafc' : '#fff',
+          cursor: page === lastPage ? 'default' : 'pointer',
+          color: page === lastPage ? '#94a3b8' : '#374151',
+          fontSize: 13
+        },
+        children: "Next"
+      })]
+    }), deleteConfirm && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("div", {
+      style: {
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+        style: {
+          background: '#fff',
+          borderRadius: 16,
+          width: 380,
+          padding: 28
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("h3", {
+          style: {
+            fontSize: 18,
+            fontWeight: 700,
+            color: '#1e293b',
+            marginBottom: 12
+          },
+          children: "Delete User"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("p", {
+          style: {
+            fontSize: 14,
+            color: '#64748b',
+            marginBottom: 24
+          },
+          children: ["Are you sure you want to delete ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("strong", {
+            children: deleteConfirm.name
+          }), "? This cannot be undone."]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsxs)("div", {
+          style: {
+            display: 'flex',
+            gap: 10,
+            justifyContent: 'flex-end'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: function onClick() {
+              return setDeleteConfirm(null);
+            },
+            style: {
+              padding: '9px 18px',
+              background: '#f1f5f9',
+              color: '#374151',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              fontSize: 14,
+              cursor: 'pointer'
+            },
+            children: "Cancel"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)("button", {
+            onClick: confirmDelete,
+            style: {
+              padding: '9px 18px',
+              background: '#dc2626',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer'
+            },
+            children: "Delete"
+          })]
+        })]
+      })
+    })]
+  });
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AdminUsers);
 
 /***/ },
 
