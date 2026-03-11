@@ -9,16 +9,17 @@ class UpdateCategoryRequest extends FormRequest
     }
     public function rules()
     {
+        $categoryId = $this->route('category') ? $this->route('category')->category_id : null;
         return [
-            'category_name' => 'required|string|max:255|unique:categories,category_name,' . $this->category . ',category_id',
-            'gender_type' => 'nullable|in:Men,Women,Unisex,Kids',
+            'category_name' => 'required|string|max:255|unique:categories,category_name,' . $categoryId . ',category_id',
+            'gender_type'   => 'nullable|in:Men,Women,Unisex,Kids',
         ];
     }
     public function messages()
     {
         return [
             'category_name.required' => 'Category name is required',
-            'gender_type.in' => 'The selected gender type is invalid.',
+            'gender_type.in'         => 'The selected gender type is invalid.',
         ];
     }
 }
