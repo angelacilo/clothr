@@ -11,7 +11,8 @@ class Product extends Model
 
     protected $fillable = [
         'name', 'description', 'price', 'originalPrice', 'category_id',
-        'images', 'stock', 'isNew', 'isOnSale', 'isFeatured', 'isArchived', 'sizes', 'colors'
+        'images', 'stock', 'isNew', 'isOnSale', 'isFeatured', 'isArchived', 'sizes', 'colors',
+        'sales_count', 'isTrending'
     ];
 
     protected $casts = [
@@ -22,8 +23,10 @@ class Product extends Model
         'isOnSale' => 'boolean',
         'isFeatured' => 'boolean',
         'isArchived' => 'boolean',
+        'isTrending' => 'boolean',
         'price' => 'float',
         'originalPrice' => 'float',
+        'sales_count' => 'integer',
     ];
 
     public function category()

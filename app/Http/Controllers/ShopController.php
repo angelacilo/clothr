@@ -14,13 +14,20 @@ class ShopController extends Controller
     public function index()
     {
         $featured = Product::where('isFeatured', true)->where('isArchived', false)->take(4)->get();
+        $superDeals = Product::where('isOnSale', true)->where('isArchived', false)->latest()->take(8)->get();
+        $topTrends = Product::where('isTrending', true)->where('isArchived', false)->orderBy('sales_count', 'desc')->take(8)->get();
         $categories = Category::where('isVisible', true)->get();
-        return view('shop.index', compact('featured', 'categories'));
+        
+        return view('shop.index', compact('featured', 'superDeals', 'topTrends', 'categories'));
     }
 
     public function shop(Request $request)
     {
         $query = Product::where('isArchived', false);
+
+        if ($request->has('deals')) {
+            $query->where('isOnSale', true);
+        }
 
         if ($request->has('category') && $request->category != 'all') {
             $query->whereHas('category', function($q) use ($request) {
@@ -95,7 +102,8 @@ class ShopController extends Controller
 
     public function cart()
     {
-        return view('shop.cart');
+        $recommendations = Product::where('isArchived', false)->inRandomOrder()->take(5)->get();
+        return view('shop.cart', compact('recommendations'));
     }
 
     public function checkout()

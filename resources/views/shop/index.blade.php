@@ -44,11 +44,62 @@
         </div>
     </section>
 
+    <!-- Deals & Trends Row -->
     <section class="section container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px;">
-            <h2 style="font-size: 32px; font-weight: 800; letter-spacing: -0.02em;">Featured Arrivals</h2>
-            <a href="{{ route('shop') }}" style="font-weight: 700; text-decoration: none; border-bottom: 2px solid #000; padding-bottom: 4px;">Explore All</a>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+            <!-- Super Deals -->
+            <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #eee;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 style="font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                        Super Deals <i data-lucide="zap" style="color: #d32f2f;"></i>
+                    </h2>
+                    <a href="{{ route('shop', ['deals' => 1]) }}" style="font-size: 13px; font-weight: 700; color: #666;">View More ></a>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    @foreach($superDeals->take(3) as $product)
+                        <a href="{{ route('product', $product->id) }}" style="text-decoration: none; color: inherit;">
+                            <div style="aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
+                                <img src="{{ $product->images[0] ?? '/placeholder.png' }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="font-weight: 800; font-size: 14px; color: #d32f2f;">₱{{ number_format($product->price, 0) }}</div>
+                            <div style="font-size: 11px; color: #999;">Flash Sale</div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Top Trends -->
+            <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #eee;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 style="font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                        Top Trends <i data-lucide="trending-up" style="color: #8b5cf6;"></i>
+                    </h2>
+                    <a href="{{ route('shop') }}" style="font-size: 13px; font-weight: 700; color: #666;">View More ></a>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    @foreach($topTrends->take(3) as $product)
+                        <a href="{{ route('product', $product->id) }}" style="text-decoration: none; color: inherit;">
+                            <div style="aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
+                                <img src="{{ $product->images[0] ?? '/placeholder.png' }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="font-weight: 800; font-size: 14px; color: #000;">₱{{ number_format($product->price, 0) }}</div>
+                            <div style="font-size: 11px; color: #999;">#TrendingNow</div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
+    </section>
+
+    <!-- Tabbed Collections -->
+    <section class="section container">
+        <div style="border-bottom: 1px solid #eee; margin-bottom: 40px; display: flex; justify-content: center; gap: 40px;">
+            <span style="font-weight: 800; padding-bottom: 15px; border-bottom: 3px solid #000; cursor: pointer;">Women</span>
+            <span style="font-weight: 600; color: #999; padding-bottom: 15px; cursor: pointer;">Men</span>
+            <span style="font-weight: 600; color: #999; padding-bottom: 15px; cursor: pointer;">Kids</span>
+            <span style="font-weight: 600; color: #999; padding-bottom: 15px; cursor: pointer;">Home & Living</span>
+        </div>
+
         <div class="products__grid">
             @foreach($featured as $product)
                 <div class="product-card">
@@ -66,15 +117,15 @@
                         </div>
                     </a>
                     <button class="product-card__add" onclick="addToCartGlobal({{ $product->id }}, '{{ $product->name }}', {{ $product->price }}, '{{ $product->images[0] ?? '' }}')">Add to Cart</button>
-                    <h3>{{ $product->name }}</h3>
-                        <p class="price">
-                            @if($product->isOnSale && $product->originalPrice)
-                                <span class="sale-price">₱{{ number_format($product->price, 2) }}</span>
-                                <span class="old-price">₱{{ number_format($product->originalPrice, 2) }}</span>
-                            @else
-                                ₱{{ number_format($product->price, 2) }}
-                            @endif
-                        </p>
+                    <h3 style="display: block; visibility: visible; opacity: 1;">{{ $product->name }}</h3>
+                    <p class="price">
+                        @if($product->isOnSale && $product->originalPrice)
+                            <span class="sale-price">₱{{ number_format($product->price, 2) }}</span>
+                            <span class="old-price">₱{{ number_format($product->originalPrice, 2) }}</span>
+                        @else
+                            ₱{{ number_format($product->price, 2) }}
+                        @endif
+                    </p>
                 </div>
             @endforeach
         </div>

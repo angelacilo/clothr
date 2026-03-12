@@ -1,7 +1,6 @@
 @extends('layouts.shop')
 
 @section('extra_css')
-    <style>
         .profile-layout { display: grid; grid-template-columns: 280px 1fr; gap: 40px; }
         .profile-sidebar { background: #fff; border-right: 1px solid var(--border-color); padding-right: 40px; }
         .profile-nav { display: flex; flex-direction: column; gap: 10px; }
@@ -28,12 +27,11 @@
         .status-pending { background: #fef3c7; color: #92400e; }
         .status-processing { background: #dbeafe; color: #1e40af; }
         .status-shipped { background: #dcfce7; color: #166534; }
-    </style>
     @yield('profile_css')
 @endsection
 
 @section('content')
-<div class="container section">
+<div class="container" style="padding: 40px 24px;">
     <div class="profile-layout">
         <aside class="profile-sidebar">
             <div class="profile-header">

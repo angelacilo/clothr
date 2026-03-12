@@ -29,7 +29,6 @@ class CartController extends Controller
                     'user_id' => $user->id,
                     'product_id' => $item['id'],
                     'size' => $item['size'],
-                    'color' => $item['color'] ?? null,
                 ],
                 [
                     'quantity' => $item['quantity'],
@@ -48,7 +47,6 @@ class CartController extends Controller
                 'user_id' => $user->id,
                 'product_id' => $request->id,
                 'size' => $request->size,
-                'color' => $request->color ?? null,
             ],
             [
                 'quantity' => $request->quantity,

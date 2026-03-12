@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="admin-layout">
-        @if(View::hasSection('custom_sidebar'))
+        @hasSection('custom_sidebar')
             @yield('custom_sidebar')
         @else
         <aside class="sidebar">

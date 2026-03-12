@@ -96,22 +96,6 @@
                 </div>
             @endif
 
-            @if($product->colors)
-                <div class="option-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <span class="option-label" style="margin-bottom: 0;">Color</span>
-                        <span id="selected-color-label" style="font-size: 13px; font-weight: 600; color: var(--text-muted);">{{ $product->colors[0] }}</span>
-                    </div>
-                    <div class="color-btns">
-                        @foreach($product->colors as $index => $color)
-                            <button class="color-btn {{ $index === 0 ? 'active' : '' }}" onclick="selectColor(this, '{{ $color }}')">
-                                <div class="color-swatch" style="background-color: {{ strtolower(str_replace(' ', '', $color)) }};"></div>
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
-
             <div class="option-group">
                 <span class="option-label">Quantity</span>
                 <div class="qty-input">
@@ -170,7 +154,6 @@
 @section('extra_js')
 <script>
     let selectedSize = '{{ $product->sizes[0] ?? "M" }}';
-    let selectedColor = '{{ $product->colors[0] ?? "" }}';
     let quantity = 1;
 
     function changeMainImage(src) {
@@ -184,15 +167,7 @@
         document.getElementById('selected-size-label').innerText = size;
     }
 
-    function selectColor(btn, color) {
-        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedColor = color;
-        document.getElementById('selected-color-label').innerText = color;
-        
-        // Visual trick: apply a subtle tint to the main image based on color if it's a solid name
-        // though better to just show the label for accuracy.
-    }
+
 
     function updateQty(delta) {
         quantity = Math.max(1, quantity + delta);
@@ -206,11 +181,10 @@
             price: {{ $product->price }},
             image: '{{ $product->images[0] ?? "" }}',
             size: selectedSize,
-            color: selectedColor,
             quantity: quantity
         };
         
-        const existing = cart.find(item => item.id === product.id && item.size === product.size && item.color === product.color);
+        const existing = cart.find(item => item.id === product.id && item.size === product.size);
         if (existing) {
             existing.quantity += quantity;
         } else {

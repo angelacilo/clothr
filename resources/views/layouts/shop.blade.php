@@ -70,8 +70,8 @@
         .product-card__img-box { position: relative; aspect-ratio: 4/5; background: #f8f9fa; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
         .product-card__img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); }
         .product-card:hover .product-card__img { transform: scale(1.05); }
-        .product-card__add { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); color: #fff; padding: 16px; font-size: 14px; font-weight: 700; text-align: center; transition: 0.3s; z-index: 3; }
-        .product-card:hover .product-card__add { background: #000; }
+        .product-card__add { background: #000; color: #fff; width: 100%; padding: 14px; font-size: 13px; font-weight: 700; text-align: center; transition: 0.3s; margin-top: -20px; margin-bottom: 15px; border-radius: 0 0 12px 12px; position: relative; z-index: 3; display: block; }
+        .product-card:hover .product-card__add { background: #222; }
         .product-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #111; }
         .product-card .price { font-weight: 800; color: #000; font-size: 15px; }
         .product-card .old-price { font-weight: 400; color: var(--text-muted); text-decoration: line-through; margin-left: 10px; font-size: 14px; }
@@ -412,7 +412,7 @@
         }
 
         function addToCart(product) {
-            const existing = cart.find(item => item.id === product.id && item.size === product.size && item.color === product.color);
+            const existing = cart.find(item => item.id === product.id && item.size === product.size);
             if (existing) {
                 existing.quantity += product.quantity || 1;
             } else {
@@ -431,8 +431,8 @@
             }
         }
 
-        window.addToCartGlobal = function(id, name, price, image, size = 'M', color = '') {
-            addToCart({id, name, price, image, size, color});
+        window.addToCartGlobal = function(id, name, price, image, size = 'M') {
+            addToCart({id, name, price, image, size});
         }
 
         window.toggleWishlistGlobal = function(id, btn) {

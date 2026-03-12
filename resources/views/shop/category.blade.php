@@ -57,7 +57,7 @@
         <main class="shop-content">
             <div class="shop-header">
                 <div class="product-count">{{ $products->count() }} products</div>
-                <select class="sort-select" onchange="window.location.href = '{{ route('category', array_merge(['slug' => $category->slug], request()->query(), ['sort' => ''])) }}'.slice(0, -1) + this.value">
+                <select class="sort-select" onchange="window.location.href = '{{ route('category', array_merge(['slug' => $category->slug], request()->query(), ['sort' => 'SORT_VALUE'])) }}'.replace('SORT_VALUE', this.value);">
                     <option value="featured" {{ $sort == 'featured' ? 'selected' : '' }}>Featured</option>
                     <option value="price_low" {{ $sort == 'price_low' ? 'selected' : '' }}>Price Low–High</option>
                     <option value="price_high" {{ $sort == 'price_high' ? 'selected' : '' }}>Price High–Low</option>
@@ -66,35 +66,37 @@
             </div>
 
             <div class="products__grid">
-                @forelse($products as $product)
-                    <div class="product-card">
-                        @if($product->isNew)
-                            <span class="product-badge">New</span>
-                        @elseif($product->isOnSale)
-                            <span class="product-badge" style="background: #2563eb;">Sale</span>
-                        @endif
-                        <button class="product-card__wishlist" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
-                            <i data-lucide="heart" size="18"></i>
-                        </button>
-                        <a href="{{ route('product', $product->id) }}">
-                            <div class="product-card__img-box">
-                                <img src="{{ $product->images[0] ?? '/placeholder.png' }}" class="product-card__img" alt="{{ $product->name }}">
-                            </div>
-                        </a>
-                        <button class="product-card__add" onclick="addToCartGlobal({{ $product->id }}, '{{ $product->name }}', {{ $product->price }}, '{{ $product->images[0] ?? '' }}')">Add to Cart</button>
-                        <h3>{{ $product->name }}</h3>
-                        <p class="price">
-                            @if($product->isOnSale && $product->originalPrice)
-                                <span class="sale-price">₱{{ number_format($product->price, 2) }}</span>
-                                <span class="old-price">₱{{ number_format($product->originalPrice, 2) }}</span>
-                            @else
-                                ₱{{ number_format($product->price, 2) }}
+                @if($products->count() > 0)
+                    @foreach($products as $product)
+                        <div class="product-card">
+                            @if($product->isNew)
+                                <span class="product-badge">New</span>
+                            @elseif($product->isOnSale)
+                                <span class="product-badge" style="background: #2563eb;">Sale</span>
                             @endif
-                        </p>
-                    </div>
-                @empty
+                            <button class="product-card__wishlist" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
+                                <i data-lucide="heart" size="18"></i>
+                            </button>
+                            <a href="{{ route('product', $product->id) }}">
+                                <div class="product-card__img-box">
+                                    <img src="{{ $product->images[0] ?? '/placeholder.png' }}" class="product-card__img" alt="{{ $product->name }}">
+                                </div>
+                            </a>
+                            <button class="product-card__add" onclick="addToCartGlobal({{ $product->id }}, '{{ $product->name }}', {{ $product->price }}, '{{ $product->images[0] ?? '' }}')">Add to Cart</button>
+                            <h3>{{ $product->name }}</h3>
+                            <p class="price">
+                                @if($product->isOnSale && $product->originalPrice)
+                                    <span class="sale-price">₱{{ number_format($product->price, 2) }}</span>
+                                    <span class="old-price">₱{{ number_format($product->originalPrice, 2) }}</span>
+                                @else
+                                    ₱{{ number_format($product->price, 2) }}
+                                @endif
+                            </p>
+                        </div>
+                    @endforeach
+                @else
                     <p>No products in this category yet.</p>
-                @endforelse
+                @endif
             </div>
         </main>
     </div>
