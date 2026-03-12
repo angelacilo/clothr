@@ -34,6 +34,7 @@
             <form action="{{ route('login.post') }}" method="POST">
                 @csrf
                 <input type="hidden" name="action" value="login">
+                <input type="hidden" name="has_cart" id="hasCartInputLogin">
                 @if($errors->any() && old('action') != 'register')
                     <div class="alert-error">{{ $errors->first() }}</div>
                 @endif
@@ -51,6 +52,7 @@
             <form action="{{ route('register.post') }}" method="POST">
                 @csrf
                 <input type="hidden" name="action" value="register">
+                <input type="hidden" name="has_cart" id="hasCartInputRegister">
                 @if($errors->any() && old('action') == 'register')
                     <div class="alert-error">{{ $errors->first() }}</div>
                 @endif
@@ -89,5 +91,12 @@ function switchTab(tab) {
         loginTab.classList.remove('active');
     }
 }
+
+// Check cart on load
+window.addEventListener('load', () => {
+    const hasCart = JSON.parse(localStorage.getItem('clothr_cart') || '[]').length > 0;
+    if (document.getElementById('hasCartInputLogin')) document.getElementById('hasCartInputLogin').value = hasCart ? '1' : '0';
+    if (document.getElementById('hasCartInputRegister')) document.getElementById('hasCartInputRegister').value = hasCart ? '1' : '0';
+});
 </script>
 @endsection

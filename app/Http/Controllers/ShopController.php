@@ -47,8 +47,9 @@ class ShopController extends Controller
             case 'newest':
                 $query->orderBy('created_at', 'desc');
                 break;
+            case 'featured':
             default:
-                $query->orderBy('isFeatured', 'desc');
+                $query->where('isFeatured', true);
                 break;
         }
 
@@ -58,13 +59,32 @@ class ShopController extends Controller
         return view('shop.shop', compact('products', 'categories', 'sort'));
     }
 
-    public function category($slug)
+    public function category(Request $request, $slug)
     {
         $category = Category::where('slug', $slug)->firstOrFail();
-        $products = Product::where('category_id', $category->id)->where('isArchived', false)->get();
+        $query = Product::where('category_id', $category->id)->where('isArchived', false);
+
+        if ($request->has('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price') && $request->max_price < 5000) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        $sort = $request->get('sort', 'all');
+        switch ($sort) {
+            case 'price_low': $query->orderBy('price', 'asc'); break;
+            case 'price_high': $query->orderBy('price', 'desc'); break;
+            case 'newest': $query->orderBy('created_at', 'desc'); break;
+            case 'featured': $query->where('isFeatured', true); break;
+            default: break;
+        }
+
+        $products = $query->get();
         $categories = Category::where('isVisible', true)->get();
         
-        return view('shop.category', compact('category', 'products', 'categories'));
+        return view('shop.category', compact('category', 'products', 'categories', 'sort'));
     }
 
     public function product($id)
@@ -80,7 +100,8 @@ class ShopController extends Controller
 
     public function checkout()
     {
-        return view('shop.checkout');
+        $addresses = auth()->user()->addresses ?? [];
+        return view('shop.checkout', compact('addresses'));
     }
 
     public function placeOrder(Request $request)
@@ -91,9 +112,25 @@ class ShopController extends Controller
             'total' => 'required|numeric',
         ]);
 
+        $customer_info = $validated['customer_info'];
+        
+        if (isset($customer_info['address_id'])) {
+            $address = \App\Models\Address::findOrFail($customer_info['address_id']);
+            $customer_info = [
+                'first_name' => $address->first_name,
+                'last_name' => $address->last_name,
+                'email' => auth()->user()->email,
+                'phone' => $address->phone,
+                'address_line_1' => $address->address_line_1,
+                'city' => $address->city,
+                'zip_code' => $address->zip_code,
+                'country' => $address->country,
+            ];
+        }
+
         $order = Order::create([
             'user_id' => auth()->id(),
-            'customer_info' => $validated['customer_info'],
+            'customer_info' => $customer_info,
             'items' => $validated['items'],
             'total' => $validated['total'],
             'status' => 'Pending'

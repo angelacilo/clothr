@@ -29,7 +29,10 @@ class AuthController extends Controller
                 }
                 return redirect()->intended('/admin/dashboard');
             }
-            return redirect()->intended('/checkout');
+            if ($request->input('has_cart') == '1') {
+                return redirect()->intended('/checkout');
+            }
+            return redirect()->intended('/');
         }
 
         return back()->withErrors([
@@ -64,7 +67,10 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect('/checkout');
+        if ($request->input('has_cart') == '1') {
+            return redirect('/checkout');
+        }
+        return redirect('/');
     }
 
     public function logout(Request $request)

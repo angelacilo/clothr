@@ -5,8 +5,8 @@
 @section('extra_css')
     .cart-layout { display: grid; grid-template-columns: 1fr 380px; gap: 40px; }
     
-    .cart-items { border-top: 1px solid var(--border-color); }
-    .cart-item { display: grid; grid-template-columns: 120px 1fr 140px; gap: 20px; padding: 30px 0; border-bottom: 1px solid var(--border-color); }
+    .cart-items-header { display: flex; align-items: center; border-bottom: 2px solid var(--border-color); padding: 15px 0; margin-bottom: 10px; font-size: 14px; font-weight: 700; }
+    .cart-item { display: grid; grid-template-columns: 40px 120px 1fr 140px; gap: 20px; padding: 30px 0; border-bottom: 1px solid var(--border-color); align-items: start; }
     .cart-item__img { aspect-ratio: 1/1; background: #f4f4f4; border-radius: var(--radius-sm); overflow: hidden; }
     .cart-item__img img { width: 100%; height: 100%; object-fit: cover; }
     
@@ -40,8 +40,14 @@
     <h1 style="font-size: 40px; font-weight: 800; margin-bottom: 40px;">Shopping Cart</h1>
 
     <div id="cart-content" class="cart-layout" style="display: none;">
-        <div class="cart-items" id="cart-items-list">
-            <!-- Items injected here -->
+        <div class="cart-items">
+            <div class="cart-items-header">
+                <input type="checkbox" id="select-all" style="width: 20px; height: 20px; margin-right: 15px; cursor: pointer;" onchange="toggleSelectAll(this.checked)">
+                <label for="select-all" style="cursor: pointer;">SELECT ALL</label>
+            </div>
+            <div id="cart-items-list">
+                <!-- Items injected here -->
+            </div>
         </div>
 
         <aside>
@@ -95,17 +101,32 @@
         itemsList.innerHTML = '';
 
         let subtotal = 0;
+        let allSelected = true;
 
         cart.forEach((item, index) => {
-            subtotal += item.price * item.quantity;
+            if (item.is_selected === undefined) item.is_selected = true;
+            if (item.is_selected) {
+                subtotal += item.price * item.quantity;
+            } else {
+                allSelected = false;
+            }
+
             itemsList.innerHTML += `
                 <div class="cart-item">
+                    <div style="padding-top: 10px;">
+                        <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;" ${item.is_selected ? 'checked' : ''} onchange="toggleSelectItem(${index}, this.checked)">
+                    </div>
                     <div class="cart-item__img">
                         <img src="${item.image}" alt="${item.name}">
                     </div>
                     <div class="cart-item__info">
                         <h3>${item.name}</h3>
-                        <div class="details">Size: ${item.size}</div>
+                        <div class="details">
+                            Size: 
+                            <select class="edit-select" style="margin-left: 5px;" onchange="updateItemSize(${index}, this.value)">
+                                ${['XS','S','M','L','XL'].map(s => `<option value="${s}" ${item.size == s ? 'selected' : ''}>${s}</option>`).join('')}
+                            </select>
+                        </div>
                         <div class="cart-item__actions">
                             <div class="qty-stepper">
                                 <button onclick="updateItemQty(${index}, -1)">−</button>
@@ -113,7 +134,7 @@
                                 <button onclick="updateItemQty(${index}, 1)">+</button>
                             </div>
                             <button class="cart-item__btn" onclick="removeItem(${index})"><i data-lucide="trash-2" size="16"></i> Remove</button>
-                            <button class="cart-item__btn"><i data-lucide="heart" size="16"></i> Wishlist</button>
+                            <button class="cart-item__btn" onclick="toggleWishlistGlobal(${item.id}, this)"><i data-lucide="heart" size="16"></i> Wishlist</button>
                         </div>
                     </div>
                     <div class="cart-item__right">
@@ -123,13 +144,42 @@
             `;
         });
 
+        document.getElementById('select-all').checked = allSelected && cart.length > 0;
         lucide.createIcons();
 
-        const shipping = subtotal >= 2500 ? 0 : 250;
+        const shipping = subtotal >= 2500 ? 0 : (subtotal > 0 ? 250 : 0);
         document.getElementById('subtotal').innerText = '₱' + subtotal.toFixed(2);
         document.getElementById('shipping').innerText = shipping === 0 ? '₱0.00' : '₱' + shipping.toFixed(2);
-        document.getElementById('free-shipping-note').style.display = shipping === 0 ? 'flex' : 'none';
+        document.getElementById('free-shipping-note').style.display = (shipping === 0 && subtotal >= 2500) ? 'flex' : 'none';
         document.getElementById('total').innerText = '₱' + (subtotal + shipping).toFixed(2);
+    }
+
+    window.toggleSelectAll = function(checked) {
+        cart.forEach(item => item.is_selected = checked);
+        localStorage.setItem('clothr_cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    window.toggleSelectItem = function(index, checked) {
+        cart[index].is_selected = checked;
+        localStorage.setItem('clothr_cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    window.updateItemSize = function(index, size) {
+        cart[index].size = size;
+        localStorage.setItem('clothr_cart', JSON.stringify(cart));
+        showToast('Size updated to ' + size, 'info');
+
+        if (isLoggedIn) {
+            fetch('/api/cart/update', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify(cart[index])
+            });
+        }
+        
+        renderCart();
     }
 
     window.updateItemQty = function(index, delta) {
@@ -137,13 +187,36 @@
         localStorage.setItem('clothr_cart', JSON.stringify(cart));
         renderCart();
         updateCartCount();
+        
+        if (isLoggedIn) {
+            fetch('/api/cart/update', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify(cart[index])
+            });
+        }
+        
+        if (delta > 0) showToast('Quantity increased', 'info');
+        else showToast('Quantity decreased', 'info');
     }
 
     window.removeItem = function(index) {
+        const item = cart[index];
+        const name = item.name;
+        
+        if (isLoggedIn) {
+            fetch('/api/cart/remove', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: item.id, size: item.size, color: item.color })
+            });
+        }
+
         cart.splice(index, 1);
         localStorage.setItem('clothr_cart', JSON.stringify(cart));
         renderCart();
         updateCartCount();
+        showToast(name + ' removed from cart', 'error');
     }
 
     window.addEventListener('load', renderCart);

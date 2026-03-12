@@ -45,9 +45,9 @@
     </section>
 
     <section class="section container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-            <h2 style="font-size: 32px; font-weight: 700;">Featured Items</h2>
-            <a href="{{ route('shop') }}" style="font-weight: 600; text-decoration: underline;">View All</a>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px;">
+            <h2 style="font-size: 32px; font-weight: 800; letter-spacing: -0.02em;">Featured Arrivals</h2>
+            <a href="{{ route('shop') }}" style="font-weight: 700; text-decoration: none; border-bottom: 2px solid #000; padding-bottom: 4px;">Explore All</a>
         </div>
         <div class="products__grid">
             @foreach($featured as $product)
@@ -57,6 +57,9 @@
                     @elseif($product->isOnSale)
                         <span class="product-badge" style="background: #2563eb;">Sale</span>
                     @endif
+                    <button class="product-card__wishlist" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
+                        <i data-lucide="heart" size="18"></i>
+                    </button>
                     <a href="{{ route('product', $product->id) }}">
                         <div class="product-card__img-box">
                             <img src="{{ $product->images[0] ?? '/placeholder.png' }}" class="product-card__img" alt="{{ $product->name }}">

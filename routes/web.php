@@ -31,9 +31,31 @@ Route::post('/login', [\App\Http\Controllers\AuthController::class, 'postLogin']
 Route::post('/register', [\App\Http\Controllers\AuthController::class, 'postRegister'])->name('register.post');
 Route::get('/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [\App\Http\Controllers\ShopController::class, 'checkout'])->name('checkout');
     Route::post('/place-order', [\App\Http\Controllers\ShopController::class, 'placeOrder'])->name('place.order');
+    
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile/orders', [\App\Http\Controllers\ProfileController::class, 'orders'])->name('profile.orders');
+    Route::get('/profile/addresses', [\App\Http\Controllers\ProfileController::class, 'addresses'])->name('profile.addresses');
+    Route::post('/profile/addresses/{id}/default', [\App\Http\Controllers\ProfileController::class, 'setDefaultAddress'])->name('profile.addresses.default');
+    Route::delete('/profile/addresses/{id}', [\App\Http\Controllers\ProfileController::class, 'deleteAddress'])->name('profile.addresses.delete');
+    Route::get('/profile/wishlist', [\App\Http\Controllers\ProfileController::class, 'wishlist'])->name('profile.wishlist');
+    Route::get('/profile/settings', [\App\Http\Controllers\ProfileController::class, 'settings'])->name('profile.settings');
+    Route::post('/profile/update', [\App\Http\Controllers\ProfileController::class, 'updateProfile'])->name('profile.update');
+    
+    Route::post('/wishlist/toggle/{id}', [\App\Http\Controllers\ProfileController::class, 'toggleWishlist'])->name('wishlist.toggle');
+
+    // Location APIs
+    Route::get('/api/countries', [\App\Http\Controllers\LocationController::class, 'getCountries']);
+    Route::get('/api/regions/{country_id}', [\App\Http\Controllers\LocationController::class, 'getRegions']);
+    Route::get('/api/cities/{region_id}', [\App\Http\Controllers\LocationController::class, 'getCities']);
+
+    // Cart APIs
+    Route::get('/api/cart', [\App\Http\Controllers\CartController::class, 'getCart']);
+    Route::post('/api/cart/sync', [\App\Http\Controllers\CartController::class, 'sync']);
+    Route::post('/api/cart/update', [\App\Http\Controllers\CartController::class, 'updateItem']);
+    Route::post('/api/cart/remove', [\App\Http\Controllers\CartController::class, 'removeItem']);
 });
 
 Route::middleware(['admin'])->prefix('admin')->group(function () {

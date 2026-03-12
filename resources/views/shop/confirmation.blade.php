@@ -19,7 +19,7 @@
             </div>
             <div style="display: flex; justify-content: space-between;">
                 <span>Total Amount</span>
-                <span style="font-weight: 700;">${{ number_format($order->total, 2) }}</span>
+                <span style="font-weight: 700;">₱{{ number_format($order->total, 2) }}</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
                 <span>Shipping To</span>
@@ -27,7 +27,7 @@
             </div>
             <div style="display: flex; justify-content: space-between;">
                 <span>Address</span>
-                <span>{{ $order->customer_info['address'] }}, {{ $order->customer_info['city'] }}</span>
+                <span>{{ $order->customer_info['address_line_1'] ?? $order->customer_info['address'] ?? '' }}, {{ $order->customer_info['city'] }}</span>
             </div>
         </div>
     </div>

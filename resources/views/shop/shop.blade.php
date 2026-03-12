@@ -81,6 +81,9 @@
                         @elseif($product->isOnSale)
                             <span class="product-badge" style="background: #2563eb;">Sale</span>
                         @endif
+                        <button class="product-card__wishlist" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
+                            <i data-lucide="heart" size="18"></i>
+                        </button>
                         <a href="{{ route('product', $product->id) }}">
                             <div class="product-card__img-box">
                                 <img src="{{ $product->images[0] ?? '/placeholder.png' }}" class="product-card__img" alt="{{ $product->name }}">

@@ -51,31 +51,35 @@
         .navbar__login-link { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
 
         /* Generic Layout Helpers */
-        .section { padding: 80px 0; }
-        .section-title { font-size: 32px; font-weight: 700; margin-bottom: 40px; }
+        .section { padding: 100px 0; }
+        .section-title { font-size: 36px; font-weight: 800; margin-bottom: 60px; letter-spacing: -0.02em; text-align: center; }
 
         /* Footer */
-        .footer { background: #fff; border-top: 1px solid var(--border-color); padding: 60px 0 30px; margin-top: 80px; }
-        .footer__grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
-        .footer__col h4 { margin-bottom: 20px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; }
-        .footer__col p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
-        .footer__links li { margin-bottom: 10px; font-size: 14px; color: var(--text-secondary); }
-        .footer__socials { display: flex; gap: 15px; }
-        .footer__bottom { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); text-align: center; font-size: 13px; color: var(--text-muted); }
+        .footer { background: #fff; border-top: 1px solid var(--border-color); padding: 80px 0 40px; margin-top: 100px; }
+        .footer__grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; }
+        .footer__col h4 { margin-bottom: 25px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
+        .footer__col p { font-size: 15px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+        .footer__links li { margin-bottom: 12px; font-size: 15px; color: var(--text-secondary); }
+        .footer__socials { display: flex; gap: 20px; }
+        .footer__bottom { margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border-color); text-align: center; font-size: 14px; color: var(--text-muted); }
 
         /* Product Cards */
-        .products__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
-        .product-card { transition: 0.3s; position: relative; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-card__img-box { position: relative; aspect-ratio: 1/1; background: #f4f4f4; border-radius: var(--radius-md); overflow: hidden; margin-bottom: 15px; }
-        .product-card__img { width: 100%; height: 100%; object-fit: cover; }
-        .product-card__add { position: absolute; bottom: -50px; left: 0; right: 0; background: #000; color: #fff; padding: 12px; font-size: 13px; font-weight: 600; text-align: center; transition: 0.3s; }
-        .product-card:hover .product-card__add { bottom: 0; }
-        .product-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
-        .product-card .price { font-weight: 700; color: var(--text-primary); }
-        .product-card .old-price { font-weight: 400; color: var(--text-muted); text-decoration: line-through; margin-left: 8px; font-size: 14px; }
+        .products__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; row-gap: 60px; }
+        .product-card { transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); position: relative; }
+        .product-card:hover { transform: translateY(-8px); }
+        .product-card__img-box { position: relative; aspect-ratio: 4/5; background: #f8f9fa; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+        .product-card__img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .product-card:hover .product-card__img { transform: scale(1.05); }
+        .product-card__add { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); color: #fff; padding: 16px; font-size: 14px; font-weight: 700; text-align: center; transition: 0.3s; z-index: 3; }
+        .product-card:hover .product-card__add { background: #000; }
+        .product-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #111; }
+        .product-card .price { font-weight: 800; color: #000; font-size: 15px; }
+        .product-card .old-price { font-weight: 400; color: var(--text-muted); text-decoration: line-through; margin-left: 10px; font-size: 14px; }
         .product-card .sale-price { color: #2563eb; }
-        .product-badge { position: absolute; top: 12px; left: 12px; background: #000; color: #fff; padding: 4px 10px; font-size: 10px; font-weight: 700; border-radius: 40px; text-transform: uppercase; z-index: 2; }
+        .product-badge { position: absolute; top: 12px; left: 12px; background: #000; color: #fff; padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 4px; text-transform: uppercase; z-index: 2; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .product-card__wishlist { position: absolute; top: 12px; right: 12px; background: #fff; color: #000; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 2; transition: 0.3s; }
+        .product-card__wishlist:hover { transform: scale(1.1); color: #ef4444; background: #fff; }
+        .product-card__wishlist.active { color: #ef4444; }
 
         @media (max-width: 1024px) {
             .products__grid { grid-template-columns: repeat(3, 1fr); }
@@ -181,6 +185,16 @@
         .btn-blue { background: var(--php-blue); color: #fff; width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; margin-top: 10px; }
         .btn-blue:hover { background: #2563eb; }
         .form-row-between { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; font-size: 13px; }
+
+        /* TOAST NOTIFICATIONS */
+        .toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #000; color: #fff; padding: 16px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast.removing { animation: toastOut 0.3s forwards; }
+        @keyframes toastOut { to { transform: translateX(100%); opacity: 0; } }
+        .toast-success { border-left: 4px solid #10b981; }
+        .toast-error { border-left: 4px solid #ef4444; }
+        .toast-info { border-left: 4px solid var(--php-blue); }
     </style>
 </head>
 <body>
@@ -206,9 +220,12 @@
                             @if(Auth::user()->is_admin)
                                 <a href="{{ route('admin.dashboard') }}" style="font-size: 13px; font-weight: 700; color: #f59e0b; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 4px;">Admin Dash</a>
                             @else
-                                <span style="font-size: 14px; font-weight: 500;">Hello, {{ explode(' ', Auth::user()->name)[0] }}</span>
+                                <a href="{{ route('profile') }}" style="font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 5px;">
+                                    <i data-lucide="user" size="18"></i>
+                                    Hello, {{ explode(' ', Auth::user()->name)[0] }}
+                                </a>
                             @endif
-                            <a href="{{ route('logout') }}" class="navbar__login-link" style="color: var(--text-muted); font-size: 13px;">Logout</a>
+                            <a href="{{ route('logout') }}" class="navbar__login-link logout-link" style="color: var(--text-muted); font-size: 13px;">Logout</a>
                         </div>
                     @else
                         <button id="openLoginModal" class="navbar__login-link"><i data-lucide="user" size="22"></i> Login</button>
@@ -275,6 +292,8 @@
         </div>
     </div>
 
+    <div class="toast-container" id="toastContainer"></div>
+
     <footer class="footer">
         <div class="container footer__grid">
             <div class="footer__col">
@@ -319,31 +338,131 @@
     </footer>
 
     <script>
+        const isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
         lucide.createIcons();
 
         // Cart Logic
         let cart = JSON.parse(localStorage.getItem('clothr_cart') || '[]');
         updateCartCount();
 
+        function syncCartToDB() {
+            if (!isLoggedIn) return;
+            fetch('/api/cart/sync', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: cart })
+            });
+        }
+
+        async function fetchCartFromDB() {
+            if (!isLoggedIn) return;
+            const res = await fetch('/api/cart');
+            const dbItems = await res.json();
+            
+            if (dbItems.length > 0) {
+                cart = dbItems.map(item => ({
+                    id: item.product_id,
+                    name: item.product.name,
+                    price: item.product.price,
+                    image: item.product.images[0],
+                    size: item.size,
+                    color: item.color,
+                    quantity: item.quantity,
+                    is_selected: item.is_selected
+                }));
+                localStorage.setItem('clothr_cart', JSON.stringify(cart));
+                updateCartCount();
+                if (typeof renderCart === 'function') renderCart();
+                if (typeof renderSummary === 'function') renderSummary();
+            } else if (cart.length > 0) {
+                syncCartToDB();
+            }
+        }
+
+        if (isLoggedIn) fetchCartFromDB();
+
         function updateCartCount() {
             const count = cart.reduce((acc, item) => acc + item.quantity, 0);
-            document.getElementById('cart-count').innerText = count;
+            const badge = document.getElementById('cart-count');
+            if (badge) badge.innerText = count;
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            let icon = 'check-circle';
+            if (type === 'error') icon = 'alert-circle';
+            if (type === 'info') icon = 'info';
+
+            toast.innerHTML = `<i data-lucide="${icon}" size="18"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+
+            toast.onclick = () => {
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            };
         }
 
         function addToCart(product) {
-            const existing = cart.find(item => item.id === product.id && item.size === product.size);
+            const existing = cart.find(item => item.id === product.id && item.size === product.size && item.color === product.color);
             if (existing) {
-                existing.quantity += 1;
+                existing.quantity += product.quantity || 1;
             } else {
-                cart.push({...product, quantity: 1});
+                cart.push({...product, quantity: product.quantity || 1, is_selected: true});
             }
             localStorage.setItem('clothr_cart', JSON.stringify(cart));
             updateCartCount();
-            alert(product.name + ' added to cart!');
+            showToast(product.name + ' added to cart!');
+
+            if (isLoggedIn) {
+                fetch('/api/cart/update', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                });
+            }
         }
 
-        window.addToCartGlobal = function(id, name, price, image, size = 'M') {
-            addToCart({id, name, price, image, size});
+        window.addToCartGlobal = function(id, name, price, image, size = 'M', color = '') {
+            addToCart({id, name, price, image, size, color});
+        }
+
+        window.toggleWishlistGlobal = function(id, btn) {
+            if (!isLoggedIn) {
+                showToast('Please login to wishlist items', 'info');
+                setTimeout(() => {
+                    document.getElementById('openLoginModal').click();
+                }, 1000);
+                return;
+            }
+
+            const isActive = btn.classList.toggle('active');
+            
+            // Call API to persist wishlist
+            fetch(`/wishlist/toggle/${id}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).then(data => {
+                if (data.status === 'added') {
+                    showToast('Added to wishlist', 'info');
+                    btn.innerHTML = `<i data-lucide="heart" size="18" fill="currentColor"></i>`;
+                } else {
+                    showToast('Removed from wishlist');
+                    btn.innerHTML = `<i data-lucide="heart" size="18"></i>`;
+                }
+                lucide.createIcons();
+            });
         }
 
         // Modal Logic
@@ -387,6 +506,11 @@
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeModal();
+        });
+        document.querySelectorAll('.logout-link').forEach(link => {
+            link.addEventListener('click', () => {
+                localStorage.removeItem('clothr_cart');
+            });
         });
     </script>
     @yield('extra_js')

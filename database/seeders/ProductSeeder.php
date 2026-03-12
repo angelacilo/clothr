@@ -28,7 +28,8 @@ class ProductSeeder extends Seeder
             'stock' => 15,
             'isNew' => true,
             'isFeatured' => true,
-            'sizes' => ['XS', 'S', 'M', 'L', 'XL']
+            'sizes' => ['XS', 'S', 'M', 'L', 'XL'],
+            'colors' => ['White', 'Pink', 'Blue']
         ]);
 
         \App\Models\Product::create([
@@ -39,7 +40,8 @@ class ProductSeeder extends Seeder
             'images' => ['/images/products/chic_midi_dress.png'],
             'stock' => 10,
             'isFeatured' => true,
-            'sizes' => ['S', 'M', 'L']
+            'sizes' => ['S', 'M', 'L'],
+            'colors' => ['Beige', 'Black', 'Navy']
         ]);
 
         \App\Models\Product::create([
@@ -50,7 +52,8 @@ class ProductSeeder extends Seeder
             'images' => ['/images/products/floral_ruffle_top.png'],
             'stock' => 20,
             'isNew' => true,
-            'sizes' => ['XS', 'S', 'M', 'L']
+            'sizes' => ['XS', 'S', 'M', 'L'],
+            'colors' => ['White', 'Cream']
         ]);
 
         \App\Models\Product::create([
@@ -60,7 +63,8 @@ class ProductSeeder extends Seeder
             'category_id' => $tops->id,
             'images' => ['/images/products/casual_silk_blouse.png'],
             'stock' => 12,
-            'sizes' => ['S', 'M', 'L']
+            'sizes' => ['S', 'M', 'L'],
+            'colors' => ['Silver', 'Champagne', 'Black']
         ]);
 
         \App\Models\Product::create([
@@ -72,7 +76,8 @@ class ProductSeeder extends Seeder
             'images' => ['/images/products/denim_jeans.png'],
             'stock' => 25,
             'isOnSale' => true,
-            'sizes' => ['24', '26', '28', '30', '32']
+            'sizes' => ['24', '26', '28', '30', '32'],
+            'colors' => ['Light Blue', 'Dark Blue', 'Black']
         ]);
 
         \App\Models\Product::create([
@@ -83,7 +88,8 @@ class ProductSeeder extends Seeder
             'images' => ['/images/products/tailored_trousers.png'],
             'stock' => 18,
             'isFeatured' => true,
-            'sizes' => ['XS', 'S', 'M', 'L']
+            'sizes' => ['XS', 'S', 'M', 'L'],
+            'colors' => ['Beige', 'Camel', 'Grey']
         ]);
     }
 }

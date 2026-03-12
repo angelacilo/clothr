@@ -57,11 +57,11 @@
         <main class="shop-content">
             <div class="shop-header">
                 <div class="product-count">{{ $products->count() }} products</div>
-                <select class="sort-select">
-                    <option>Featured</option>
-                    <option>Price Low–High</option>
-                    <option>Price High–Low</option>
-                    <option>Newest</option>
+                <select class="sort-select" onchange="window.location.href = '{{ route('category', array_merge(['slug' => $category->slug], request()->query(), ['sort' => ''])) }}'.slice(0, -1) + this.value">
+                    <option value="featured" {{ $sort == 'featured' ? 'selected' : '' }}>Featured</option>
+                    <option value="price_low" {{ $sort == 'price_low' ? 'selected' : '' }}>Price Low–High</option>
+                    <option value="price_high" {{ $sort == 'price_high' ? 'selected' : '' }}>Price High–Low</option>
+                    <option value="newest" {{ $sort == 'newest' ? 'selected' : '' }}>Newest</option>
                 </select>
             </div>
 
@@ -73,6 +73,9 @@
                         @elseif($product->isOnSale)
                             <span class="product-badge" style="background: #2563eb;">Sale</span>
                         @endif
+                        <button class="product-card__wishlist" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
+                            <i data-lucide="heart" size="18"></i>
+                        </button>
                         <a href="{{ route('product', $product->id) }}">
                             <div class="product-card__img-box">
                                 <img src="{{ $product->images[0] ?? '/placeholder.png' }}" class="product-card__img" alt="{{ $product->name }}">

@@ -5,16 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Order extends Model
+class Address extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'customer_info', 'items', 'total', 'status'];
+    protected $fillable = [
+        'user_id', 'label', 'first_name', 'last_name', 'phone', 
+        'country', 'region', 'city', 'address_line_1', 'address_line_2', 
+        'zip_code', 'is_default'
+    ];
 
     protected $casts = [
-        'customer_info' => 'array',
-        'items' => 'array',
-        'total' => 'float',
+        'is_default' => 'boolean',
     ];
 
     public function user()
