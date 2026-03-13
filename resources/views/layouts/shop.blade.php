@@ -300,8 +300,8 @@
                 <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 15px;">CLOTHR</h3>
                 <p>Your destination for modern women's fashion. Curated collections that celebrate style and individuality.</p>
                 <div class="footer__socials">
-                    <i data-lucide="facebook"></i>
-                    <i data-lucide="instagram"></i>
+                    <a href="https://www.facebook.com/share/14ViXfujQf3/?mibextid=wwXIfr" target="_blank"><i data-lucide="facebook"></i></a>
+                    <a href="https://www.instagram.com/clothr.co_" target="_blank"><i data-lucide="instagram"></i></a>
                     <i data-lucide="twitter"></i>
                 </div>
             </div>
@@ -317,18 +317,18 @@
             <div class="footer__col">
                 <h4>Customer Service</h4>
                 <ul class="footer__links">
-                    <li>Contact Us</li>
-                    <li>Shipping Info</li>
-                    <li>Returns</li>
-                    <li>FAQ</li>
+                    <li><a href="{{ route('info', 'contact') }}">Contact Us</a></li>
+                    <li><a href="{{ route('info', 'shipping') }}">Shipping Info</a></li>
+                    <li><a href="{{ route('info', 'returns') }}">Returns</a></li>
+                    <li><a href="{{ route('info', 'faq') }}">FAQ</a></li>
                 </ul>
             </div>
             <div class="footer__col">
                 <h4>About</h4>
                 <ul class="footer__links">
-                    <li>About Us</li>
-                    <li>Privacy Policy</li>
-                    <li>Terms of Service</li>
+                    <li><a href="{{ route('info', 'about') }}">About Us</a></li>
+                    <li><a href="{{ route('info', 'privacy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ route('info', 'terms') }}">Terms of Service</a></li>
                 </ul>
             </div>
         </div>

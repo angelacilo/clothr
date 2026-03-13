@@ -18,6 +18,7 @@ Route::get('/shop', [\App\Http\Controllers\ShopController::class, 'shop'])->name
 Route::get('/category/{slug}', [\App\Http\Controllers\ShopController::class, 'category'])->name('category');
 Route::get('/product/{id}', [\App\Http\Controllers\ShopController::class, 'product'])->name('product');
 Route::get('/cart', [\App\Http\Controllers\ShopController::class, 'cart'])->name('cart');
+Route::get('/info/{slug}', [\App\Http\Controllers\ShopController::class, 'info'])->name('info');
 Route::get('/order-confirmation/{id}', [\App\Http\Controllers\ShopController::class, 'confirmation'])->name('order.confirmation');
 
 Route::get('/login', function () {

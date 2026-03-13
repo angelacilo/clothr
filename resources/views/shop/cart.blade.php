@@ -62,10 +62,7 @@
     <div id="cart-content" style="display: none;">
         <div class="cart-layout">
             <div class="cart-left">
-                <div class="cart-alert">
-                    <i data-lucide="check-circle" size="18"></i>
-                    <span>Enjoy Free Shipping! Checkout now!</span>
-                </div>
+
 
                 <div class="cart-box">
                     <div class="cart-box-header">
@@ -97,16 +94,7 @@
 
                     <a href="{{ route('checkout') }}" class="checkout-btn" style="display: block; text-align: center;">Checkout Now (<span class="selected-count">0</span>)</a>
                     
-                    <div class="we-accept">
-                        <div class="accept-title">We Accept</div>
-                        <div class="accept-icons">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Visa.svg/1200px-Visa.svg.png" alt="Visa">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="MasterCard">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1200px-PayPal.svg.png" alt="PayPal">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/GCash_logo.svg/1200px-GCash_logo.svg.png" alt="GCash">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/PayMaya_Logo.png/1200px-PayMaya_Logo.png" alt="Maya">
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>
