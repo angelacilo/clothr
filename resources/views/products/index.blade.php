@@ -143,10 +143,10 @@
                                 </div>
                                 <div class="product-price">
                                     @if($product->sale_price && $product->sale_price < $product->price)
-                                        <span class="sale-price">${{ number_format($product->sale_price, 2) }}</span>
-                                        <span class="original-price">${{ number_format($product->price, 2) }}</span>
+                                        <span class="sale-price">₱{{ number_format($product->sale_price, 2) }}</span>
+                                        <span class="original-price">₱{{ number_format($product->price, 2) }}</span>
                                     @else
-                                        <span class="price">${{ number_format($product->price, 2) }}</span>
+                                        <span class="price">₱{{ number_format($product->price, 2) }}</span>
                                     @endif
                                 </div>
                                 <div class="product-actions">

@@ -70,7 +70,7 @@ function AdminProducts() {
                 product.category ? product.category.category_name : 'N/A'
             ),
             e('p', { style: { margin: '0 0 4px', fontWeight: 'bold' } },
-                `$${parseFloat(product.price).toFixed(2)}`
+                new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(product.price || 0))
             ),
             e('p', { style: { margin: 0, fontSize: '14px' } },
                 `Stock: ${product.inventory ? product.inventory.available_qty : 0}`

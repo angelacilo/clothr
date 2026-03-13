@@ -77,11 +77,15 @@
     <section class="home-categories">
         <h2 class="home-section-title">Shop by Category</h2>
         <div class="home-category-grid">
-            <div class="home-category-card">Dresses</div>
-            <div class="home-category-card">Tops & Blouses</div>
-            <div class="home-category-card">Bottoms</div>
-            <div class="home-category-card">Outerwear</div>
-            <div class="home-category-card">Accessories</div>
+            @forelse($categories ?? [] as $category)
+                <a href="{{ route('products.index', ['category' => $category->category_id]) }}" class="home-category-card" style="text-decoration: none; color: inherit;">
+                    {{ $category->category_name }}
+                </a>
+            @empty
+                <div class="home-category-card">Dresses</div>
+                <div class="home-category-card">Tops & Blouses</div>
+                <div class="home-category-card">Bottoms</div>
+            @endforelse
         </div>
     </section>
 
@@ -92,34 +96,27 @@
             <a href="{{ route('products.index') }}">View All</a>
         </div>
         <div class="home-product-grid">
-            <div class="home-product-card">
-                <div class="home-product-image">
-                    <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&q=80" alt="High-Waist Denim Jeans">
-                </div>
-                <div class="home-product-name">High-Waist Denim Jeans</div>
-                <div class="home-product-price">$64.99</div>
-            </div>
-            <div class="home-product-card">
-                <div class="home-product-image">
-                    <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&q=80" alt="Tailored Trousers">
-                </div>
-                <div class="home-product-name">Tailored Trousers</div>
-                <div class="home-product-price">$54.99</div>
-            </div>
-            <div class="home-product-card">
-                <div class="home-product-image">
-                    <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&q=80" alt="Cozy Knit Sweater">
-                </div>
-                <div class="home-product-name">Cozy Knit Sweater</div>
-                <div class="home-product-price">$69.99</div>
-            </div>
-            <div class="home-product-card">
-                <div class="home-product-image">
-                    <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80" alt="Designer Handbag">
-                </div>
-                <div class="home-product-name">Designer Handbag</div>
-                <div class="home-product-price">$129.90</div>
-            </div>
+            @forelse($newArrivals ?? [] as $product)
+                <a href="{{ route('products.show', $product->product_id) }}" class="home-product-card" style="text-decoration: none; color: inherit;">
+                    <div class="home-product-image">
+                        @if($product->images->first())
+                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}" alt="{{ $product->name }}" onerror="this.src='https://via.placeholder.com/400x500?text=No+Image'">
+                        @else
+                            <img src="https://via.placeholder.com/400x500?text=No+Image" alt="{{ $product->name }}">
+                        @endif
+                    </div>
+                    <div class="home-product-name">{{ $product->name }}</div>
+                    <div class="home-product-price">
+                        @if($product->sale_price && $product->sale_price < $product->price)
+                            ₱{{ number_format($product->sale_price, 2) }}
+                        @else
+                            ₱{{ number_format($product->price, 2) }}
+                        @endif
+                    </div>
+                </a>
+            @empty
+                <p style="grid-column: 1 / -1; color: #666;">No products yet. Check back soon!</p>
+            @endforelse
         </div>
     </section>
 

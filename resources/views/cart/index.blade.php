@@ -77,9 +77,9 @@
                                     </td>
                                     <td>
                                         @if($item->product->sale_price && $item->product->sale_price < $item->product->price)
-                                            <span class="item-price">${{ number_format($item->product->sale_price, 2) }}</span>
+                                            <span class="item-price">₱{{ number_format($item->product->sale_price, 2) }}</span>
                                         @else
-                                            <span class="item-price">${{ number_format($item->product->price, 2) }}</span>
+                                            <span class="item-price">₱{{ number_format($item->product->price, 2) }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -89,7 +89,7 @@
                                             <button onclick="updateQuantity({{ $item->cart_item_id }}, 1)" class="qty-btn">+</button>
                                         </div>
                                     </td>
-                                    <td class="item-total">${{ number_format($itemTotal, 2) }}</td>
+                                    <td class="item-total">₱{{ number_format($itemTotal, 2) }}</td>
                                     <td>
                                         <button onclick="removeItem({{ $item->cart_item_id }})" class="remove-btn" title="Remove item">
                                             <i class="fas fa-trash"></i>
@@ -107,7 +107,7 @@
                     
                     <div class="summary-item">
                         <span>Subtotal</span>
-                        <span class="summary-value">${{ number_format($subtotal, 2) }}</span>
+                        <span class="summary-value">₱{{ number_format($subtotal, 2) }}</span>
                     </div>
 
                     <div class="summary-item">
@@ -116,21 +116,21 @@
                             @if($subtotal >= 50)
                                 <span class="free-shipping">FREE</span>
                             @else
-                                ${{ number_format($shippingCost, 2) }}
+                                ₱{{ number_format($shippingCost, 2) }}
                             @endif
                         </span>
                     </div>
 
                     <div class="summary-item">
                         <span>Tax (10%)</span>
-                        <span class="summary-value">${{ number_format($tax, 2) }}</span>
+                        <span class="summary-value">₱{{ number_format($tax, 2) }}</span>
                     </div>
 
                     <div class="summary-divider"></div>
 
                     <div class="summary-item total">
                         <span>Total</span>
-                        <span class="summary-value">${{ number_format($total, 2) }}</span>
+                        <span class="summary-value">₱{{ number_format($total, 2) }}</span>
                     </div>
 
                     <a href="{{ route('checkout.index') }}" class="checkout-btn">Proceed to Checkout</a>

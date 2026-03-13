@@ -5336,7 +5336,10 @@ function AdminProducts() {
         margin: '0 0 4px',
         fontWeight: 'bold'
       }
-    }, "$".concat(parseFloat(product.price).toFixed(2))), e('p', {
+    }, new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP'
+    }).format(Number(product.price || 0))), e('p', {
       style: {
         margin: 0,
         fontSize: '14px'

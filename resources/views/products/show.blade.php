@@ -107,14 +107,14 @@
 
                 <div class="detail-price">
                     @if($product->sale_price && $product->sale_price < $product->price)
-                        <span class="sale-price">${{ number_format($product->sale_price, 2) }}</span>
-                        <span class="original-price">${{ number_format($product->price, 2) }}</span>
+                        <span class="sale-price">₱{{ number_format($product->sale_price, 2) }}</span>
+                        <span class="original-price">₱{{ number_format($product->price, 2) }}</span>
                         @php
                             $discount = round(((($product->price - $product->sale_price) / $product->price) * 100), 0);
                         @endphp
                         <span class="discount-badge">Save {{ $discount }}%</span>
                     @else
-                        <span class="price">${{ number_format($product->price, 2) }}</span>
+                        <span class="price">₱{{ number_format($product->price, 2) }}</span>
                     @endif
                 </div>
 
@@ -177,8 +177,8 @@
                         <div class="review-item">
                             <div class="review-header">
                                 <div class="reviewer-info">
-                                    <div class="reviewer-name">{{ $review->user->name }}</div>
-                                    <div class="review-date">{{ $review->created_at->format('M d, Y') }}</div>
+                                    <div class="reviewer-name">{{ $review->user->name ?? 'Guest' }}</div>
+                                    <div class="review-date">@if(isset($review->created_at)){{ is_object($review->created_at) ? $review->created_at->format('M d, Y') : \Carbon\Carbon::parse($review->created_at)->format('M d, Y') }}@endif</div>
                                 </div>
                                 <div class="review-rating">
                                     @for($i = 1; $i <= 5; $i++)
@@ -221,9 +221,9 @@
                                     <div class="related-name">{{ $related->name }}</div>
                                     <div class="related-price">
                                         @if($related->sale_price && $related->sale_price < $related->price)
-                                            <span class="price">${{ number_format($related->sale_price, 2) }}</span>
+                                            <span class="price">₱{{ number_format($related->sale_price, 2) }}</span>
                                         @else
-                                            <span class="price">${{ number_format($related->price, 2) }}</span>
+                                            <span class="price">₱{{ number_format($related->price, 2) }}</span>
                                         @endif
                                     </div>
                                 </div>

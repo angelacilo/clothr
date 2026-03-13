@@ -48,7 +48,7 @@ function AdminDashboard() {
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v } } }
+                    scales: { y: { beginAtZero: true, ticks: { callback: v => '₱' + Number(v).toLocaleString('en-PH') } } }
                 }
             });
         }
@@ -93,7 +93,8 @@ function AdminDashboard() {
         }
     }
 
-    const fmt = v => '$' + parseFloat(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const peso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
+    const fmt = v => peso.format(Number(v || 0));
     const num = v => parseInt(v || 0).toLocaleString();
 
     if (error) return <div style={{ padding: 24, color: '#ef4444' }}>{error}</div>;

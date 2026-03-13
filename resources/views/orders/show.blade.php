@@ -105,8 +105,8 @@
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <p style="color: #666; font-size: 13px; margin: 0 0 8px 0;">${{ number_format($item->price, 2) }} each</p>
-                            <p style="color: #333; font-weight: 700; font-size: 16px; margin: 0;">${{ number_format($item->price * $item->quantity, 2) }}</p>
+                            <p style="color: #666; font-size: 13px; margin: 0 0 8px 0;">₱{{ number_format($item->price, 2) }} each</p>
+                            <p style="color: #333; font-weight: 700; font-size: 16px; margin: 0;">₱{{ number_format($item->price * $item->quantity, 2) }}</p>
                         </div>
                     </div>
                 @endforeach
@@ -138,7 +138,7 @@
                 <div style="background: #f4f6f9; border-radius: 6px; padding: 16px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
                         <span style="color: #666;">Subtotal</span>
-                        <span style="color: #333; font-weight: 600;">${{ number_format($order->items->sum(function($item) { return $item->price * $item->quantity; }), 2) }}</span>
+                        <span style="color: #333; font-weight: 600;">₱{{ number_format($order->items->sum(function($item) { return $item->price * $item->quantity; }), 2) }}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
                         <span style="color: #666;">Shipping</span>
@@ -146,11 +146,11 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
                         <span style="color: #666;">Tax</span>
-                        <span style="color: #333; font-weight: 600;">${{ number_format($order->total_amount * 0.1, 2) }}</span>
+                        <span style="color: #333; font-weight: 600;">₱{{ number_format($order->total_amount * 0.1, 2) }}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding-top: 12px;">
                         <span style="color: #333; font-weight: 700; font-size: 16px;">Total</span>
-                        <span style="color: #2563eb; font-weight: 700; font-size: 18px;">${{ number_format($order->total_amount, 2) }}</span>
+                        <span style="color: #2563eb; font-weight: 700; font-size: 18px;">₱{{ number_format($order->total_amount, 2) }}</span>
                     </div>
                 </div>
             </div>

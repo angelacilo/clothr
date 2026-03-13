@@ -149,7 +149,7 @@
                                     <div class="item-qty">Qty: {{ $item->quantity }}</div>
                                 </div>
                             </div>
-                            <div class="item-price">${{ number_format($itemTotal, 2) }}</div>
+                            <div class="item-price">₱{{ number_format($itemTotal, 2) }}</div>
                         </div>
                     @endforeach
                 </div>
@@ -159,7 +159,7 @@
                 <div class="totals">
                     <div class="total-row">
                         <span>Subtotal</span>
-                        <span>${{ number_format($subtotal, 2) }}</span>
+                        <span>₱{{ number_format($subtotal, 2) }}</span>
                     </div>
 
                     <div class="total-row">
@@ -168,19 +168,19 @@
                             @if($subtotal >= 50)
                                 <span class="free-label">FREE</span>
                             @else
-                                ${{ number_format($shippingCost, 2) }}
+                                ₱{{ number_format($shippingCost, 2) }}
                             @endif
                         </span>
                     </div>
 
                     <div class="total-row">
                         <span>Tax (10%)</span>
-                        <span>${{ number_format($tax, 2) }}</span>
+                        <span>₱{{ number_format($tax, 2) }}</span>
                     </div>
 
                     <div class="total-row grand-total">
                         <span>Total</span>
-                        <span>${{ number_format($total, 2) }}</span>
+                        <span>₱{{ number_format($total, 2) }}</span>
                     </div>
                 </div>
 

@@ -5983,7 +5983,7 @@ function AdminDashboard() {
               beginAtZero: true,
               ticks: {
                 callback: function callback(v) {
-                  return '$' + v;
+                  return '₱' + Number(v).toLocaleString('en-PH');
                 }
               }
             }
@@ -6052,11 +6052,12 @@ function AdminDashboard() {
       });
     }
   }
+  var peso = new Intl.NumberFormat('en-PH', {
+    style: 'currency',
+    currency: 'PHP'
+  });
   var fmt = function fmt(v) {
-    return '$' + parseFloat(v || 0).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    return peso.format(Number(v || 0));
   };
   var num = function num(v) {
     return parseInt(v || 0).toLocaleString();
@@ -7934,7 +7935,10 @@ function AdminProducts() {
         margin: '0 0 4px',
         fontWeight: 'bold'
       }
-    }, "$".concat(parseFloat(product.price).toFixed(2))), e('p', {
+    }, new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP'
+    }).format(Number(product.price || 0))), e('p', {
       style: {
         margin: 0,
         fontSize: '14px'
@@ -8279,9 +8283,10 @@ function AdminReports() {
           },
           children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
             label: "Total Revenue",
-            value: "PHP ".concat(Number((stats === null || stats === void 0 ? void 0 : stats.total_revenue) || 0).toLocaleString('en-PH', {
-              minimumFractionDigits: 2
-            })),
+            value: new Intl.NumberFormat('en-PH', {
+              style: 'currency',
+              currency: 'PHP'
+            }).format(Number((stats === null || stats === void 0 ? void 0 : stats.total_revenue) || 0)),
             color: "#16a34a"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
             label: "Total Orders",
@@ -8289,15 +8294,17 @@ function AdminReports() {
             color: "#2563eb"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
             label: "Avg Order Value",
-            value: "PHP ".concat(Number((stats === null || stats === void 0 ? void 0 : stats.avg_order_value) || 0).toLocaleString('en-PH', {
-              minimumFractionDigits: 2
-            })),
+            value: new Intl.NumberFormat('en-PH', {
+              style: 'currency',
+              currency: 'PHP'
+            }).format(Number((stats === null || stats === void 0 ? void 0 : stats.avg_order_value) || 0)),
             color: "#7c3aed"
           }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_1__.jsx)(StatCard, {
             label: "Total Discounts",
-            value: "PHP ".concat(Number((stats === null || stats === void 0 ? void 0 : stats.total_discounts) || 0).toLocaleString('en-PH', {
-              minimumFractionDigits: 2
-            })),
+            value: new Intl.NumberFormat('en-PH', {
+              style: 'currency',
+              currency: 'PHP'
+            }).format(Number((stats === null || stats === void 0 ? void 0 : stats.total_discounts) || 0)),
             color: "#f59e0b"
           })]
         })]

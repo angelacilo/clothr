@@ -29,12 +29,8 @@ Route::get('/api/products/{id}', [App\Http\Controllers\ProductController::class,
 
 // Protected routes (including root /)
 Route::middleware('auth')->group(function () {
-    Route::get('/', function () {
-        return view('home');
-    });
-    Route::get('/home', function () {
-        return view('home');
-    })->name('home');
+    Route::get('/', [App\Http\Controllers\ProductController::class, 'home']);
+    Route::get('/home', [App\Http\Controllers\ProductController::class, 'home'])->name('home');
     Route::get('/account', function () {
         return view('dashboard');
     })->name('account');

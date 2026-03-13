@@ -9,11 +9,26 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Display all products with optional filtering
+     * Home page: new arrivals and categories (real data from DB)
+     */
+    public function home()
+    {
+        $newArrivals = Product::with(['category', 'inventory', 'images'])
+            ->where('status', 'active')
+            ->latest()
+            ->take(8)
+            ->get();
+        $categories = Category::withCount('products')->get();
+        return view('home', compact('newArrivals', 'categories'));
+    }
+
+    /**
+     * Display all products with optional filtering (active only for customers)
      */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'inventory', 'images', 'reviews']);
+        $query = Product::with(['category', 'inventory', 'images', 'reviews'])
+            ->where('status', 'active');
 
         // Filter by category
         if ($request->has('category') && $request->category != '') {
@@ -54,15 +69,17 @@ class ProductController extends Controller
     public function show($id)
     {
         $product = Product::with(['category', 'inventory', 'images', 'reviews.user', 'variants'])
-                          ->findOrFail($id);
+            ->where('status', 'active')
+            ->findOrFail($id);
 
         // Increment view count if needed (optional)
         // $product->increment('views');
 
         $relatedProducts = Product::where('category_id', $product->category_id)
-                                   ->where('product_id', '!=', $id)
-                                   ->take(4)
-                                   ->get();
+            ->where('product_id', '!=', $id)
+            ->where('status', 'active')
+            ->take(4)
+            ->get();
 
         return view('products.show', compact('product', 'relatedProducts'));
     }

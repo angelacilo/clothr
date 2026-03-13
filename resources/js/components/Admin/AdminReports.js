@@ -68,10 +68,10 @@ function AdminReports() {
                     <div style={{ marginBottom: 8 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>Revenue</div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
-                            <StatCard label="Total Revenue" value={`PHP ${Number(stats?.total_revenue || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`} color="#16a34a" />
+                            <StatCard label="Total Revenue" value={new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(stats?.total_revenue || 0))} color="#16a34a" />
                             <StatCard label="Total Orders" value={stats?.total_orders || 0} color="#2563eb" />
-                            <StatCard label="Avg Order Value" value={`PHP ${Number(stats?.avg_order_value || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`} color="#7c3aed" />
-                            <StatCard label="Total Discounts" value={`PHP ${Number(stats?.total_discounts || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`} color="#f59e0b" />
+                            <StatCard label="Avg Order Value" value={new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(stats?.avg_order_value || 0))} color="#7c3aed" />
+                            <StatCard label="Total Discounts" value={new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(stats?.total_discounts || 0))} color="#f59e0b" />
                         </div>
                     </div>
 

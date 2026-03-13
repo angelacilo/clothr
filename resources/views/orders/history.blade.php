@@ -53,7 +53,7 @@
                                 <td style="padding: 16px; color: #2563eb;"><strong>#{{ str_pad($order->order_id, 6, '0', STR_PAD_LEFT) }}</strong></td>
                                 <td style="padding: 16px; color: #666; font-size: 14px;">{{ $order->created_at->format('M d, Y') }}</td>
                                 <td style="padding: 16px; color: #666; font-size: 14px;">{{ $order->items->count() }} item(s)</td>
-                                <td style="padding: 16px; color: #333; font-weight: 600;">${{ number_format($order->total_amount, 2) }}</td>
+                                <td style="padding: 16px; color: #333; font-weight: 600;">₱{{ number_format($order->total_amount, 2) }}</td>
                                 <td style="padding: 16px;">
                                     <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;
                                         @switch($order->order_status)
