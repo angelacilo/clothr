@@ -25,10 +25,8 @@
                     <div style="padding: 16px;">
                         <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">{{ $product->name }}</h4>
                         <p style="font-size: 12px; color: var(--text-medium); margin-bottom: 12px;">Archived</p>
-                        <form action="{{ route('admin.products.update', $product->id) }}" method="POST">
+                        <form action="{{ route('admin.products.restore', $product->id) }}" method="POST">
                             @csrf
-                            @method('PUT')
-                            <input type="hidden" name="isArchived" value="0">
                             <button class="btn btn-outline" style="width: 100%; font-size: 12px; padding: 6px;">Restore</button>
                         </form>
                     </div>

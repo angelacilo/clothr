@@ -47,6 +47,10 @@ Route::middleware(['auth'])->group(function () {
     
     Route::post('/wishlist/toggle/{id}', [\App\Http\Controllers\ProfileController::class, 'toggleWishlist'])->name('wishlist.toggle');
 
+    // Profile: Reviews & Order Details
+    Route::get('/profile/reviews', [\App\Http\Controllers\ProfileController::class, 'reviews'])->name('profile.reviews');
+    Route::get('/profile/order/{id}', [\App\Http\Controllers\ProfileController::class, 'orderDetails'])->name('profile.order');
+
     // Location APIs
     Route::get('/api/countries', [\App\Http\Controllers\LocationController::class, 'getCountries']);
     Route::get('/api/regions/{country_id}', [\App\Http\Controllers\LocationController::class, 'getRegions']);
@@ -62,11 +66,15 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/orders', [\App\Http\Controllers\AdminController::class, 'orders'])->name('admin.orders');
+    Route::get('/orders/{id}', [\App\Http\Controllers\AdminController::class, 'orderDetails'])->name('admin.orders.details');
+    Route::put('/orders/{id}/status', [\App\Http\Controllers\AdminController::class, 'updateOrderStatus'])->name('admin.orders.status');
+    Route::put('/orders/{id}/courier', [\App\Http\Controllers\AdminController::class, 'updateOrderCourier'])->name('admin.orders.courier');
     Route::get('/products', [\App\Http\Controllers\AdminController::class, 'products'])->name('admin.products');
     Route::post('/products', [\App\Http\Controllers\AdminController::class, 'storeProduct'])->name('admin.products.store');
     Route::put('/products/{id}', [\App\Http\Controllers\AdminController::class, 'updateProduct'])->name('admin.products.update');
     Route::delete('/products/{id}', [\App\Http\Controllers\AdminController::class, 'deleteProduct'])->name('admin.products.delete');
     Route::post('/products/{id}/archive', [\App\Http\Controllers\AdminController::class, 'archiveProduct'])->name('admin.products.archive');
+    Route::post('/products/{id}/restore', [\App\Http\Controllers\AdminController::class, 'restoreProduct'])->name('admin.products.restore');
     
     Route::get('/categories', [\App\Http\Controllers\AdminController::class, 'categories'])->name('admin.categories');
     Route::post('/categories', [\App\Http\Controllers\AdminController::class, 'storeCategory'])->name('admin.categories.store');

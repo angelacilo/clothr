@@ -59,7 +59,7 @@
 <div id="addProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
     <div class="card" style="width:500px; padding:32px; max-height: 90vh; overflow-y: auto;">
         <h2 style="margin-bottom:24px;">Add New Product</h2>
-        <form action="{{ route('admin.products.store') }}" method="POST">
+        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div style="margin-bottom:16px;">
                 <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">NAME</label>
@@ -73,9 +73,14 @@
                     @endforeach
                 </select>
             </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">PRODUCT IMAGE</label>
+                <input type="file" name="image" accept="image/*" style="width:100%; padding:8px; border:1px solid var(--border-color); border-radius:8px;">
+                <span style="font-size:11px; color: var(--text-medium);">Upload an image file (JPG, PNG, WEBP)</span>
+            </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">PRICE ($)</label>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">PRICE (₱)</label>
                     <input type="number" step="0.01" name="price" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
                 </div>
                 <div>
@@ -99,7 +104,7 @@
 <div id="editProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
     <div class="card" style="width:500px; padding:32px; max-height: 90vh; overflow-y: auto;">
         <h2 style="margin-bottom:24px;">Edit Product</h2>
-        <form id="editProductForm" method="POST">
+        <form id="editProductForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div style="margin-bottom:16px;">
@@ -114,9 +119,14 @@
                     @endforeach
                 </select>
             </div>
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">REPLACE PRODUCT IMAGE</label>
+                <input type="file" name="image" accept="image/*" style="width:100%; padding:8px; border:1px solid var(--border-color); border-radius:8px;">
+                <span style="font-size:11px; color: var(--text-medium);">Leave blank to keep existing image</span>
+            </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">PRICE ($)</label>
+                    <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">PRICE (₱)</label>
                     <input type="number" step="0.01" name="price" id="editProdPrice" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:8px;" required>
                 </div>
                 <div>

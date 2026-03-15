@@ -302,7 +302,7 @@ body {
     background-color: var(--white);
     border-radius: 12px;
     border: 1px solid var(--border-color);
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden so dropdowns overflow properly */
 }
 
 table {
@@ -319,6 +319,13 @@ th {
     color: var(--text-medium);
     text-transform: uppercase;
     border-bottom: 1px solid var(--border-color);
+}
+
+th:first-child {
+    border-top-left-radius: 11px;
+}
+th:last-child {
+    border-top-right-radius: 11px;
 }
 
 td {

@@ -93,16 +93,24 @@
 
     <!-- Tabbed Collections -->
     <section class="section container">
-        <div style="border-bottom: 1px solid #eee; margin-bottom: 40px; display: flex; justify-content: center; gap: 40px;">
-            <span style="font-weight: 800; padding-bottom: 15px; border-bottom: 3px solid #000; cursor: pointer;">Women</span>
-            <span style="font-weight: 600; color: #999; padding-bottom: 15px; cursor: pointer;">Men</span>
-            <span style="font-weight: 600; color: #999; padding-bottom: 15px; cursor: pointer;">Kids</span>
-            <span style="font-weight: 600; color: #999; padding-bottom: 15px; cursor: pointer;">Home & Living</span>
+        <div id="collectionTabs" style="border-bottom: 1px solid #eee; margin-bottom: 40px; display: flex; justify-content: center; gap: 40px;">
+            <span class="tab-link" data-target="women" style="font-weight: 800; padding-bottom: 15px; border-bottom: 3px solid #000; cursor: pointer; color: #000;">Women</span>
+            <span class="tab-link" data-target="men" style="font-weight: 600; padding-bottom: 15px; border-bottom: 3px solid transparent; cursor: pointer; color: #999;">Men</span>
+            <span class="tab-link" data-target="kids" style="font-weight: 600; padding-bottom: 15px; border-bottom: 3px solid transparent; cursor: pointer; color: #999;">Kids</span>
+            <span class="tab-link" data-target="home" style="font-weight: 600; padding-bottom: 15px; border-bottom: 3px solid transparent; cursor: pointer; color: #999;">Home & Living</span>
         </div>
 
-        <div class="products__grid">
+        <div class="products__grid" id="productGrid">
             @foreach($featured as $product)
-                <div class="product-card">
+                @php
+                    $catName = strtolower($product->category->name ?? '');
+                    $tabTarget = 'women'; // default fallback
+                    if (str_contains($catName, 'men')) $tabTarget = 'men';
+                    if (str_contains($catName, 'women')) $tabTarget = 'women';
+                    if (str_contains($catName, 'kid') || str_contains($catName, 'boy') || str_contains($catName, 'girl')) $tabTarget = 'kids';
+                    if (str_contains($catName, 'home') || str_contains($catName, 'jewelery') || str_contains($catName, 'electronic')) $tabTarget = 'home';
+                @endphp
+                <div class="product-card collection-item" data-category="{{ $tabTarget }}">
                     @if($product->isNew)
                         <span class="product-badge">New</span>
                     @elseif($product->isOnSale)
@@ -141,4 +149,67 @@
             </form>
         </div>
     </section>
+@endsection
+
+@section('extra_js')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.tab-link');
+        const items = document.querySelectorAll('.collection-item');
+        const grid = document.getElementById('productGrid');
+        
+        // Setup empty message element
+        const emptyMsg = document.createElement('div');
+        emptyMsg.id = 'emptyTabMsg';
+        emptyMsg.style.gridColumn = '1 / -1';
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.padding = '40px';
+        emptyMsg.style.color = '#999';
+        emptyMsg.style.fontSize = '15px';
+        emptyMsg.innerHTML = '<i data-lucide="inbox" style="margin-bottom: 10px; opacity: 0.5;" size="32"></i><br>No items available in this category yet.';
+        emptyMsg.style.display = 'none';
+        grid.appendChild(emptyMsg);
+        if(window.lucide) lucide.createIcons();
+
+        const filterItems = (target) => {
+            let visibleCount = 0;
+            items.forEach(item => {
+                if (item.getAttribute('data-category') === target) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (visibleCount === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+            }
+        };
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active styling from all tabs
+                tabs.forEach(t => {
+                    t.style.fontWeight = '600';
+                    t.style.borderBottomColor = 'transparent';
+                    t.style.color = '#999';
+                });
+
+                // Add active styling to clicked tab
+                tab.style.fontWeight = '800';
+                tab.style.borderBottomColor = '#000';
+                tab.style.color = '#000';
+
+                // Filter items
+                filterItems(tab.getAttribute('data-target'));
+            });
+        });
+
+        // Initialize first tab
+        filterItems('women');
+    });
+</script>
 @endsection

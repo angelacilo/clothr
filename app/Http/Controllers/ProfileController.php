@@ -89,4 +89,15 @@ class ProfileController extends Controller
             return response()->json(['status' => 'added']);
         }
     }
+
+    public function orderDetails($id)
+    {
+        $order = Order::where('user_id', auth()->id())->findOrFail($id);
+        return view('profile.order-details', compact('order'));
+    }
+
+    public function reviews()
+    {
+        return view('profile.reviews');
+    }
 }

@@ -113,7 +113,6 @@
     <div class="tabs-container">
         <button class="tab-btn active" onclick="switchTab('categories')">Categories</button>
         <button class="tab-btn" onclick="switchTab('store-info')">Store Info</button>
-        <button class="tab-btn" onclick="switchTab('payment')">Payment</button>
         <button class="tab-btn" onclick="switchTab('shipping')">Shipping</button>
         <button class="tab-btn" onclick="switchTab('security')">Security</button>
     </div>
@@ -169,7 +168,8 @@
             <div class="form-group">
                 <label>Currency</label>
                 <select class="form-input">
-                    <option selected>USD ($)</option>
+                    <option selected>PHP (₱)</option>
+                    <option>USD ($)</option>
                     <option>EUR (€)</option>
                     <option>GBP (£)</option>
                 </select>
@@ -180,47 +180,19 @@
         </div>
     </div>
 
-    <!-- Tab 3: Payment -->
-    <div id="tab-payment" class="settings-section">
-        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">Payment Methods</h3>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            @php
-                $payments = [
-                    ['name' => 'Credit Card', 'icon' => 'credit-card', 'active' => true],
-                    ['name' => 'PayPal', 'icon' => 'wallet', 'active' => true],
-                    ['name' => 'Bank Transfer', 'icon' => 'landmark', 'active' => false],
-                    ['name' => 'Cash on Delivery', 'icon' => 'banknote', 'active' => true],
-                ];
-            @endphp
 
-            @foreach($payments as $pay)
-            <div class="card" style="padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <i data-lucide="{{ $pay['icon'] }}" style="color: var(--text-medium); width: 20px;"></i>
-                    <span style="font-weight: 600;">{{ $pay['name'] }}</span>
-                </div>
-                <button class="status-badge" 
-                        style="border: none; cursor: pointer; background-color: {{ $pay['active'] ? '#dcfce7' : '#f3f4f6' }}; color: {{ $pay['active'] ? '#166534' : '#6b7280' }};"
-                        onclick="this.style.backgroundColor = this.style.backgroundColor === 'rgb(220, 252, 231)' ? '#f3f4f6' : '#dcfce7'; 
-                                 this.innerText = this.innerText === 'Active' ? 'Inactive' : 'Active';">
-                    {{ $pay['active'] ? 'Active' : 'Inactive' }}
-                </button>
-            </div>
-            @endforeach
-        </div>
-    </div>
 
     <!-- Tab 4: Shipping -->
     <div id="tab-shipping" class="settings-section">
         <div class="card" style="padding: 32px; max-width: 600px;">
             <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">Shipping Settings</h3>
             <div class="form-group">
-                <label>Standard Shipping Rate ($)</label>
-                <input type="number" class="form-input" value="5.00">
+                <label>Standard Shipping Rate (₱)</label>
+                <input type="number" class="form-input" value="250.00">
             </div>
             <div class="form-group">
-                <label>Free Shipping Threshold ($)</label>
-                <input type="number" class="form-input" value="50.00">
+                <label>Free Shipping Threshold (₱)</label>
+                <input type="number" class="form-input" value="2500.00">
             </div>
             <button class="btn btn-dark" style="margin-top: 12px; display: flex; align-items: center; gap: 10px;" onclick="showToast('Settings saved successfully')">
                 <i data-lucide="save" style="width: 18px;"></i> Save Changes

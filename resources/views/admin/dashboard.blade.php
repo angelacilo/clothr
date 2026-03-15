@@ -10,7 +10,7 @@
         <div class="card kpi-card">
             <div class="kpi-top">
                 <div class="kpi-icon" style="background-color: #eff6ff; color: #3b82f6;">
-                    <i data-lucide="dollar-sign"></i>
+                    <i data-lucide="philippine-peso"></i>
                 </div>
                 <span style="color: #10b981; font-weight: 600; font-size: 12px;">Live</span>
             </div>
@@ -34,7 +34,7 @@
         <div class="card kpi-card">
             <div class="kpi-top">
                 <div class="kpi-icon" style="background-color: #ccfbf1; color: #14b8a6;">
-                    <i data-lucide="help-circle"></i>
+                    <i data-lucide="trending-up"></i>
                 </div>
             </div>
             <span class="kpi-value">₱{{ $stats['orders'] > 0 ? number_format($stats['total_sales'] / $stats['orders'], 2) : '0.00' }}</span>
@@ -54,36 +54,36 @@
         </div>
     </div>
 
-    <!-- Row 2: Order Status Pills -->
+    <!-- Row 2: Order Status Pills (Real Data) -->
     <div style="display: flex; gap: 16px; margin-bottom: 24px;">
         <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #fef9c3; border-color: #fde047;">
             <i data-lucide="clock" style="margin-bottom: 8px; color: #854d0e;"></i>
-            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 20px; font-weight: 700;">{{ $statusCounts['pending'] }}</span>
             <span style="font-size: 12px; color: #854d0e; font-weight: 600;">Pending</span>
         </div>
         <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #dbeafe; border-color: #93c5fd;">
             <i data-lucide="settings" style="margin-bottom: 8px; color: #1e40af;"></i>
-            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 20px; font-weight: 700;">{{ $statusCounts['processing'] }}</span>
             <span style="font-size: 12px; color: #1e40af; font-weight: 600;">Processing</span>
         </div>
         <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #f3e8ff; border-color: #d8b4fe;">
             <i data-lucide="truck" style="margin-bottom: 8px; color: #6b21a8;"></i>
-            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 20px; font-weight: 700;">{{ $statusCounts['shipped'] }}</span>
             <span style="font-size: 12px; color: #6b21a8; font-weight: 600;">Shipped</span>
         </div>
         <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #dcfce7; border-color: #86efac;">
             <i data-lucide="check-circle" style="margin-bottom: 8px; color: #166534;"></i>
-            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 20px; font-weight: 700;">{{ $statusCounts['delivered'] }}</span>
             <span style="font-size: 12px; color: #166534; font-weight: 600;">Delivered</span>
         </div>
         <div class="card" style="flex: 1; display: flex; flex-direction: column; align-items: center; background-color: #fee2e2; border-color: #fca5a5;">
             <i data-lucide="x-circle" style="margin-bottom: 8px; color: #991b1b;"></i>
-            <span style="font-size: 20px; font-weight: 700;">0</span>
+            <span style="font-size: 20px; font-weight: 700;">{{ $statusCounts['cancelled'] }}</span>
             <span style="font-size: 12px; color: #991b1b; font-weight: 600;">Cancelled</span>
         </div>
     </div>
 
-    <!-- Row 3: Charts -->
+    <!-- Row 3: Charts (Real Data) -->
     <div class="grid chart-row">
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
@@ -91,7 +91,6 @@
                     <h3 style="font-size: 18px; font-weight: 700;">Sales Trend</h3>
                     <p style="color: var(--text-medium); font-size: 14px;">Last 8 days performance</p>
                 </div>
-                <span class="status-badge" style="background-color: #dcfce7; color: #10b981;">+18.2%</span>
             </div>
             <canvas id="salesTrendChart" height="250"></canvas>
         </div>
@@ -123,13 +122,23 @@
                 </thead>
                 <tbody>
                     @foreach($recent_orders as $order)
+                        @php
+                            $statusColors = [
+                                'Pending' => ['bg' => '#fffbeb', 'color' => '#92400e'],
+                                'Processing' => ['bg' => '#dbeafe', 'color' => '#1e40af'],
+                                'Shipped' => ['bg' => '#f3e8ff', 'color' => '#6b21a8'],
+                                'Delivered' => ['bg' => '#f0fdf4', 'color' => '#166534'],
+                                'Cancelled' => ['bg' => '#fef2f2', 'color' => '#991b1b'],
+                            ];
+                            $sc = $statusColors[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#374151'];
+                        @endphp
                         <tr style="border-bottom: 1px solid var(--border-color);">
                             <td style="padding: 12px 0; font-weight: 600;">#{{ 1000 + $order->id }}</td>
                             <td style="padding: 12px 0;">{{ $order->customer_info['first_name'] ?? ($order->customer_info['firstName'] ?? 'Guest') }}</td>
                             <td style="padding: 12px 0; color: var(--text-medium);">{{ $order->created_at->format('M d') }}</td>
                             <td style="padding: 12px 0; font-weight: 700;">₱{{ number_format($order->total, 2) }}</td>
                             <td style="padding: 12px 0;">
-                                <span style="background: {{ $order->status == 'Pending' ? '#fffbeb' : '#f0fdf4' }}; color: {{ $order->status == 'Pending' ? '#92400e' : '#166534' }}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
+                                <span style="background: {{ $sc['bg'] }}; color: {{ $sc['color'] }}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">
                                     {{ $order->status }}
                                 </span>
                             </td>
@@ -150,10 +159,12 @@
                     Alerts & Notifications
                 </h3>
                 
+                @if($lowStockCount > 0)
                 <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-                    <p style="font-size: 13px; color: #92400e; margin-bottom: 12px;">10 items have less than 10 units in stock</p>
-                    <button class="btn" style="background-color: #f97316; color: white; padding: 6px 16px; font-size: 12px;">View</button>
+                    <p style="font-size: 13px; color: #92400e; margin-bottom: 12px;">{{ $lowStockCount }} items have less than 10 units in stock</p>
+                    <a href="{{ route('admin.products') }}" class="btn" style="background-color: #f97316; color: white; padding: 6px 16px; font-size: 12px;">View</a>
                 </div>
+                @endif
                 
                 <div style="background-color: #f0fdf4; border: 1px solid #dcfce7; border-radius: 8px; padding: 16px;">
                     <p style="font-size: 13px; color: #166534; font-weight: 600;">All systems operational</p>
@@ -174,16 +185,16 @@
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
                             <i data-lucide="shopping-cart" style="width: 16px;"></i>
-                            <span style="font-size: 14px;">Total Orders</span>
+                            <span style="font-size: 14px;">Today's Orders</span>
                         </div>
-                        <span style="font-weight: 700;">{{ $stats['orders'] }}</span>
+                        <span style="font-weight: 700;">{{ $todayOrders }}</span>
                     </div>
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
-                            <i data-lucide="star" style="width: 16px;"></i>
-                            <span style="font-size: 14px;">Avg Rating</span>
+                            <i data-lucide="philippine-peso" style="width: 16px;"></i>
+                            <span style="font-size: 14px;">Today's Revenue</span>
                         </div>
-                        <span style="font-weight: 700;">4.8</span>
+                        <span style="font-weight: 700;">₱{{ number_format($todayRevenue, 2) }}</span>
                     </div>
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--text-medium);">
@@ -201,15 +212,15 @@
 
 @section('scripts')
 <script>
-    // Sales Trend Chart
+    // Sales Trend Chart (Real Data)
     const ctxTrend = document.getElementById('salesTrendChart').getContext('2d');
     new Chart(ctxTrend, {
         type: 'line',
         data: {
-            labels: ['Feb 01', 'Feb 02', 'Feb 03', 'Feb 04', 'Feb 05', 'Feb 06', 'Feb 07', 'Feb 08'],
+            labels: {!! json_encode($dailyLabels) !!},
             datasets: [{
-                label: 'Sales',
-                data: [2500, 3200, 2800, 4000, 3500, 4800, 5200, 6000],
+                label: 'Sales (₱)',
+                data: {!! json_encode($dailySales) !!},
                 borderColor: '#3b82f6',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 fill: true,
@@ -220,42 +231,54 @@
             responsive: true,
             plugins: { legend: { display: false } },
             scales: {
-                y: { beginAtZero: true, max: 6000 },
+                y: { 
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return '₱' + value.toLocaleString(); }
+                    }
+                },
                 x: { grid: { display: false } }
             }
         }
     });
 
-    // Revenue by Category Chart
+    // Revenue by Category Chart (Real Data)
     const ctxCat = document.getElementById('revenueCategoryChart').getContext('2d');
     new Chart(ctxCat, {
         type: 'doughnut',
         data: {
-            labels: ['Women', 'Men', 'Accessories', 'Shoes'],
+            labels: {!! json_encode($categoryLabels) !!},
             datasets: [{
-                data: [45, 30, 15, 10],
-                backgroundColor: ['#ec4899', '#3b82f6', '#f59e0b', '#a855f7'],
+                data: {!! json_encode($categoryRevenue) !!},
+                backgroundColor: ['#ec4899', '#3b82f6', '#f59e0b', '#a855f7', '#10b981', '#ef4444', '#06b6d4'],
                 hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: { position: 'right' }
+                legend: { position: 'right' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ₱' + context.parsed.toLocaleString();
+                        }
+                    }
+                }
             },
             cutout: '60%'
         }
     });
 
-    // Category Performance
+    // Category Performance (Real Data)
     const ctxPerf = document.getElementById('categoryPerfChart').getContext('2d');
     new Chart(ctxPerf, {
         type: 'bar',
         data: {
-            labels: ['Dresses', 'Tops & Blouses', 'Bottoms', 'Outerwear', 'Accessories'],
+            labels: {!! json_encode($categoryLabels) !!},
             datasets: [{
-                label: 'Sales Volume',
-                data: [0.85, 0.75, 0.6, 0.65, 0.8],
+                label: 'Revenue (₱)',
+                data: {!! json_encode($categoryRevenue) !!},
                 backgroundColor: '#3b82f6',
                 borderRadius: 4
             }]
@@ -265,7 +288,12 @@
             plugins: { legend: { display: false } },
             indexAxis: 'y',
             scales: {
-                x: { beginAtZero: true, max: 1 },
+                x: { 
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return '₱' + value.toLocaleString(); }
+                    }
+                },
                 y: { grid: { display: false } }
             }
         }
