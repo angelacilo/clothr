@@ -189,19 +189,37 @@ class AdminController extends Controller
 
     public function storeProduct(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
+        $request->validate([
+            'name'        => 'required',
+            'price'       => 'required|numeric',
             'category_id' => 'required',
-            'stock' => 'required|integer',
             'description' => 'nullable',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $data['isFeatured'] = $request->has('isFeatured');
-        $data['isOnSale'] = $request->has('isOnSale');
-        $data['isNew'] = $request->has('isNew');
+        $data = $request->only(['name', 'price', 'category_id', 'description']);
+
+        // Handle Colors & Sizes (accept JSON string or plain array)
+        $colors = $request->input('variant_colors', '[]');
+        $sizes  = $request->input('variant_sizes',  '[]');
+        $data['colors'] = is_string($colors) ? (json_decode($colors, true) ?: []) : $colors;
+        $data['sizes']  = is_string($sizes)  ? (json_decode($sizes, true)  ?: []) : $sizes;
+
+        // Stock Calculation
+        $variantStock = $request->input('variant_stock', '{}');
+        $stockData    = is_string($variantStock) ? (json_decode($variantStock, true) ?: []) : $variantStock;
         
+        if (!empty($stockData)) {
+            $data['stock'] = array_sum($stockData);
+        } else {
+            $request->validate(['stock' => 'required|integer']);
+            $data['stock'] = $request->input('stock', 0);
+        }
+
+        $data['isFeatured'] = $request->has('isFeatured');
+        $data['isOnSale']   = $request->has('isOnSale');
+        $data['isNew']      = $request->has('isNew');
+
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $data['images'] = ['/storage/' . $path];
@@ -213,22 +231,31 @@ class AdminController extends Controller
         return back()->with('success', 'Product created!');
     }
 
+
     public function updateProduct(Request $request, $id)
     {
         $product = Product::findOrFail($id);
-        
-        $data = $request->validate([
-            'name' => 'required',
-            'price' => 'required|numeric',
+
+        $request->validate([
+            'name'        => 'required',
+            'price'       => 'required|numeric',
             'category_id' => 'required',
-            'stock' => 'required|integer',
+            'stock'       => 'required|integer',
             'description' => 'nullable',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
-        
+
+        $data = $request->only(['name', 'price', 'category_id', 'stock', 'description']);
+
+        // Handle Colors & Sizes (accept JSON string or plain array)
+        $colors = $request->input('variant_colors', '[]');
+        $sizes  = $request->input('variant_sizes',  '[]');
+        $data['colors'] = is_string($colors) ? (json_decode($colors, true) ?: []) : $colors;
+        $data['sizes']  = is_string($sizes)  ? (json_decode($sizes, true)  ?: []) : $sizes;
+
         $data['isFeatured'] = $request->has('isFeatured');
-        $data['isOnSale'] = $request->has('isOnSale');
-        $data['isNew'] = $request->has('isNew');
+        $data['isOnSale']   = $request->has('isOnSale');
+        $data['isNew']      = $request->has('isNew');
         $data['isArchived'] = $request->has('isArchived');
 
         if ($request->hasFile('image')) {
@@ -239,6 +266,7 @@ class AdminController extends Controller
         $product->update($data);
         return back()->with('success', 'Product updated!');
     }
+
 
     public function deleteProduct($id)
     {
