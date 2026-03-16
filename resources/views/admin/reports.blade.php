@@ -38,12 +38,23 @@
 
 @section('scripts')
 <script>
+    const { jsPDF } = window.jspdf;
+    
+    // Use the real data passed from the controller
+    const systemData = @json($allData);
+
     function handleDownload(btn, format) {
+        const reportName = btn.closest('.card').querySelector('h3').innerText;
+        const data = systemData[reportName];
+        
+        if (!data || !data.rows || data.rows.length === 0) {
+            return showToast('No data available for this report');
+        }
+
         const originalContent = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = `<span class="spinner" style="border: 2px solid rgba(0,0,0,0.1); border-top: 2px solid #3b82f6; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 0.8s linear infinite; margin-right: 8px;"></span> Downloading...`;
+        btn.innerHTML = `<span class="spinner" style="border: 2px solid rgba(0,0,0,0.1); border-top: 2px solid white; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 0.8s linear infinite; margin-right: 8px;"></span> Downloading...`;
         
-        // Add spinner animation style if not present
         if (!document.getElementById('spinner-style')) {
             const style = document.createElement('style');
             style.id = 'spinner-style';
@@ -52,59 +63,93 @@
         }
 
         setTimeout(() => {
-            const reportName = btn.closest('.card').querySelector('h3').innerText;
-            let blob;
-            let extension = format.toLowerCase();
-            let filename = `${reportName.replace(/\s+/g, '_')}_Report`;
+            const fileName = `${reportName.toLowerCase().replace(/\s+/g, '_')}_${new Date().getFullYear()}`;
 
-            if (format === 'Excel') {
-                // Use HTML table format for actual Excel column separation
-                // We break the <x: tags to prevent Blade from interpreting them as components
-                const tableHtml = `
-                    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-                    <head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x` + `:ExcelWorkbook><x` + `:ExcelWorksheets><x` + `:ExcelWorksheet><x` + `:Name>${reportName}</x` + `:Name><x` + `:WorksheetOptions><x` + `:DisplayGridlines/></x` + `:WorksheetOptions></x` + `:ExcelWorksheet></x` + `:ExcelWorksheets></x` + `:ExcelWorkbook></xml><![endif]--></head>
-                    <body>
-                        <h2 style="font-family: sans-serif;">${reportName}</h2>
-                        <p style="font-family: sans-serif; color: #666;">Generated on: ${new Date().toLocaleString()}</p>
-                        <table border="1" style="border-collapse: collapse; font-family: sans-serif;">
-                            <tr style="background-color: #f3f4f6;">
-                                <th style="padding: 10px;">Date</th>
-                                <th style="padding: 10px;">Order ID</th>
-                                <th style="padding: 10px;">Customer</th>
-                                <th style="padding: 10px;">Amount</th>
-                                <th style="padding: 10px;">Status</th>
-                            </tr>
-                            <tr><td style="padding: 8px;">2026-03-16</td><td style="padding: 8px;">1001</td><td style="padding: 8px;">Juana Dela Cruz</td><td style="padding: 8px;">₱1,250.00</td><td style="padding: 8px;">Delivered</td></tr>
-                            <tr><td style="padding: 8px;">2026-03-16</td><td style="padding: 8px;">1002</td><td style="padding: 8px;">John Doe</td><td style="padding: 8px;">₱850.00</td><td style="padding: 8px;">Processing</td></tr>
-                            <tr><td style="padding: 8px;">2026-03-16</td><td style="padding: 8px;">1003</td><td style="padding: 8px;">Maria Santos</td><td style="padding: 8px;">₱3,400.00</td><td style="padding: 8px;">Pending</td></tr>
-                        </table>
-                    </body>
-                    </html>`;
-                blob = new Blob([tableHtml], { type: 'application/vnd.ms-excel' });
-                extension = 'xls';
-            } else if (format === 'CSV') {
-                // Add BOM for UTF-8 (important for Excel to show symbols like ₱ correctly)
-                const csvHeader = "\uFEFFDate,Order ID,Customer,Amount,Status\n";
-                const csvData = "2026-03-16,1001,Juana Dela Cruz,₱1250.00,Delivered\n2026-03-16,1002,John Doe,₱850.00,Processing\n2026-03-16,1003,Maria Santos,₱3400.00,Pending\n";
-                blob = new Blob([csvHeader + csvData], { type: 'text/csv;charset=utf-8' });
-            } else if (format === 'PDF') {
-                // Using a simpler, cleaner text format for the mock PDF
-                const docHeader = "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj 3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R>>endobj 4 0 obj<</Length 500>>stream\n";
-                const docTitle = `BT /F1 16 Tf 50 750 Td (${reportName}) Tj ET\n`;
-                const docSub = `BT /F1 10 Tf 50 730 Td (Generated on: ${new Date().toLocaleString()}) Tj ET\n`;
-                const docTable = `BT /F1 12 Tf 50 700 Td (Date | Order ID | Customer | Amount | Status) Tj 0 -20 Td (2026-03-16 | 1001 | Juana Dela Cruz | P1,250.00 | Delivered) Tj 0 -20 Td (2026-03-16 | 1002 | John Doe | P850.00 | Processing) Tj 0 -20 Td (2026-03-16 | 1003 | Maria Santos | P3,400.00 | Pending) Tj ET\n`;
-                const docFooter = "endstream\nendobj\nxref\n0 5\n0000000000 65535 f\n0000000009 00000 n\n0000000052 00000 n\n0000000101 00000 n\n0000000192 00000 n\ntrailer<</Size 5/Root 1 0 R>>\nstartxref\n293\n%%EOF";
-                blob = new Blob([docHeader + docTitle + docSub + docTable + docFooter], { type: 'application/pdf' });
+            if (format === 'PDF') {
+                const doc = new jsPDF();
+                // Header
+                doc.setFontSize(24);
+                doc.setTextColor(31, 41, 55); 
+                doc.text('CLOTHR', 14, 22);
+                
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text(reportName, 14, 32);
+                
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(107, 114, 128);
+                doc.text(`System Generated Report | ${new Date().toLocaleString()}`, 14, 40);
+                
+                // Draw a horizontal line under the header
+                doc.setDrawColor(229, 231, 235);
+                doc.line(14, 45, 196, 45);
+                
+                // Map rows for PDF
+                const tableRows = data.rows.map(row => Object.values(row));
+                
+                doc.autoTable({
+                    startY: 52,
+                    head: [data.headers],
+                    body: tableRows,
+                    theme: 'striped',
+                    headStyles: { fillColor: [31, 41, 55], fontSize: 10, cellPadding: 4 },
+                    bodyStyles: { fontSize: 9, cellPadding: 3 },
+                    alternateRowStyles: { fillColor: [249, 250, 251] },
+                    margin: { top: 52 }
+                });
+                doc.save(`${fileName}.pdf`);
+            } 
+            else if (format === 'Excel') {
+                const tableRows = data.rows.map(row => Object.values(row));
+                const aoa = [
+                    [reportName],
+                    [`Generated on: ${new Date().toLocaleString()}`],
+                    [],
+                    data.headers,
+                    ...tableRows
+                ];
+                
+                const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+                
+                // Advanced column width calculation for professional look
+                const colWidths = data.headers.map((h, i) => {
+                    let maxLen = h.length;
+                    
+                    // Check header length
+                    tableRows.forEach(row => {
+                        const val = row[i] ? row[i].toString() : '';
+                        if (val.length > maxLen) maxLen = val.length;
+                    });
+                    
+                    // Specific padding for important columns
+                    if (h.toLowerCase().includes('email')) return { wch: Math.max(maxLen + 5, 30) };
+                    if (h.toLowerCase().includes('name') || h.toLowerCase().includes('product')) return { wch: Math.max(maxLen + 5, 25) };
+                    if (h.toLowerCase().includes('date')) return { wch: 18 }; // Prevents #########
+                    
+                    return { wch: maxLen + 6 };
+                });
+                
+                worksheet['!cols'] = colWidths;
+
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
+                XLSX.writeFile(workbook, `${fileName}.xlsx`);
+            } 
+            else if (format === 'CSV') {
+                const tableRows = data.rows.map(row => Object.values(row));
+                const csvRows = [data.headers, ...tableRows];
+                const csvContent = "\uFEFF" + csvRows.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.style.display = 'none';
+                link.href = url;
+                link.download = `${fileName}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
-
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `${filename}.${extension}`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
 
             btn.innerHTML = originalContent;
             btn.disabled = false;
