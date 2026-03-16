@@ -86,4 +86,5 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::get('/reviews', [\App\Http\Controllers\AdminController::class, 'reviews'])->name('admin.reviews');
     Route::get('/reports', [\App\Http\Controllers\AdminController::class, 'reports'])->name('admin.reports');
     Route::get('/system-settings', [\App\Http\Controllers\AdminController::class, 'settings'])->name('admin.settings');
+    Route::post('/profile/update', [\App\Http\Controllers\AdminController::class, 'updateProfile'])->name('admin.profile.update');
 });

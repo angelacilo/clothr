@@ -92,15 +92,15 @@
                         View Store
                     </a>
                     
-                    <div class="user-profile">
+                    <a href="{{ route('admin.settings') }}" class="user-profile" style="text-decoration: none; cursor: pointer;">
                         <div class="avatar">
-                            <img src="https://i.pravatar.cc/150?u=admin" alt="Admin">
+                            <img src="{{ auth()->user()->avatar ?? 'https://i.pravatar.cc/150?u=admin' }}" alt="Admin">
                         </div>
                         <div class="user-details">
-                            <span class="user-name">Admin User</span>
-                            <span class="user-email">admin@clothr.com</span>
+                            <span class="user-name">{{ auth()->user()->name ?? 'Admin User' }}</span>
+                            <span class="user-email">{{ auth()->user()->email ?? 'admin@clothr.com' }}</span>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </header>
             

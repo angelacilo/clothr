@@ -3,154 +3,79 @@
 @section('title', 'System Settings')
 @section('subtitle', 'Configure store settings')
 
-@section('header_left_logo')
-<div style="width: 32px; height: 32px; background-color: #8b5cf6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; color: white; font-weight: 800;">C</div>
-@endsection
 
-@section('bell_badge')
-<span style="position: absolute; top: -5px; right: -5px; background-color: #ef4444; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; font-weight: 800; border: 2px solid white;">9</span>
-@endsection
-
-@section('view_store_icon')
-<i data-lucide="globe" style="width: 16px;"></i>
-@endsection
-
-@section('view_store_class', 'btn-dark')
-
-@section('floating_help')
-<button style="position: fixed; bottom: 32px; right: 32px; width: 48px; height: 48px; background-color: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); cursor: pointer; z-index: 100;" onclick="showToast('How can we help you?')">
-    <span style="font-size: 20px; font-weight: 700; color: var(--text-dark);">?</span>
-</button>
-@endsection
-
-@section('custom_sidebar')
-<aside class="sidebar">
-    <div style="padding: 24px; display: flex; align-items: center; gap: 12px;">
-        <div style="width: 28px; height: 28px; background-color: #8b5cf6; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 14px;">C</div>
-        <div style="display: flex; flex-direction: column;">
-            <span style="font-weight: 800; font-size: 16px; letter-spacing: -0.5px;">CLOTHR</span>
-            <span style="font-size: 10px; color: var(--text-medium); font-weight: 600; text-transform: uppercase;">Admin Panel</span>
-        </div>
-    </div>
-    
-    <nav class="sidebar-nav">
-        <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="layout-dashboard"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">Dashboard</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Sales analytics & insights</span>
-            </div>
-        </a>
-        <a href="{{ route('admin.orders') }}" class="nav-item {{ request()->routeIs('admin.orders') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="shopping-bag"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">Orders</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Manage customers orders</span>
-            </div>
-        </a>
-        <a href="{{ route('admin.products') }}" class="nav-item {{ request()->routeIs('admin.products') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="package"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">Products</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Add, edit, and manage products</span>
-            </div>
-        </a>
-        <a href="{{ route('admin.archive') }}" class="nav-item {{ request()->routeIs('admin.archive') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="archive"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">Archive</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Archived products & categories</span>
-            </div>
-        </a>
-        <a href="{{ route('admin.reports') }}" class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="bar-chart-2"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">Reports</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Sales and inventory reports</span>
-            </div>
-        </a>
-        <a href="{{ route('admin.reviews') }}" class="nav-item {{ request()->routeIs('admin.reviews') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="star"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">Reviews</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Customer review & ratings</span>
-            </div>
-        </a>
-        <a href="{{ route('admin.users') }}" class="nav-item {{ request()->routeIs('admin.users') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="users"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">Users</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Manage customer accounts</span>
-            </div>
-        </a>
-        <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}" style="flex-direction: row; align-items: center; padding: 12px 16px;">
-            <i data-lucide="settings"></i>
-            <div style="display: flex; flex-direction: column; margin-left: 12px;">
-                <span style="font-size: 14px; line-height: 1;">System Settings</span>
-                <span style="font-size: 10px; color: var(--text-light); margin-top: 4px;">Configure store settings</span>
-            </div>
-        </a>
-    </nav>
-    
-    <div class="sidebar-footer" style="padding: 24px;">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-            <div style="width: 36px; height: 36px; background-color: #a855f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">A</div>
-            <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">Admin User</span>
-                <span style="font-size: 11px; color: var(--text-medium);">admin@clothr.com</span>
-            </div>
-        </div>
-        <a href="/" class="btn btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 8px;">
-            <i data-lucide="log-out" style="width: 14px;"></i>
-            Logout
-        </a>
-    </div>
-</aside>
-@endsection
 
 @section('content')
 <div class="settings-container">
     <div class="tabs-container">
-        <button class="tab-btn active" onclick="switchTab('categories')">Categories</button>
+        <button class="tab-btn active" onclick="switchTab('admin-profile')">Admin Profile</button>
         <button class="tab-btn" onclick="switchTab('store-info')">Store Info</button>
         <button class="tab-btn" onclick="switchTab('shipping')">Shipping</button>
         <button class="tab-btn" onclick="switchTab('security')">Security</button>
     </div>
 
-    <!-- Tab 1: Categories -->
-    <div id="tab-categories" class="settings-section active">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h3 style="font-size: 18px; font-weight: 700; color: var(--text-dark);">Product Categories</h3>
-            <button class="btn btn-dark" onclick="openAddCategoryModal()">+ Add Category</button>
-        </div>
-        
-        <div style="display: flex; flex-direction: column; gap: 12px;" id="category-list">
-            @php
-                $categories = [
-                    ['id' => 'cat1', 'name' => 'Dresses'],
-                    ['id' => 'cat2', 'name' => 'Tops & Blouses'],
-                    ['id' => 'cat3', 'name' => 'Bottoms'],
-                    ['id' => 'cat4', 'name' => 'Outerwear'],
-                    ['id' => 'cat5', 'name' => 'Accessories'],
-                ];
-            @endphp
+    <!-- Tab 0: Admin Profile -->
+    <div id="tab-admin-profile" class="settings-section active">
+        <form id="admin-profile-form" action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="card" style="padding: 32px; max-width: 800px; position: relative;">
+                <div id="profile-view-controls" style="position: absolute; top: 32px; right: 32px;">
+                    <button type="button" class="btn btn-outline" onclick="enableEditMode()">
+                        <i data-lucide="edit-3" style="width: 16px; margin-right: 8px;"></i> Edit Profile
+                    </button>
+                </div>
+                <div id="profile-edit-controls" style="position: absolute; top: 32px; right: 32px; display: none; gap: 10px;">
+                    <button type="button" class="btn btn-outline" onclick="disableEditMode()" style="color: #ef4444; border-color: #fca5a5;">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-dark" onclick="saveAdminProfile()">
+                        Save Profile
+                    </button>
+                </div>
 
-            @foreach($categories as $cat)
-            <div class="card" style="padding: 16px 24px; display: flex; align-items: center; gap: 20px;">
-                <div style="width: 40px; height: 40px; background-color: #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                    <i data-lucide="box" style="color: #3b82f6; width: 20px;"></i>
+                <div style="display: flex; gap: 32px; align-items: flex-start; margin-bottom: 32px;">
+                    <div style="position: relative;">
+                        <img id="profile-preview" src="{{ $admin->avatar ?? 'https://i.pravatar.cc/150?u=admin' }}" alt="Admin" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid #f3f4f6; object-fit: cover;">
+                        <input type="file" name="avatar" id="profile-upload" style="display: none;" accept="image/*" onchange="previewProfileImage(this)">
+                        <button type="button" id="camera-btn" style="position: absolute; bottom: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); display: none;" onclick="document.getElementById('profile-upload').click()">
+                            <i data-lucide="camera" style="width: 16px; color: var(--text-medium);"></i>
+                        </button>
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 id="display-name" style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">{{ $admin->name ?? 'Admin User' }}</h3>
+                        <p style="color: var(--text-medium); margin-bottom: 20px;">System Administrator</p>
+                        <div style="display: flex; gap: 12px;">
+                            <span style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Active Account</span>
+                            <span style="background: #f3e8ff; color: #a855f7; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">Full Access</span>
+                        </div>
+                    </div>
                 </div>
-                <div style="flex: 1;">
-                    <span style="font-weight: 700; color: var(--text-dark); display: block;">{{ $cat['name'] }}</span>
-                    <span style="font-size: 12px; color: var(--text-light);">ID: {{ $cat['id'] }}</span>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="name" id="input-name" class="form-input profile-input" value="{{ $admin->name ?? 'Admin User' }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" name="email" id="input-email" class="form-input profile-input" value="{{ $admin->email ?? 'admin@clothr.com' }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" name="phone" id="input-phone" class="form-input profile-input" value="{{ $admin->phone ?? '+63 912 345 6789' }}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Admin ID</label>
+                        <input type="text" class="form-input" value="CLT-ADM-{{ str_pad($admin->id, 3, '0', STR_PAD_LEFT) }}" readonly style="background-color: #f9fafb;">
+                    </div>
                 </div>
-                <div style="display: flex; gap: 12px;">
-                    <i data-lucide="edit-3" style="width: 18px; color: var(--text-medium); cursor: pointer;" onclick="editCategory('{{ $cat['id'] }}', '{{ $cat['name'] }}')"></i>
-                    <i data-lucide="trash-2" style="width: 18px; color: #ef4444; cursor: pointer;" onclick="deleteCategory('{{ $cat['name'] }}')"></i>
+
+                <div class="form-group" style="margin-top: 24px;">
+                    <label>Professional Bio</label>
+                    <textarea name="bio" id="input-bio" class="form-input profile-input" rows="4" style="resize: none;" readonly>{{ $admin->bio ?? 'Head of Operations for CLOTHR. Responsible for system oversight, inventory management, and strategic store configurations.' }}</textarea>
                 </div>
             </div>
-            @endforeach
-        </div>
+        </form>
     </div>
 
     <!-- Tab 2: Store Info -->
@@ -229,20 +154,27 @@
     </div>
 </div>
 
-<!-- Category Modal -->
-<div id="categoryModal" class="modal-backdrop">
-    <div class="modal-content">
-        <h3 id="catModalTitle" style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">Add New Category</h3>
-        <div class="form-group">
-            <label>Category Name</label>
-            <input type="text" id="catNameInput" class="form-input" placeholder="e.g. Footwear">
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
-            <button class="btn btn-outline" onclick="closeCatModal()">Cancel</button>
-            <button class="btn btn-dark" onclick="saveCategory()">Save Category</button>
-        </div>
-    </div>
-</div>
+
+@if(session('success'))
+<script>
+    window.addEventListener('load', function() {
+        showToast('{{ session('success') }}');
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    window.addEventListener('load', function() {
+        const t = document.getElementById('toast');
+        if (t) {
+            t.style.background = '#ef4444';
+            showToast('{{ session('error') }}');
+            setTimeout(() => { t.style.background = '#111'; }, 3500);
+        }
+    });
+</script>
+@endif
 
 <!-- Logs Modal -->
 <div id="logsModal" class="modal-backdrop">
@@ -316,33 +248,42 @@
         document.getElementById('tab-' + tabId).classList.add('active');
     }
 
-    function openAddCategoryModal() {
-        document.getElementById('catModalTitle').innerText = 'Add New Category';
-        document.getElementById('catNameInput').value = '';
-        document.getElementById('categoryModal').style.display = 'flex';
+
+    function enableEditMode() {
+        document.getElementById('profile-view-controls').style.display = 'none';
+        document.getElementById('profile-edit-controls').style.display = 'flex';
+        document.getElementById('camera-btn').style.display = 'flex';
+        document.querySelectorAll('.profile-input').forEach(input => {
+            input.readOnly = false;
+            input.style.backgroundColor = 'white';
+            input.style.borderColor = '#3b82f6';
+        });
     }
 
-    function editCategory(id, name) {
-        document.getElementById('catModalTitle').innerText = 'Edit Category: ' + id;
-        document.getElementById('catNameInput').value = name;
-        document.getElementById('categoryModal').style.display = 'flex';
+    function disableEditMode() {
+        document.getElementById('profile-view-controls').style.display = 'block';
+        document.getElementById('profile-edit-controls').style.display = 'none';
+        document.getElementById('camera-btn').style.display = 'none';
+        document.querySelectorAll('.profile-input').forEach(input => {
+            input.readOnly = true;
+            input.style.backgroundColor = '#f9fafb';
+            input.style.borderColor = 'var(--border-color)';
+        });
     }
 
-    function closeCatModal() {
-        document.getElementById('categoryModal').style.display = 'none';
-    }
-
-    function saveCategory() {
-        const name = document.getElementById('catNameInput').value;
-        if (!name) return alert('Please enter a category name');
-        showToast('Category saved successfully');
-        closeCatModal();
-    }
-
-    function deleteCategory(name) {
-        if (confirm(`Are you sure you want to delete the category "${name}"?`)) {
-            showToast('Category deleted');
+    function previewProfileImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
         }
+    }
+
+    function saveAdminProfile() {
+        // Submit the actual form
+        document.getElementById('admin-profile-form').submit();
     }
 
     function openLogs() { document.getElementById('logsModal').style.display = 'flex'; }
