@@ -62,6 +62,10 @@
             <p style="font-size: 14px;">Customer accounts will appear here when they register.</p>
         </div>
     @endif
+
+    <div style="margin-top: 24px;">
+        {{ $users->withQueryString()->links() }}
+    </div>
 </div>
 
 <!-- Delete Confirmation Modal -->

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Shop;
 
+use App\Http\Controllers\Controller;
 use App\Models\Country;
 use App\Models\Region;
 use App\Models\City;
-use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {

@@ -2,7 +2,7 @@
 @section('title', 'Login')
 @section('extra_css')
     .auth-page { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 16px; }
-    .auth-heading { font-size: 26px; font-weight: 700; margin-bottom: 28px; }
+    .auth-heading { font-family: 'DM Serif Display', serif; font-size: 42px; font-weight: 400; margin-bottom: 32px; letter-spacing: 0.05em; }
     .auth-card { background: #fff; border-radius: 16px; padding: 28px 32px; width: 480px; max-width: 95vw; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
     .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: #f3f4f6; border-radius: 10px; padding: 4px; margin-bottom: 24px; }
     .auth-tab { padding: 10px; border: none; border-radius: 8px; background: transparent; font-size: 14px; font-weight: 500; cursor: pointer; color: #6b7280; transition: all 0.2s; }
@@ -20,7 +20,7 @@
 
 @section('content')
 <div class="auth-page">
-    <h1 class="auth-heading">Welcome to CLOTHR</h1>
+    <h1 class="auth-heading">CLOTHR</h1>
 
     <div class="auth-card">
         <!-- Tab Toggle -->
@@ -41,9 +41,6 @@
                 <input type="email" name="email" class="form-input-auth" placeholder="Enter your email" value="{{ old('email') }}" required>
                 <input type="password" name="password" class="form-input-auth" placeholder="Enter your password" required>
                 <button type="submit" class="btn-black btn-full">Login</button>
-                <div style="margin-top: 15px; text-align: center;">
-                    <a href="{{ route('password.request') }}" style="font-size: 13px; color: #6b7280; text-decoration: underline;">Forgot password?</a>
-                </div>
             </form>
         </div>
 

@@ -215,6 +215,10 @@
             </tbody>
         </table>
     </div>
+
+    <div style="margin-top: 24px;">
+        {{ $orders->withQueryString()->links() }}
+    </div>
 </div>
 
 <!-- ========== ORDER DETAIL MODAL ========== -->

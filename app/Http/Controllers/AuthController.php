@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
 
 class AuthController extends Controller
 {
@@ -29,22 +27,17 @@ class AuthController extends Controller
                 }
                 return redirect()->intended('/admin/dashboard');
             }
+
             if ($request->input('has_cart') == '1') {
                 return redirect()->intended('/checkout');
             }
+            
             return redirect()->intended('/');
         }
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->withInput($request->only('email', 'action'));
-    }
-
-    public function sendResetCode(Request $request)
-    {
-        $request->validate(['identifier' => 'required']);
-        // Mocking code sending
-        return back()->with('status', 'A verification code has been sent to ' . $request->identifier);
     }
 
     public function postRegister(Request $request)
@@ -70,6 +63,7 @@ class AuthController extends Controller
         if ($request->input('has_cart') == '1') {
             return redirect('/checkout');
         }
+        
         return redirect('/');
     }
 
@@ -78,6 +72,13 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
         return redirect('/');
+    }
+
+    public function sendResetCode(Request $request)
+    {
+        $request->validate(['identifier' => 'required']);
+        return back()->with('status', 'A verification code has been sent to ' . $request->identifier);
     }
 }

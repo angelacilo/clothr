@@ -41,6 +41,10 @@
             @endforeach
         </tbody>
     </table>
+
+    <div style="margin-top: 24px;">
+        {{ $categories->withQueryString()->links() }}
+    </div>
 </div>
 
 <!-- Add Modal -->

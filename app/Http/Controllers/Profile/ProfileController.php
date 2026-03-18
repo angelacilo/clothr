@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Profile;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\Address;
 use App\Models\Wishlist;
-use App\Models\Product;
 
 class ProfileController extends Controller
 {
@@ -28,6 +27,12 @@ class ProfileController extends Controller
         return view('profile.orders', compact('orders', 'status'));
     }
 
+    public function orderDetails($id)
+    {
+        $order = Order::where('user_id', auth()->id())->findOrFail($id);
+        return view('profile.order-details', compact('order'));
+    }
+
     public function addresses()
     {
         $addresses = auth()->user()->addresses;
@@ -46,7 +51,10 @@ class ProfileController extends Controller
     public function deleteAddress($id)
     {
         $user = auth()->user();
-        $user->addresses()->where('id', $id)->delete();
+        
+        // Ensure ownership and delete
+        $address = $user->addresses()->where('id', $id)->firstOrFail();
+        $address->delete();
         
         return back()->with('status', 'Address removed!');
     }
@@ -55,6 +63,20 @@ class ProfileController extends Controller
     {
         $wishlistItems = auth()->user()->wishlists()->with('product')->get();
         return view('profile.wishlist', compact('wishlistItems'));
+    }
+
+    public function toggleWishlist($id)
+    {
+        $user = auth()->user();
+        $wishlist = Wishlist::where('user_id', $user->id)->where('product_id', $id)->first();
+        
+        if ($wishlist) {
+            $wishlist->delete();
+            return response()->json(['status' => 'removed']);
+        } else {
+            Wishlist::create(['user_id' => $user->id, 'product_id' => $id]);
+            return response()->json(['status' => 'added']);
+        }
     }
 
     public function settings()
@@ -74,26 +96,6 @@ class ProfileController extends Controller
 
         $user->update($validated);
         return back()->with('status', 'Profile updated successfully!');
-    }
-
-    public function toggleWishlist($id)
-    {
-        $user = auth()->user();
-        $wishlist = Wishlist::where('user_id', $user->id)->where('product_id', $id)->first();
-        
-        if ($wishlist) {
-            $wishlist->delete();
-            return response()->json(['status' => 'removed']);
-        } else {
-            Wishlist::create(['user_id' => $user->id, 'product_id' => $id]);
-            return response()->json(['status' => 'added']);
-        }
-    }
-
-    public function orderDetails($id)
-    {
-        $order = Order::where('user_id', auth()->id())->findOrFail($id);
-        return view('profile.order-details', compact('order'));
     }
 
     public function reviews()

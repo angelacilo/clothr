@@ -10,6 +10,16 @@
         <button class="btn btn-dark" onclick="openAddProductModal()">Add Product</button>
     </div>
 
+    @if($errors->any())
+        <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach($errors->all() as $error)
+                    <li style="font-size: 14px; font-weight: 500;">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Product Grid -->
     <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 24px;">
         @foreach($products as $product)
@@ -55,6 +65,10 @@
                 </div>
             </div>
         @endforeach
+    </div>
+
+    <div style="margin-top: 24px;">
+        {{ $products->withQueryString()->links() }}
     </div>
 </div>
 

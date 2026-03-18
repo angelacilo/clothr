@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLOTHR | @yield('title', "Modern Women's Fashion")</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -43,7 +43,7 @@
         /* Navbar */
         .navbar { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); padding: 18px 0; }
         .navbar__inner { display: flex; align-items: center; justify-content: space-between; }
-        .navbar__logo { font-size: 24px; font-weight: 800; letter-spacing: -0.05em; }
+        .navbar__logo { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; letter-spacing: 0.05em; }
         .navbar__links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; }
         .navbar__actions { display: flex; align-items: center; gap: 20px; }
         .navbar__icon-btn { display: flex; position: relative; }
@@ -52,7 +52,7 @@
 
         /* Generic Layout Helpers */
         .section { padding: 100px 0; }
-        .section-title { font-size: 36px; font-weight: 800; margin-bottom: 60px; letter-spacing: -0.02em; text-align: center; }
+        .section-title { font-family: 'DM Serif Display', serif; font-size: 36px; font-weight: 400; margin-bottom: 60px; letter-spacing: 0.02em; text-align: center; }
 
         /* Footer */
         .footer { background: #fff; border-top: 1px solid var(--border-color); padding: 80px 0 40px; margin-top: 100px; }
@@ -220,12 +220,15 @@
                             @if(Auth::user()->is_admin)
                                 <a href="{{ route('admin.dashboard') }}" style="font-size: 13px; font-weight: 700; color: #f59e0b; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 4px;">Admin Dash</a>
                             @else
-                                <a href="{{ route('profile') }}" style="font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 5px;">
+                                <a href="{{ route('profile.index') }}" style="font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 5px;">
                                     <i data-lucide="user" size="18"></i>
                                     Hello, {{ explode(' ', Auth::user()->name)[0] }}
                                 </a>
                             @endif
-                            <a href="{{ route('logout') }}" class="navbar__login-link logout-link" style="color: var(--text-muted); font-size: 13px;">Logout</a>
+                            <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                                @csrf
+                                <button type="submit" class="navbar__login-link logout-link" style="color: var(--text-muted); font-size: 13px; background:none; border:none; cursor:pointer;" onclick="localStorage.removeItem('clothr_cart');">Logout</button>
+                            </form>
                         </div>
                     @else
                         <button id="openLoginModal" class="navbar__login-link"><i data-lucide="user" size="22"></i> Login</button>
@@ -279,11 +282,10 @@
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-input" required>
                     </div>
-                    <div class="form-row-between">
+                    <div style="margin-bottom: 24px;">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             <input type="checkbox" name="remember"> Remember me
                         </label>
-                        <a href="{{ route('password.request') }}" style="color: var(--php-blue);">Forgot password?</a>
                     </div>
                     <button type="submit" class="btn-blue">Log in</button>
                     <button type="button" class="btn-sso-black" style="margin-top: 10px;" id="backToSSO">Back to SSO</button>
@@ -297,7 +299,7 @@
     <footer class="footer">
         <div class="container footer__grid">
             <div class="footer__col">
-                <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 15px;">CLOTHR</h3>
+                <h3 style="font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; margin-bottom: 15px;">CLOTHR</h3>
                 <p>Your destination for modern women's fashion. Curated collections that celebrate style and individuality.</p>
                 <div class="footer__socials">
                     <a href="https://www.facebook.com/share/14ViXfujQf3/?mibextid=wwXIfr" target="_blank"><i data-lucide="facebook"></i></a>
@@ -412,11 +414,14 @@
         }
 
         function addToCart(product) {
+            let finalOutput;
             const existing = cart.find(item => item.id === product.id && item.size === product.size);
             if (existing) {
                 existing.quantity += product.quantity || 1;
+                finalOutput = existing;
             } else {
-                cart.push({...product, quantity: product.quantity || 1, is_selected: true});
+                finalOutput = {...product, quantity: product.quantity || 1, is_selected: true};
+                cart.push(finalOutput);
             }
             localStorage.setItem('clothr_cart', JSON.stringify(cart));
             updateCartCount();
@@ -426,7 +431,7 @@
                 fetch('/api/cart/update', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
-                    body: JSON.stringify(product)
+                    body: JSON.stringify(finalOutput)
                 });
             }
         }

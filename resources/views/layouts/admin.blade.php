@@ -66,11 +66,14 @@
             </nav>
             
             <div class="sidebar-footer">
-                <a href="{{ route('logout') }}" class="logout-btn">
-                    <i data-lucide="log-out" style="margin-right: 12px; height: 18px; width: 18px;"></i>
-                    Logout
-                    <i data-lucide="arrow-right" style="margin-left: auto; width: 16px; height: 16px;"></i>
-                </a>
+                <form method="POST" action="{{ route('logout') }}" style="display: block;">
+                    @csrf
+                    <button type="submit" class="logout-btn" style="width:100%; text-align:left; background:none; border:none; cursor:pointer;" onclick="localStorage.removeItem('clothr_cart');">
+                        <i data-lucide="log-out" style="margin-right: 12px; height: 18px; width: 18px;"></i>
+                        Logout
+                        <i data-lucide="arrow-right" style="margin-left: auto; width: 16px; height: 16px;"></i>
+                    </button>
+                </form>
             </div>
         </aside>
         @endif
