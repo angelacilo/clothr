@@ -196,7 +196,9 @@
         let subtotal = 0;
         
         itemsList.innerHTML = '';
-        cart.forEach((item, index) => {
+        const checkoutItems = cart.filter(item => item.is_selected !== false);
+        
+        checkoutItems.forEach((item, index) => {
             subtotal += item.price * item.quantity;
             itemsList.innerHTML += `
                 <div class="checkout-item">
@@ -204,13 +206,10 @@
                     <div class="checkout-item__info">
                         <div style="font-weight: 700; font-size: 14px;">${item.name}</div>
                         <div style="font-size: 12px; color: var(--text-muted);">₱${item.price.toFixed(2)}</div>
-                        <div class="checkout-item__actions">
-                            <select class="edit-select" onchange="updateItemQuantity(${index}, this.value)">
-                                ${[1,2,3,4,5,6,7,8,9,10].map(q => `<option value="${q}" ${q == item.quantity ? 'selected' : ''}>Qty: ${q}</option>`).join('')}
-                            </select>
-                            <select class="edit-select" onchange="updateItemSize(${index}, this.value)">
-                                ${['XS','S','M','L','XL'].map(s => `<option value="${s}" ${s == item.size ? 'selected' : ''}>Size: ${s}</option>`).join('')}
-                            </select>
+                        <div class="checkout-item__actions" style="margin-top: 5px;">
+                            <span style="font-size: 12px; color: #666; margin-right: 10px;">Qty: ${item.quantity}</span>
+                            ${item.size ? `<span style="font-size: 12px; color: #666; margin-right: 10px;">Size: ${item.size}</span>` : ''}
+                            ${item.color ? `<span style="font-size: 12px; color: #666; display:flex; align-items:center; gap:4px;">Color: <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${item.color}; border:1px solid #ccc;"></span></span>` : ''}
                         </div>
                     </div>
                     <div style="font-weight: 700; font-size: 14px;">₱${(item.price * item.quantity).toFixed(2)}</div>
@@ -263,9 +262,10 @@
             formData.forEach((value, key) => customer_info[key] = value);
         }
 
+        const checkoutItems = cart.filter(item => item.is_selected !== false);
         const orderData = {
             customer_info: customer_info,
-            items: cart,
+            items: checkoutItems,
             total: total,
             _token: '{{ csrf_token() }}'
         };
@@ -282,7 +282,8 @@
 
             const result = await response.json();
             if (result.success) {
-                localStorage.removeItem('clothr_cart');
+                const remainingCart = cart.filter(item => item.is_selected === false);
+                localStorage.setItem('clothr_cart', JSON.stringify(remainingCart));
                 window.location.href = '/order-confirmation/' + result.order_id;
             } else {
                 showToast(result.message || 'Something went wrong', 'error');

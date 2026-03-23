@@ -124,7 +124,7 @@
                             <img src="{{ $product->images[0] ?? '/placeholder.png' }}" class="product-card__img" alt="{{ $product->name }}">
                         </div>
                     </a>
-                    <button class="product-card__add" onclick="addToCartGlobal({{ $product->id }}, '{{ $product->name }}', {{ $product->price }}, '{{ $product->images[0] ?? '' }}')">Add to Cart</button>
+                    <a href="{{ route('product', $product->id) }}" class="product-card__add">Choose Options</a>
                     <h3 style="display: block; visibility: visible; opacity: 1;">{{ $product->name }}</h3>
                     <p class="price">
                         @if($product->isOnSale && $product->originalPrice)

@@ -169,6 +169,7 @@
                         <h3>${item.name}</h3>
                         <div class="cart-item__meta">
                             <span>Size: ${item.size}</span>
+                            ${item.color ? `<span style="margin-left:8px; display:flex; align-items:center; gap:4px;">Color: <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:${item.color}; border:1px solid #ccc;"></span></span>` : ''}
                         </div>
                         <div class="cart-item__actions">
                             <div class="qty-ctrl">

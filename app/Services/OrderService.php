@@ -55,8 +55,16 @@ class OrderService
                 'status'        => 'Pending'
             ]);
 
-            // Clear the user's cart items
-            CartItem::where('user_id', $userId)->delete();
+            // Clear only the checked-out items from the user's cart
+            if (class_exists(\App\Models\CartItem::class)) {
+                foreach ($items as $item) {
+                    \App\Models\CartItem::where('user_id', $userId)
+                        ->where('product_id', $item['id'])
+                        ->where('size', $item['size'] ?? null)
+                        ->where('color', $item['color'] ?? null)
+                        ->delete();
+                }
+            }
 
             return $order;
         });

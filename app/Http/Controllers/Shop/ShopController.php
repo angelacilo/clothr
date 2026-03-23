@@ -31,7 +31,7 @@ class ShopController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
-        $sort = $request->get('sort', 'featured');
+        $sort = $request->get('sort', 'newest');
         switch ($sort) {
             case 'price_low':
                 $query->orderBy('price', 'asc');
@@ -39,12 +39,12 @@ class ShopController extends Controller
             case 'price_high':
                 $query->orderBy('price', 'desc');
                 break;
-            case 'newest':
-                $query->orderBy('created_at', 'desc');
-                break;
             case 'featured':
+                $query->where('isFeatured', true)->orderBy('created_at', 'desc');
+                break;
+            case 'newest':
             default:
-                $query->where('isFeatured', true);
+                $query->orderBy('created_at', 'desc');
                 break;
         }
 

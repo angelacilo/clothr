@@ -61,10 +61,10 @@ class AuthController extends Controller
         Auth::login($user);
 
         if ($request->input('has_cart') == '1') {
-            return redirect('/checkout');
+            return redirect()->intended('/checkout');
         }
         
-        return redirect('/');
+        return redirect()->intended('/');
     }
 
     public function logout(Request $request)

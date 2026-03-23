@@ -10,7 +10,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $featured = Product::where('isFeatured', true)->where('isArchived', false)->take(12)->get();
+        $featured = Product::where('isArchived', false)->orderBy('isFeatured', 'desc')->latest()->take(12)->get();
         $superDeals = Product::where('isOnSale', true)->where('isArchived', false)->latest()->take(8)->get();
         $topTrends = Product::where('isTrending', true)->where('isArchived', false)->orderBy('sales_count', 'desc')->take(8)->get();
         $categories = Category::where('isVisible', true)->get();

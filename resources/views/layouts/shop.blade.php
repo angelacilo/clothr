@@ -436,8 +436,8 @@
             }
         }
 
-        window.addToCartGlobal = function(id, name, price, image, size = 'M') {
-            addToCart({id, name, price, image, size});
+        window.addToCartGlobal = function(id, name, price, image, size, color) {
+            addToCart({id, name, price, image, size: size || '', color: color || ''});
         }
 
         window.toggleWishlistGlobal = function(id, btn) {

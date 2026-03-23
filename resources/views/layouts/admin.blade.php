@@ -134,6 +134,13 @@
             }, 3000);
         }
 
+        @if(session('success'))
+            showToast("{{ session('success') }}");
+        @endif
+        @if(session('error'))
+            showToast("{{ session('error') }}");
+        @endif
+
         function toggleNotifications() {
             showToast('No new notifications');
         }

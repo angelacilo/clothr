@@ -40,11 +40,6 @@ class CategoryController extends Controller
     {
         $category = Category::findOrFail($id);
         
-        // RULE 3: CATEGORY DELETE check if category has products
-        if ($category->products()->count() > 0) {
-            return back()->with('error', 'Cannot delete category because it has products associated with it.');
-        }
-
         $category->delete();
         return back()->with('success', 'Category deleted!');
     }

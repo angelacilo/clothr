@@ -76,7 +76,7 @@
 <div id="addProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
     <div class="card" style="width:560px; padding:32px; max-height:90vh; overflow-y:auto;">
         <h2 style="margin-bottom:24px;">Add New Product</h2>
-        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" onsubmit="flushAddColors()">
             @csrf
             <div style="margin-bottom:16px;">
                 <label style="display:block; font-size:12px; font-weight:700; margin-bottom:8px;">NAME</label>
@@ -164,7 +164,7 @@
 <div id="editProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
     <div class="card" style="width:560px; padding:32px; max-height:90vh; overflow-y:auto;">
         <h2 style="margin-bottom:24px;">Edit Product</h2>
-        <form id="editProductForm" method="POST" enctype="multipart/form-data">
+        <form id="editProductForm" method="POST" enctype="multipart/form-data" onsubmit="flushEditColors()">
             @csrf
             @method('PUT')
             <div style="margin-bottom:16px;">
@@ -315,12 +315,28 @@ function closeEditProductModal() {
 function addVariantColor() {
     var inp = document.getElementById('addColorInput'), val = inp.value.trim();
     if(!val) return;
-    if(varColors.indexOf(val) !== -1) { inp.value=''; return; }
-    varColors.push(val); inp.value=''; renderColorTags(); refreshVariantTable();
+    // Support comma-separated input: 'White, Blue' adds two separate colors
+    val.split(',').map(function(c){ return c.trim(); }).filter(Boolean).forEach(function(c) {
+        if(varColors.indexOf(c) === -1) varColors.push(c);
+    });
+    inp.value='';
+    renderColorTags();
+    refreshVariantTable();
+    document.getElementById('addColorsHidden').value = JSON.stringify(varColors);
+}
+// Flush any text left in the color input on form submit
+function flushAddColors() {
+    var inp = document.getElementById('addColorInput');
+    if (inp && inp.value.trim()) { addVariantColor(); }
+}
+function flushEditColors() {
+    var inp = document.getElementById('editColorInput');
+    if (inp && inp.value.trim()) { editAddColor(); }
 }
 function removeVariantColor(val) {
     varColors = varColors.filter(function(c){return c!==val;});
     renderColorTags(); refreshVariantTable();
+    document.getElementById('addColorsHidden').value = JSON.stringify(varColors);
 }
 function renderColorTags() {
     var box = document.getElementById('addColorTags'); box.innerHTML = '';
@@ -333,8 +349,9 @@ function renderColorTags() {
 }
 function togglePresetSize(btn) {
     var val = btn.dataset.size, idx = varSizes.indexOf(val);
-    if(idx!==-1) { varSizes.splice(idx,1); btn.style.background='#fff'; btn.style.color='#111'; }
-    else { varSizes.push(val); btn.style.background='#111'; btn.style.color='#fff'; }
+    if(idx!==-1) { varSizes.splice(idx,1); btn.style.background='#fff'; btn.style.color='#111'; btn.style.borderColor='#ccc'; }
+    else { varSizes.push(val); btn.style.background='#111'; btn.style.color='#fff'; btn.style.borderColor='#111'; }
+    document.getElementById('addSizesHidden').value = JSON.stringify(varSizes);
     refreshVariantTable();
 }
 function addCustomVariantSize() {
@@ -342,10 +359,12 @@ function addCustomVariantSize() {
     if(!val) return;
     if(varSizes.indexOf(val) !== -1) { inp.value=''; return; }
     varSizes.push(val); inp.value=''; renderCustomSizeTags(); refreshVariantTable();
+    document.getElementById('addSizesHidden').value = JSON.stringify(varSizes);
 }
 function removeCustomVariantSize(val) {
     varSizes = varSizes.filter(function(s){return s!==val;});
     renderCustomSizeTags(); refreshVariantTable();
+    document.getElementById('addSizesHidden').value = JSON.stringify(varSizes);
 }
 function renderCustomSizeTags() {
     var customs = varSizes.filter(function(s){return PRESET_SIZES.indexOf(s)===-1;});
@@ -383,8 +402,11 @@ function resetAddVariants() {
 function editAddColor() {
     var inp = document.getElementById('editColorInput'), val = inp.value.trim();
     if(!val) return;
-    if(editColors.indexOf(val) !== -1) { inp.value=''; return; }
-    editColors.push(val); inp.value=''; editRenderColorTags();
+    val.split(',').map(function(c){ return c.trim(); }).filter(Boolean).forEach(function(c) {
+        if(editColors.indexOf(c) === -1) editColors.push(c);
+    });
+    inp.value='';
+    editRenderColorTags();
     document.getElementById('editColorsHidden').value = JSON.stringify(editColors);
 }
 function editRemoveColor(val) {
