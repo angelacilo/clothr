@@ -12,21 +12,22 @@ class Product extends Model
     protected $fillable = [
         'name', 'description', 'price', 'originalPrice', 'category_id',
         'images', 'stock', 'isNew', 'isOnSale', 'isFeatured', 'isArchived', 'sizes', 'colors',
-        'sales_count', 'isTrending'
+        'variants', 'sales_count', 'isTrending'
     ];
 
     protected $casts = [
-        'images' => 'array',
-        'sizes' => 'array',
-        'colors' => 'array',
-        'isNew' => 'boolean',
-        'isOnSale' => 'boolean',
-        'isFeatured' => 'boolean',
-        'isArchived' => 'boolean',
-        'isTrending' => 'boolean',
-        'price' => 'float',
-        'originalPrice' => 'float',
-        'sales_count' => 'integer',
+        'images'       => 'array',
+        'sizes'        => 'array',
+        'colors'       => 'array',
+        'variants'     => 'array',
+        'isNew'        => 'boolean',
+        'isOnSale'     => 'boolean',
+        'isFeatured'   => 'boolean',
+        'isArchived'   => 'boolean',
+        'isTrending'   => 'boolean',
+        'price'        => 'float',
+        'originalPrice'=> 'float',
+        'sales_count'  => 'integer',
     ];
 
     public function category()

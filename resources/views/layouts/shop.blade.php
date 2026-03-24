@@ -4,291 +4,570 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLOTHR | @yield('title', "Modern Women's Fashion")</title>
+    <meta name="description" content="CLOTHR — Your destination for modern women's fashion. Curated collections that celebrate style and individuality.">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* ════════════════════════════════════════
+           DESIGN TOKENS
+        ════════════════════════════════════════ */
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --text-primary: #1a1a1a;
-            --text-secondary: #555555;
-            --text-muted: #888888;
-            --accent-color: #000000;
-            --accent-hover: #333333;
-            --border-color: #e5e5e5;
-            --error: #d32f2f;
-            --success: #388e3c;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
-            --radius-sm: 4px;
-            --radius-md: 8px;
-            --container-width: 1280px;
-            --php-blue: #3b82f6;
+            --sand:      #f5f0ea;
+            --sand-dark: #ede6dc;
+            --cream:     #faf8f5;
+            --ink:       #1c1917;
+            --ink-soft:  #44403c;
+            --ink-muted: #78716c;
+            --ink-faint: #a8a29e;
+            --accent:    #1c1917;
+            --accent-warm: #c8a882;
+            --border:    #e7e0d8;
+            --border-dark:#ccc3b8;
+            --ruby:      #c0392b;
+            --cobalt:    #1e40af;
+            --emerald:   #166534;
+            --white:     #ffffff;
+
+            --shadow-xs: 0 1px 3px rgba(28,25,23,.06);
+            --shadow-sm: 0 2px 8px rgba(28,25,23,.08);
+            --shadow-md: 0 8px 24px rgba(28,25,23,.1);
+            --shadow-lg: 0 20px 48px rgba(28,25,23,.14);
+
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --container: 1320px;
+            --nav-h:     68px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; color: var(--text-primary); background: var(--bg-primary); line-height: 1.5; overflow-x: hidden; }
-        a { text-decoration: none; color: inherit; transition: 0.2s; }
-        button { font-family: inherit; cursor: pointer; border: none; background: none; transition: 0.2s; }
+        /* ════════════════════════════════════════
+           RESET & BASE
+        ════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            background: var(--cream);
+            line-height: 1.55;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { text-decoration: none; color: inherit; transition: color .2s, opacity .2s; }
+        button { font-family: inherit; cursor: pointer; border: none; background: none; transition: .2s; }
         ul { list-style: none; }
         img { max-width: 100%; display: block; }
-        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 24px; }
+        .container { max-width: var(--container); margin: 0 auto; padding: 0 28px; }
 
-        /* Announcement Bar */
-        .announcement-bar { background: #000; color: #fff; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; letter-spacing: 0.05em; }
-
-        /* Navbar */
-        .navbar { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); padding: 18px 0; }
-        .navbar__inner { display: flex; align-items: center; justify-content: space-between; }
-        .navbar__logo { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; letter-spacing: 0.05em; }
-        .navbar__links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; }
-        .navbar__actions { display: flex; align-items: center; gap: 20px; }
-        .navbar__icon-btn { display: flex; position: relative; }
-        .navbar__cart-badge { position: absolute; top: -8px; right: -10px; background: #000; color: #fff; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-        .navbar__login-link { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-
-        /* Generic Layout Helpers */
-        .section { padding: 100px 0; }
-        .section-title { font-family: 'DM Serif Display', serif; font-size: 36px; font-weight: 400; margin-bottom: 60px; letter-spacing: 0.02em; text-align: center; }
-
-        /* Footer */
-        .footer { background: #fff; border-top: 1px solid var(--border-color); padding: 80px 0 40px; margin-top: 100px; }
-        .footer__grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; }
-        .footer__col h4 { margin-bottom: 25px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; }
-        .footer__col p { font-size: 15px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
-        .footer__links li { margin-bottom: 12px; font-size: 15px; color: var(--text-secondary); }
-        .footer__socials { display: flex; gap: 20px; }
-        .footer__bottom { margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border-color); text-align: center; font-size: 14px; color: var(--text-muted); }
-
-        /* Product Cards */
-        .products__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; row-gap: 60px; }
-        .product-card { transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); position: relative; }
-        .product-card:hover { transform: translateY(-8px); }
-        .product-card__img-box { position: relative; aspect-ratio: 4/5; background: #f8f9fa; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
-        .product-card__img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); }
-        .product-card:hover .product-card__img { transform: scale(1.05); }
-        .product-card__add { background: #000; color: #fff; width: 100%; padding: 14px; font-size: 13px; font-weight: 700; text-align: center; transition: 0.3s; margin-top: -20px; margin-bottom: 15px; border-radius: 0 0 12px 12px; position: relative; z-index: 3; display: block; }
-        .product-card:hover .product-card__add { background: #222; }
-        .product-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #111; }
-        .product-card .price { font-weight: 800; color: #000; font-size: 15px; }
-        .product-card .old-price { font-weight: 400; color: var(--text-muted); text-decoration: line-through; margin-left: 10px; font-size: 14px; }
-        .product-card .sale-price { color: #2563eb; }
-        .product-badge { position: absolute; top: 12px; left: 12px; background: #000; color: #fff; padding: 6px 12px; font-size: 10px; font-weight: 800; border-radius: 4px; text-transform: uppercase; z-index: 2; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .product-card__wishlist { position: absolute; top: 12px; right: 12px; background: #fff; color: #000; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 2; transition: 0.3s; }
-        .product-card__wishlist:hover { transform: scale(1.1); color: #ef4444; background: #fff; }
-        .product-card__wishlist.active { color: #ef4444; }
-
-        @media (max-width: 1024px) {
-            .products__grid { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .products__grid { grid-template-columns: repeat(2, 1fr); }
-            .footer__grid { grid-template-columns: 1fr; }
+        /* ════════════════════════════════════════
+           ANNOUNCEMENT BAR
+        ════════════════════════════════════════ */
+        .announcement-bar {
+            background: var(--ink);
+            color: var(--accent-warm);
+            text-align: center;
+            padding: 9px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
         }
 
-        @yield('extra_css')
+        /* ════════════════════════════════════════
+           NAVBAR
+        ════════════════════════════════════════ */
+        .navbar {
+            background: rgba(250,248,245,.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            border-bottom: 1px solid var(--border);
+            height: var(--nav-h);
+        }
+        .navbar__inner {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+        }
+        .navbar__logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            color: var(--ink);
+            flex-shrink: 0;
+        }
+        .navbar__links {
+            display: flex;
+            gap: 36px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: .02em;
+        }
+        .navbar__links a {
+            color: var(--ink-soft);
+            padding-bottom: 3px;
+            border-bottom: 1.5px solid transparent;
+            transition: color .2s, border-color .2s;
+        }
+        .navbar__links a:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
-        /* ── MODAL OVERLAY ── */
+        .navbar__actions { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+        .navbar__icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            color: var(--ink-soft);
+            transition: background .2s, color .2s;
+            position: relative;
+        }
+        .navbar__icon-btn:hover { background: var(--sand); color: var(--ink); }
+        .navbar__cart-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--ink);
+            color: var(--white);
+            font-size: 9px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            border: 2px solid var(--cream);
+        }
+        .navbar__login-link {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--ink-soft);
+            padding: 7px 14px;
+            border-radius: 50px;
+            border: 1.5px solid var(--border);
+            transition: background .2s, border-color .2s, color .2s;
+        }
+        .navbar__login-link:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+        /* ════════════════════════════════════════
+           LAYOUT HELPERS
+        ════════════════════════════════════════ */
+        .section { padding: 96px 0; }
+        .section-eyebrow {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            color: var(--accent-warm);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 600;
+            margin-bottom: 56px;
+            letter-spacing: -.01em;
+            text-align: center;
+            color: var(--ink);
+            line-height: 1.2;
+        }
+
+        /* ════════════════════════════════════════
+           PRODUCT CARDS
+        ════════════════════════════════════════ */
+        .products__grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 28px;
+            row-gap: 52px;
+        }
+        .product-card { transition: .35s cubic-bezier(.25,.8,.25,1); position: relative; }
+        .product-card:hover { transform: translateY(-6px); }
+
+        .product-card__img-box {
+            position: relative;
+            aspect-ratio: 3/4;
+            background: var(--sand);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-xs);
+            transition: box-shadow .35s;
+        }
+        .product-card:hover .product-card__img-box { box-shadow: var(--shadow-md); }
+        .product-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s cubic-bezier(.25,.8,.25,1); }
+        .product-card:hover .product-card__img { transform: scale(1.04); }
+
+        /* Hover CTA overlay */
+        .product-card__overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: flex-end;
+            padding: 18px;
+            background: linear-gradient(to top, rgba(28,25,23,.55) 0%, transparent 55%);
+            opacity: 0;
+            transition: opacity .3s;
+        }
+        .product-card:hover .product-card__overlay { opacity: 1; }
+        .product-card__add {
+            background: var(--white);
+            color: var(--ink);
+            width: 100%;
+            padding: 11px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            transition: background .2s, color .2s;
+        }
+        .product-card__add:hover { background: var(--ink); color: var(--white); }
+
+        .product-card__wishlist {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255,255,255,.9);
+            backdrop-filter: blur(4px);
+            color: var(--ink);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 2;
+            transition: background .2s, color .2s, transform .2s;
+        }
+        .product-card__wishlist:hover { transform: scale(1.1); color: #e55; }
+        .product-card__wishlist.active { color: #e55; }
+
+        .product-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--ink);
+            line-height: 1.3;
+        }
+        .product-card .price { font-weight: 700; color: var(--ink); font-size: 14px; }
+        .product-card .old-price { font-weight: 400; color: var(--ink-faint); text-decoration: line-through; margin-left: 8px; font-size: 13px; }
+        .product-card .sale-price { color: var(--cobalt); }
+
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--ink);
+            color: var(--white);
+            padding: 4px 10px;
+            font-size: 9px;
+            font-weight: 800;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            z-index: 2;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) { .products__grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 700px)  { .products__grid { grid-template-columns: repeat(2, 1fr); } }
+
+        /* ════════════════════════════════════════
+           MODALS
+        ════════════════════════════════════════ */
         .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
+            background: rgba(28,25,23,.45);
+            backdrop-filter: blur(6px);
             z-index: 9999;
             align-items: center;
             justify-content: center;
         }
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        /* ── LOGIN MODAL BOX ── */
+        .modal-overlay.show { display: flex; }
         .login-modal {
-            background: #fff;
-            border-radius: 20px;
-            padding: 32px;
-            width: 400px;
-            max-width: 90vw;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            animation: modalSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 36px;
+            width: 420px;
+            max-width: 92vw;
+            box-shadow: var(--shadow-lg);
+            animation: modalPop .3s cubic-bezier(.34,1.56,.64,1);
         }
-        @keyframes modalSlide {
-            from { transform: translateY(-20px); opacity: 0; }
-            to   { transform: translateY(0);     opacity: 1; }
+        @keyframes modalPop {
+            from { transform: translateY(-18px) scale(.97); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
         }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        .modal-title {
-            font-size: 14px;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #9ca3af;
-            line-height: 1;
-            padding: 4px;
-        }
-        .modal-body {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .modal-title { font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+        .modal-close { color: var(--ink-faint); font-size: 22px; line-height: 1; padding: 4px; transition: color .2s; }
+        .modal-close:hover { color: var(--ink); }
+        .modal-body { display: flex; flex-direction: column; gap: 12px; }
 
-        /* ── SSO BUTTONS ── */
         .btn-sso-outline {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
-            padding: 16px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 12px;
-            background: #fff;
-            color: #1a1a1a;
-            font-size: 15px;
+            padding: 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--white);
+            color: var(--ink);
+            font-size: 14px;
             font-weight: 600;
-            text-align: center;
             cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s;
+            transition: background .2s, border-color .2s;
         }
-        .btn-sso-outline:hover { background: #f9fafb; border-color: #d1d5db; }
-
+        .btn-sso-outline:hover { background: var(--sand); border-color: var(--border-dark); }
         .btn-sso-black {
             width: 100%;
-            padding: 16px;
-            background: #000;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
+            padding: 14px;
+            background: var(--ink);
+            color: var(--white);
+            border-radius: var(--radius-md);
+            font-size: 14px;
             font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            transition: background .2s;
         }
-        .btn-sso-black:hover { background: #1a1a1a; }
+        .btn-sso-black:hover { background: var(--ink-soft); }
 
-        .form-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #374151; }
-        .form-input { width: 100%; padding: 12px 16px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; }
-        .form-input:focus { border-color: var(--php-blue); }
-        .btn-blue { background: var(--php-blue); color: #fff; width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; margin-top: 10px; }
-        .btn-blue:hover { background: #2563eb; }
-        .form-row-between { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; font-size: 13px; }
+        .form-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 7px; color: var(--ink-soft); }
+        .form-input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            outline: none;
+            background: var(--cream);
+            transition: border-color .2s, background .2s;
+            font-family: inherit;
+        }
+        .form-input:focus { border-color: var(--ink); background: var(--white); }
+        .btn-blue {
+            background: var(--ink);
+            color: var(--white);
+            width: 100%;
+            padding: 13px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: .04em;
+            margin-top: 8px;
+        }
+        .btn-blue:hover { background: var(--ink-soft); }
+        .form-row-between { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 13px; color: var(--ink-muted); }
 
-        /* TOAST NOTIFICATIONS */
-        .toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: #000; color: #fff; padding: 16px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
-        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .toast.removing { animation: toastOut 0.3s forwards; }
-        @keyframes toastOut { to { transform: translateX(100%); opacity: 0; } }
-        .toast-success { border-left: 4px solid #10b981; }
-        .toast-error { border-left: 4px solid #ef4444; }
-        .toast-info { border-left: 4px solid var(--php-blue); }
+        /* ════════════════════════════════════════
+           TOAST
+        ════════════════════════════════════════ */
+        .toast-container {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: var(--ink);
+            color: var(--white);
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: toastIn .3s cubic-bezier(.34,1.56,.64,1);
+            cursor: pointer;
+            max-width: 320px;
+            border-left: 4px solid transparent;
+        }
+        @keyframes toastIn { from { transform: translateX(110%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+        .toast.removing { animation: toastOut .3s forwards; }
+        @keyframes toastOut { to { transform: translateX(110%); opacity:0; } }
+        .toast-success { border-left-color: #10b981; }
+        .toast-error   { border-left-color: #ef4444; }
+        .toast-info    { border-left-color: var(--accent-warm); }
+
+        /* ════════════════════════════════════════
+           FOOTER
+        ════════════════════════════════════════ */
+        .footer {
+            background: var(--ink);
+            color: var(--white);
+            padding: 80px 0 40px;
+            margin-top: 100px;
+        }
+        .footer__grid { display: grid; grid-template-columns: 2.2fr 1fr 1fr 1fr; gap: 60px; }
+        .footer__logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 16px;
+            display: block;
+        }
+        .footer__col p { font-size: 14px; color: rgba(255,255,255,.5); line-height: 1.75; margin-bottom: 24px; }
+        .footer__col h4 {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--accent-warm);
+            margin-bottom: 22px;
+        }
+        .footer__links li { margin-bottom: 12px; }
+        .footer__links a { font-size: 14px; color: rgba(255,255,255,.55); transition: color .2s; }
+        .footer__links a:hover { color: var(--white); }
+        .footer__socials { display: flex; gap: 14px; }
+        .footer__socials a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,.5);
+            transition: background .2s, color .2s, border-color .2s;
+        }
+        .footer__socials a:hover { background: rgba(255,255,255,.08); color: var(--white); border-color: rgba(255,255,255,.3); }
+        .footer__divider { border: none; border-top: 1px solid rgba(255,255,255,.08); margin: 52px 0 28px; }
+        .footer__bottom { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: rgba(255,255,255,.35); flex-wrap: wrap; gap: 10px; }
+
+        @media (max-width: 900px) { .footer__grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 580px) { .footer__grid { grid-template-columns: 1fr; } }
+
+        @yield('extra_css')
     </style>
 </head>
 <body>
+    <!-- Announcement Bar -->
     <div class="announcement-bar">
-        🚚 FREE SHIPPING ON ORDERS OVER ₱2,500
+        ✦ &nbsp; Free shipping on orders over ₱2,500 &nbsp; ✦ &nbsp; New arrivals every Friday &nbsp; ✦
     </div>
 
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="container navbar__inner">
             <a href="{{ route('home') }}" class="navbar__logo">CLOTHR</a>
+
             <ul class="navbar__links">
                 <li><a href="{{ route('home') }}">Home</a></li>
                 <li><a href="{{ route('shop') }}">Shop All</a></li>
                 <li><a href="{{ route('category', 'dresses') }}">Dresses</a></li>
-                <li><a href="{{ route('category', 'tops-blouses') }}">Tops & Blouses</a></li>
+                <li><a href="{{ route('category', 'tops-blouses') }}">Tops &amp; Blouses</a></li>
                 <li><a href="{{ route('category', 'bottoms') }}">Bottoms</a></li>
             </ul>
+
             <div class="navbar__actions">
-                <button class="navbar__icon-btn"><i data-lucide="search" size="22"></i></button>
+                <button class="navbar__icon-btn" title="Search">
+                    <i data-lucide="search" size="19"></i>
+                </button>
+
                 <div id="auth-nav">
                     @auth
-                        <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="display:flex; align-items:center; gap:14px;">
                             @if(Auth::user()->is_admin)
-                                <a href="{{ route('admin.dashboard') }}" style="font-size: 13px; font-weight: 700; color: #f59e0b; border: 1px solid #f59e0b; padding: 4px 10px; border-radius: 4px;">Admin Dash</a>
+                                <a href="{{ route('admin.dashboard') }}"
+                                   style="font-size:12px; font-weight:700; color:var(--accent-warm); border:1.5px solid var(--accent-warm); padding:5px 12px; border-radius:50px; letter-spacing:.06em;">
+                                    Admin
+                                </a>
                             @else
-                                <a href="{{ route('profile.index') }}" style="font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 5px;">
-                                    <i data-lucide="user" size="18"></i>
-                                    Hello, {{ explode(' ', Auth::user()->name)[0] }}
+                                <a href="{{ route('profile.index') }}"
+                                   style="font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; color:var(--ink-soft);">
+                                    <i data-lucide="user" size="17"></i>
+                                    {{ explode(' ', Auth::user()->name)[0] }}
                                 </a>
                             @endif
                             <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                                 @csrf
-                                <button type="submit" class="navbar__login-link logout-link" style="color: var(--text-muted); font-size: 13px; background:none; border:none; cursor:pointer;" onclick="localStorage.removeItem('clothr_cart');">Logout</button>
+                                <button type="submit"
+                                        style="font-size:12px; font-weight:600; color:var(--ink-faint);"
+                                        onclick="localStorage.removeItem('clothr_cart');">
+                                    Logout
+                                </button>
                             </form>
                         </div>
                     @else
-                        <button id="openLoginModal" class="navbar__login-link"><i data-lucide="user" size="22"></i> Login</button>
+                        <button id="openLoginModal" class="navbar__login-link">
+                            <i data-lucide="user" size="16"></i> Sign In
+                        </button>
                     @endauth
                 </div>
-                <a href="{{ route('cart') }}" class="navbar__icon-btn">
-                    <i data-lucide="shopping-bag" size="22"></i>
+
+                <a href="{{ route('cart') }}" class="navbar__icon-btn" title="Cart">
+                    <i data-lucide="shopping-bag" size="19"></i>
                     <span class="navbar__cart-badge" id="cart-count">0</span>
                 </a>
             </div>
         </div>
     </nav>
 
-    <main>
-        @yield('content')
-    </main>
+    <main>@yield('content')</main>
 
-    <!-- LOGIN MODAL OVERLAY -->
+    <!-- LOGIN MODAL -->
     <div class="modal-overlay" id="loginModalOverlay">
-        <!-- STEP 1: SSO CHOOSER -->
+        <!-- Step 1: SSO chooser -->
         <div class="login-modal" id="ssoModal">
             <div class="modal-header">
-                <span class="modal-title">LOG IN</span>
+                <span class="modal-title">Welcome Back</span>
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
             <div class="modal-body">
-                <a href="{{ route('login') }}" class="btn-sso-outline">
-                    Sign In / Register
-                </a>
-                <button class="btn-sso-black" id="showAdminLogin">
-                    Admin log in
-                </button>
+                <a href="{{ route('login') }}" class="btn-sso-outline">Sign In / Register</a>
+                <button class="btn-sso-black" id="showAdminLogin">Admin Log In</button>
             </div>
         </div>
 
-        <!-- STEP 2: ADMIN LOGIN FORM -->
+        <!-- Step 2: Admin login form -->
         <div class="login-modal" id="adminModal" style="display:none;">
             <div class="modal-header">
-                <span class="modal-title">ADMIN LOG IN</span>
+                <span class="modal-title">Admin Access</span>
                 <button class="modal-close" id="closeAdminModal">&times;</button>
             </div>
             <div class="modal-body">
                 <form action="{{ route('login.post') }}" method="POST">
                     @csrf
                     <input type="hidden" name="action" value="admin">
-                    <div style="margin-bottom: 16px;">
-                        <label class="form-label">User ID</label>
+                    <div style="margin-bottom:16px;">
+                        <label class="form-label">Email</label>
                         <input type="email" name="email" class="form-input" placeholder="admin@clothr.com" required>
                     </div>
-                    <div style="margin-bottom: 16px;">
+                    <div style="margin-bottom:16px;">
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-input" required>
                     </div>
-                    <div style="margin-bottom: 24px;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <div style="margin-bottom:20px;">
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13px; color:var(--ink-muted);">
                             <input type="checkbox" name="remember"> Remember me
                         </label>
                     </div>
-                    <button type="submit" class="btn-blue">Log in</button>
-                    <button type="button" class="btn-sso-black" style="margin-top: 10px;" id="backToSSO">Back to SSO</button>
+                    <button type="submit" class="btn-blue">Log In</button>
+                    <button type="button" class="btn-sso-outline" style="margin-top:10px;" id="backToSSO">← Back</button>
                 </form>
             </div>
         </div>
@@ -296,46 +575,58 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- FOOTER -->
     <footer class="footer">
-        <div class="container footer__grid">
-            <div class="footer__col">
-                <h3 style="font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; margin-bottom: 15px;">CLOTHR</h3>
-                <p>Your destination for modern women's fashion. Curated collections that celebrate style and individuality.</p>
-                <div class="footer__socials">
-                    <a href="https://www.facebook.com/share/14ViXfujQf3/?mibextid=wwXIfr" target="_blank"><i data-lucide="facebook"></i></a>
-                    <a href="https://www.instagram.com/clothr.co_" target="_blank"><i data-lucide="instagram"></i></a>
-                    <i data-lucide="twitter"></i>
+        <div class="container">
+            <div class="footer__grid">
+                <div class="footer__col">
+                    <span class="footer__logo">CLOTHR</span>
+                    <p>Your destination for modern women's fashion. Curated collections that celebrate style and individuality.</p>
+                    <div class="footer__socials">
+                        <a href="https://www.facebook.com/share/14ViXfujQf3/?mibextid=wwXIfr" target="_blank" aria-label="Facebook">
+                            <i data-lucide="facebook" size="15"></i>
+                        </a>
+                        <a href="https://www.instagram.com/clothr.co_" target="_blank" aria-label="Instagram">
+                            <i data-lucide="instagram" size="15"></i>
+                        </a>
+                        <a href="#" aria-label="X / Twitter">
+                            <i data-lucide="twitter" size="15"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer__col">
+                    <h4>Shop</h4>
+                    <ul class="footer__links">
+                        <li><a href="{{ route('shop') }}">All Products</a></li>
+                        <li><a href="{{ route('category', 'dresses') }}">Dresses</a></li>
+                        <li><a href="{{ route('category', 'tops-blouses') }}">Tops</a></li>
+                        <li><a href="{{ route('category', 'bottoms') }}">Bottoms</a></li>
+                    </ul>
+                </div>
+                <div class="footer__col">
+                    <h4>Help</h4>
+                    <ul class="footer__links">
+                        <li><a href="{{ route('info', 'contact') }}">Contact Us</a></li>
+                        <li><a href="{{ route('info', 'shipping') }}">Shipping Info</a></li>
+                        <li><a href="{{ route('info', 'returns') }}">Returns</a></li>
+                        <li><a href="{{ route('info', 'faq') }}">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer__col">
+                    <h4>Company</h4>
+                    <ul class="footer__links">
+                        <li><a href="{{ route('info', 'about') }}">About Us</a></li>
+                        <li><a href="{{ route('info', 'privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ route('info', 'terms') }}">Terms of Service</a></li>
+                    </ul>
                 </div>
             </div>
-            <div class="footer__col">
-                <h4>Shop</h4>
-                <ul class="footer__links">
-                    <li><a href="{{ route('shop') }}">All Products</a></li>
-                    <li><a href="{{ route('category', 'dresses') }}">Dresses</a></li>
-                    <li><a href="{{ route('category', 'tops-blouses') }}">Tops</a></li>
-                    <li><a href="{{ route('category', 'bottoms') }}">Bottoms</a></li>
-                </ul>
+
+            <hr class="footer__divider">
+            <div class="footer__bottom">
+                <span>© 2026 CLOTHR. All rights reserved.</span>
+                <span>Crafted with ♡ in the Philippines</span>
             </div>
-            <div class="footer__col">
-                <h4>Customer Service</h4>
-                <ul class="footer__links">
-                    <li><a href="{{ route('info', 'contact') }}">Contact Us</a></li>
-                    <li><a href="{{ route('info', 'shipping') }}">Shipping Info</a></li>
-                    <li><a href="{{ route('info', 'returns') }}">Returns</a></li>
-                    <li><a href="{{ route('info', 'faq') }}">FAQ</a></li>
-                </ul>
-            </div>
-            <div class="footer__col">
-                <h4>About</h4>
-                <ul class="footer__links">
-                    <li><a href="{{ route('info', 'about') }}">About Us</a></li>
-                    <li><a href="{{ route('info', 'privacy') }}">Privacy Policy</a></li>
-                    <li><a href="{{ route('info', 'terms') }}">Terms of Service</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer__bottom">
-            <p>© 2026 CLOTHR. All rights reserved.</p>
         </div>
     </footer>
 
@@ -343,7 +634,7 @@
         const isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
         lucide.createIcons();
 
-        // Cart Logic
+        /* ── Cart ── */
         let cart = JSON.parse(localStorage.getItem('clothr_cart') || '[]');
         updateCartCount();
 
@@ -360,7 +651,6 @@
             if (!isLoggedIn) return;
             const res = await fetch('/api/cart');
             const dbItems = await res.json();
-            
             if (dbItems.length > 0) {
                 cart = dbItems.map(item => ({
                     id: item.product_id,
@@ -384,139 +674,89 @@
         if (isLoggedIn) fetchCartFromDB();
 
         function updateCartCount() {
-            const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+            const count = cart.reduce((a, i) => a + i.quantity, 0);
             const badge = document.getElementById('cart-count');
-            if (badge) badge.innerText = count;
+            if (badge) badge.textContent = count;
         }
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast toast-${type}`;
-            
-            let icon = 'check-circle';
-            if (type === 'error') icon = 'alert-circle';
-            if (type === 'info') icon = 'info';
-
-            toast.innerHTML = `<i data-lucide="${icon}" size="18"></i> <span>${message}</span>`;
+            const icons = { success: 'check-circle', error: 'alert-circle', info: 'info' };
+            toast.innerHTML = `<i data-lucide="${icons[type]||'check-circle'}" size="16"></i> <span>${message}</span>`;
             container.appendChild(toast);
             lucide.createIcons();
-
             setTimeout(() => {
                 toast.classList.add('removing');
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
-
-            toast.onclick = () => {
-                toast.classList.add('removing');
-                setTimeout(() => toast.remove(), 300);
-            };
+            }, 3200);
+            toast.onclick = () => { toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); };
         }
 
         function addToCart(product) {
-            let finalOutput;
-            const existing = cart.find(item => item.id === product.id && item.size === product.size);
-            if (existing) {
-                existing.quantity += product.quantity || 1;
-                finalOutput = existing;
-            } else {
-                finalOutput = {...product, quantity: product.quantity || 1, is_selected: true};
-                cart.push(finalOutput);
-            }
+            const existing = cart.find(i => i.id === product.id && i.size === product.size);
+            let out;
+            if (existing) { existing.quantity += product.quantity || 1; out = existing; }
+            else { out = {...product, quantity: product.quantity || 1, is_selected: true}; cart.push(out); }
             localStorage.setItem('clothr_cart', JSON.stringify(cart));
             updateCartCount();
             showToast(product.name + ' added to cart!');
-
             if (isLoggedIn) {
                 fetch('/api/cart/update', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
-                    body: JSON.stringify(finalOutput)
+                    body: JSON.stringify(out)
                 });
             }
         }
 
-        window.addToCartGlobal = function(id, name, price, image, size, color) {
-            addToCart({id, name, price, image, size: size || '', color: color || ''});
-        }
+        window.addToCartGlobal = (id, name, price, image, size, color) =>
+            addToCart({id, name, price, image, size: size||'', color: color||''});
 
         window.toggleWishlistGlobal = function(id, btn) {
             if (!isLoggedIn) {
-                showToast('Please login to wishlist items', 'info');
-                setTimeout(() => {
-                    document.getElementById('openLoginModal').click();
-                }, 1000);
+                showToast('Please sign in to save items', 'info');
+                setTimeout(() => document.getElementById('openLoginModal')?.click(), 900);
                 return;
             }
-
-            const isActive = btn.classList.toggle('active');
-            
-            // Call API to persist wishlist
+            btn.classList.toggle('active');
             fetch(`/wishlist/toggle/${id}`, {
                 method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
-                }
-            }).then(res => res.json()).then(data => {
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
+            }).then(r => r.json()).then(data => {
                 if (data.status === 'added') {
-                    showToast('Added to wishlist', 'info');
-                    btn.innerHTML = `<i data-lucide="heart" size="18" fill="currentColor"></i>`;
+                    showToast('Saved to wishlist', 'info');
+                    btn.innerHTML = `<i data-lucide="heart" size="17" fill="currentColor"></i>`;
                 } else {
                     showToast('Removed from wishlist');
-                    btn.innerHTML = `<i data-lucide="heart" size="18"></i>`;
+                    btn.innerHTML = `<i data-lucide="heart" size="17"></i>`;
                 }
                 lucide.createIcons();
             });
-        }
+        };
 
-        // Modal Logic
-        const overlay = document.getElementById('loginModalOverlay');
-        const ssoModal = document.getElementById('ssoModal');
-        const adminModal = document.getElementById('adminModal');
-        const openBtn = document.getElementById('openLoginModal');
-        const closeBtn = document.getElementById('closeModal');
-        const closeAdmin = document.getElementById('closeAdminModal');
-        const showAdmin = document.getElementById('showAdminLogin');
-        const backToSSO = document.getElementById('backToSSO');
+        /* ── Login Modal ── */
+        const overlay   = document.getElementById('loginModalOverlay');
+        const ssoModal  = document.getElementById('ssoModal');
+        const adminModal= document.getElementById('adminModal');
+        const openBtn   = document.getElementById('openLoginModal');
 
         openBtn?.addEventListener('click', () => {
             overlay.classList.add('show');
-            ssoModal.style.display = 'block';
-            adminModal.style.display = 'none';
-            document.body.style.overflow = 'hidden';
+            ssoModal.style.display='block';
+            adminModal.style.display='none';
+            document.body.style.overflow='hidden';
         });
 
-        const closeModal = () => {
-            overlay.classList.remove('show');
-            document.body.style.overflow = '';
-        };
-
-        closeBtn?.addEventListener('click', closeModal);
-        closeAdmin?.addEventListener('click', closeModal);
-        
-        overlay?.addEventListener('click', (e) => {
-            if (e.target === overlay) closeModal();
-        });
-
-        showAdmin?.addEventListener('click', () => {
-            ssoModal.style.display = 'none';
-            adminModal.style.display = 'block';
-        });
-
-        backToSSO?.addEventListener('click', () => {
-            adminModal.style.display = 'none';
-            ssoModal.style.display = 'block';
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
-        });
-        document.querySelectorAll('.logout-link').forEach(link => {
-            link.addEventListener('click', () => {
-                localStorage.removeItem('clothr_cart');
-            });
-        });
+        const closeModal = () => { overlay.classList.remove('show'); document.body.style.overflow=''; };
+        document.getElementById('closeModal')?.addEventListener('click', closeModal);
+        document.getElementById('closeAdminModal')?.addEventListener('click', closeModal);
+        overlay?.addEventListener('click', e => { if(e.target===overlay) closeModal(); });
+        document.getElementById('showAdminLogin')?.addEventListener('click', () => { ssoModal.style.display='none'; adminModal.style.display='block'; });
+        document.getElementById('backToSSO')?.addEventListener('click', () => { adminModal.style.display='none'; ssoModal.style.display='block'; });
+        document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+        document.querySelectorAll('.logout-link').forEach(l => l.addEventListener('click', () => localStorage.removeItem('clothr_cart')));
     </script>
     @yield('extra_js')
 </body>

@@ -19,7 +19,7 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::with('category')->where('isArchived', false)->latest()->paginate(20);
+        $products   = Product::with('category')->where('isArchived', false)->latest()->paginate(20);
         $categories = Category::all();
         return view('admin.products', compact('products', 'categories'));
     }
@@ -27,15 +27,26 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'        => 'required',
-            'price'       => 'required|numeric',
-            'category_id' => 'required',
-            'description' => 'nullable',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'name'                 => 'required',
+            'price'                => 'required|numeric',
+            'category_id'          => 'required',
+            'description'          => 'nullable',
+            'image'                => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'color_images.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
         ]);
 
-        $this->productService->create($validated, $request->file('image'), $request->all());
-        
+        // Collect per-color uploaded images keyed by variant index
+        $colorImages = [];
+        if ($request->hasFile('color_images')) {
+            foreach ($request->file('color_images') as $idx => $file) {
+                if ($file && $file->isValid()) {
+                    $colorImages[$idx] = $file;
+                }
+            }
+        }
+
+        $this->productService->create($validated, $request->file('image'), $request->all(), $colorImages);
+
         return back()->with('success', 'Product created!');
     }
 
@@ -44,14 +55,24 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $validated = $request->validate([
-            'name'        => 'required',
-            'price'       => 'required|numeric',
-            'category_id' => 'required',
-            'description' => 'nullable',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'name'                 => 'required',
+            'price'                => 'required|numeric',
+            'category_id'          => 'required',
+            'description'          => 'nullable',
+            'image'                => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'color_images.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
         ]);
 
-        $this->productService->update($product, $validated, $request->file('image'), $request->all());
+        $colorImages = [];
+        if ($request->hasFile('color_images')) {
+            foreach ($request->file('color_images') as $idx => $file) {
+                if ($file && $file->isValid()) {
+                    $colorImages[$idx] = $file;
+                }
+            }
+        }
+
+        $this->productService->update($product, $validated, $request->file('image'), $request->all(), $colorImages);
 
         return back()->with('success', 'Product updated!');
     }
