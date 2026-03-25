@@ -66,6 +66,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/countries', [\App\Http\Controllers\Shop\LocationController::class, 'getCountries']);
     Route::get('/api/regions/{country_id}', [\App\Http\Controllers\Shop\LocationController::class, 'getRegions']);
     Route::get('/api/cities/{region_id}', [\App\Http\Controllers\Shop\LocationController::class, 'getCities']);
+
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\Shop\NotificationController::class, 'getNotifications'])->name('user.notifications');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Shop\NotificationController::class, 'markAllAsRead'])->name('user.notifications.read-all');
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\Shop\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
 });
 
 require __DIR__ . '/admin.php';

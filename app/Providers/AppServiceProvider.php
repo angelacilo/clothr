@@ -23,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        \Illuminate\Support\Facades\View::composer('layouts.admin', function ($view) {
+            $view->with('unreadNotificationCount', \App\Models\Notification::unread()->count());
+        });
     }
 }

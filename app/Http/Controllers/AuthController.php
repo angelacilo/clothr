@@ -60,6 +60,14 @@ class AuthController extends Controller
 
         Auth::login($user);
 
+        // Trigger New User Notification
+        \App\Models\Notification::createNotification(
+            'new_user',
+            'New Customer Registered',
+            $user->name . ' just created an account',
+            '/admin/users'
+        );
+
         if ($request->input('has_cart') == '1') {
             return redirect()->intended('/checkout');
         }

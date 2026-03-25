@@ -9,11 +9,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::withCount('orders')
-                    ->where('is_admin', false)
-                    ->latest()
-                    ->paginate(20);
-                    
+        $users = User::latest()->paginate(20);
         return view('admin.users', compact('users'));
     }
 }

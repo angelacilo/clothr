@@ -161,6 +161,58 @@
         }
         .navbar__login-link:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
 
+        /* Customer Notification Dropdown */
+        .cust-notif-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 340px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 300;
+            overflow: hidden;
+            text-align: left;
+        }
+        .cust-notif-dropdown.show { display: block; }
+        .cust-notif-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cust-notif-header h3 { font-size: 15px; font-weight: 700; }
+        .cust-notif-header button { font-size: 12px; color: var(--cobalt); cursor: pointer; }
+        .cust-notif-header button:hover { text-decoration: underline; }
+        .cust-notif-list { max-height: 420px; overflow-y: auto; }
+        .cust-notif-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--sand);
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+            transition: background .2s;
+            text-decoration: none;
+        }
+        .cust-notif-item:hover { background: var(--sand); }
+        .cust-notif-item.unread { background: #fdfbf7; border-left: 3px solid var(--ink); }
+        .cust-notif-item.unread:hover { background: var(--sand); }
+        .cust-notif-icon {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--sand-dark);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--ink-soft); flex-shrink: 0;
+        }
+        .cust-notif-content { flex-grow: 1; }
+        .cust-notif-title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+        .cust-notif-message { font-size: 12px; color: var(--ink-muted); margin-bottom: 4px; line-height: 1.4; }
+        .cust-notif-time { font-size: 11px; color: var(--ink-faint); }
+        .cust-notif-empty { padding: 40px 20px; text-align: center; color: var(--ink-muted); font-size: 13px; }
+        .cust-notif-empty strong { display: block; color: var(--ink); margin: 12px 0 4px; font-size: 14px; }
+
         /* ════════════════════════════════════════
            LAYOUT HELPERS
         ════════════════════════════════════════ */
@@ -519,6 +571,25 @@
                     @endauth
                 </div>
 
+                @auth
+                <div style="position: relative;" id="cust-notif-container">
+                    <button class="navbar__icon-btn" title="Notifications" onclick="toggleCustNotifications(event)">
+                        <i data-lucide="bell" size="19"></i>
+                        <span class="navbar__cart-badge" id="cust-notif-badge" style="display:none; background:#ef4444; border-color:#ef4444; color:white;">0</span>
+                    </button>
+                    <!-- Notification Dropdown -->
+                    <div class="cust-notif-dropdown" id="custNotifDropdown">
+                        <div class="cust-notif-header">
+                            <h3>Notifications</h3>
+                            <button id="custMarkAllBtn" onclick="markAllCustAsRead(event)" style="display:none;">Mark all as read</button>
+                        </div>
+                        <div class="cust-notif-list" id="custNotifList">
+                            <div class="cust-notif-empty">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+                @endauth
+
                 <a href="{{ route('cart') }}" class="navbar__icon-btn" title="Cart">
                     <i data-lucide="shopping-bag" size="19"></i>
                     <span class="navbar__cart-badge" id="cart-count">0</span>
@@ -757,6 +828,125 @@
         document.getElementById('backToSSO')?.addEventListener('click', () => { adminModal.style.display='none'; ssoModal.style.display='block'; });
         document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
         document.querySelectorAll('.logout-link').forEach(l => l.addEventListener('click', () => localStorage.removeItem('clothr_cart')));
+
+        /* ── Customer Notifications ── */
+        if (isLoggedIn) {
+            function toggleCustNotifications(e) {
+                if(e) e.stopPropagation();
+                const dropdown = document.getElementById('custNotifDropdown');
+                dropdown.classList.toggle('show');
+                if(dropdown.classList.contains('show')) fetchCustNotifications();
+            }
+
+            document.addEventListener('click', e => {
+                const dropdown = document.getElementById('custNotifDropdown');
+                const btn = document.getElementById('cust-notif-container');
+                if (dropdown && dropdown.classList.contains('show') && !dropdown.contains(e.target) && !btn.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+
+            function fetchCustNotifications() {
+                fetch('/notifications')
+                    .then(res => res.json())
+                    .then(data => renderCustNotifications(data))
+                    .catch(() => {});
+            }
+
+            function renderCustNotifications(data) {
+                const list = document.getElementById('custNotifList');
+                const badge = document.getElementById('cust-notif-badge');
+                const markAll = document.getElementById('custMarkAllBtn');
+                list.innerHTML = '';
+
+                if (data.length === 0) {
+                    list.innerHTML = `<div class="cust-notif-empty"><i data-lucide="smile" size="32" style="margin:0 auto; color:var(--ink-faint);"></i><strong>You are all caught up!</strong>We will notify you when your order status changes</div>`;
+                    badge.style.display = 'none';
+                    markAll.style.display = 'none';
+                    lucide.createIcons();
+                    return;
+                }
+
+                markAll.style.display = 'block';
+                let unread = 0;
+
+                data.forEach(item => {
+                    if (!item.is_read) unread++;
+                    let icon = 'bell';
+                    if(item.type === 'order_processing') icon = 'clock';
+                    if(item.type === 'order_shipped') icon = 'truck';
+                    if(item.type === 'order_delivered') icon = 'check-circle';
+                    if(item.type === 'order_cancelled') icon = 'x-circle';
+
+                    const unreadCls = item.is_read ? '' : 'unread';
+                    list.insertAdjacentHTML('beforeend', `
+                        <div class="cust-notif-item ${unreadCls}" onclick="markCustAsRead(${item.id}, '${item.link}')">
+                            <div class="cust-notif-icon"><i data-lucide="${icon}" size="18"></i></div>
+                            <div class="cust-notif-content">
+                                <div class="cust-notif-title">${item.title}</div>
+                                <div class="cust-notif-message">${item.message}</div>
+                                <div class="cust-notif-time">${item.created_at}</div>
+                            </div>
+                        </div>
+                    `);
+                });
+                lucide.createIcons();
+
+                if (unread > 0) {
+                    badge.style.display = 'flex';
+                    badge.innerText = unread > 99 ? '99+' : unread;
+                } else {
+                    badge.style.display = 'none';
+                    markAll.style.display = 'none';
+                }
+            }
+
+            window.markCustAsRead = function(id, link) {
+                fetch(`/notifications/${id}/read`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                }).then(() => { window.location.href = link; });
+            };
+
+            window.markAllCustAsRead = function(e) {
+                if(e) e.stopPropagation();
+                fetch(`/notifications/read-all`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                }).then(() => {
+                    document.getElementById('cust-notif-badge').style.display = 'none';
+                    document.getElementById('custMarkAllBtn').style.display = 'none';
+                    document.querySelectorAll('.cust-notif-item').forEach(el => el.classList.remove('unread'));
+                });
+            };
+
+            // poll every 60s
+            setInterval(() => {
+                fetch('/notifications').then(res => res.json()).then(data => {
+                    const unreadCount = data.filter(n => !n.is_read).length;
+                    const badge = document.getElementById('cust-notif-badge');
+                    if(unreadCount > 0) {
+                        badge.style.display = 'flex';
+                        badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                    if(document.getElementById('custNotifDropdown').classList.contains('show')) {
+                        renderCustNotifications(data);
+                    }
+                });
+            }, 60000);
+            
+            // initial badge fetch
+            fetch('/notifications').then(res => res.json()).then(data => {
+                const unreadCount = data.filter(n => !n.is_read).length;
+                if(unreadCount > 0) {
+                    const badge = document.getElementById('cust-notif-badge');
+                    badge.style.display = 'flex';
+                    badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+                }
+            });
+        }
     </script>
     @yield('extra_js')
 </body>

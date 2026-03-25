@@ -123,6 +123,41 @@ class OrderService
 
         $order->update($data);
         
+        // --- CUSTOMER NOTIFICATION TRIGGER ---
+        if ($order->user_id) {
+            $displayId = 1000 + $order->id;
+            $link = '/profile/order/' . $order->id;
+            
+            switch ($newStatus) {
+                case 'Processing':
+                    \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_processing', 
+                        'Order is Being Processed', 
+                        "Your order #{$displayId} is now being processed by our team. We will ship it out soon!", 
+                        $link);
+                    break;
+                case 'Shipped':
+                    $trackingText = $order->courier_tracking ? " Tracking: {$order->courier_tracking}" : "";
+                    $courierText = $order->courier ? " Courier: {$order->courier}" : "";
+                    \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_shipped', 
+                        'Your Order Has Been Shipped', 
+                        "Your order #{$displayId} is on its way!{$courierText}{$trackingText}", 
+                        $link);
+                    break;
+                case 'Delivered':
+                    \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_delivered', 
+                        'Order Delivered Successfully', 
+                        "Your order #{$displayId} has been delivered. Thank you for shopping with CLOTHR!", 
+                        $link);
+                    break;
+                case 'Cancelled':
+                    \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_cancelled', 
+                        'Order Has Been Cancelled', 
+                        "We are sorry. Your order #{$displayId} has been cancelled. Please contact us if you have any questions.", 
+                        $link);
+                    break;
+            }
+        }
+        
         return $order;
     }
 }

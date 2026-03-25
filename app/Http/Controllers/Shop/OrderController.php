@@ -53,6 +53,15 @@ class OrderController extends Controller
 
         try {
             $order = $this->orderService->placeOrder(auth()->id(), $validated['items'], $customer_info);
+            
+            // Trigger New Order Notification
+            \App\Models\Notification::createNotification(
+                'new_order',
+                'New Order Placed',
+                'Order #' . (1000 + $order->id) . ' was placed by ' . ($customer_info['first_name'] ?? 'a customer'),
+                '/admin/orders'
+            );
+
             return response()->json(['success' => true, 'order_id' => $order->id]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);

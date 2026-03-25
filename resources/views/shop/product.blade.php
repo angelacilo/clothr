@@ -145,8 +145,6 @@
                 @endif
             </p>
 
-            <p class="description">{{ $product->description }}</p>
-
             {{-- ── COLOR VARIANTS ── --}}
             @if(!empty($product->variants) || !empty($product->colors))
             <div class="option-group" id="colorGroup">
@@ -200,6 +198,13 @@
                     <i data-lucide="heart" size="20"></i> Add to Wishlist
                 </button>
             </div>
+
+            @if($product->description)
+            <div class="product-description-section" style="margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border-color);">
+                <span style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px;">Description</span>
+                <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.75;">{!! nl2br(e($product->description)) !!}</p>
+            </div>
+            @endif
         </div>
     </div>
 
