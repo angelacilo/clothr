@@ -5,9 +5,19 @@
 
 @section('content')
 <div class="products-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <span style="font-size: 14px; color: var(--text-medium); font-style: italic;">Add, edit, and archive products</span>
-        <button class="btn btn-dark" onclick="openAddProductModal()">Add Product</button>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; gap: 20px; flex-wrap: wrap;">
+        <div>
+            <h1 style="font-size: 24px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px;">Product Catalog</h1>
+            <span style="font-size: 14px; color: var(--text-medium); font-style: italic;">Manage your product inventory, variants, and pricing</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <div style="display: flex; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 4px; gap: 4px;">
+                <a href="{{ route('admin.products') }}" class="btn {{ !request('status') ? 'btn-dark' : 'btn-outline' }}" style="padding: 6px 12px; font-size: 12px; border: none;">All</a>
+                <a href="{{ route('admin.products', ['status' => 'low']) }}" class="btn {{ request('status') === 'low' ? 'btn-dark' : 'btn-outline' }}" style="padding: 6px 12px; font-size: 12px; border: none;">Low Stock</a>
+                <a href="{{ route('admin.products', ['status' => 'out']) }}" class="btn {{ request('status') === 'out' ? 'btn-dark' : 'btn-outline' }}" style="padding: 6px 12px; font-size: 12px; border: none;">Out of Stock</a>
+            </div>
+            <button class="btn btn-dark" onclick="openAddProductModal()">+ Add Product</button>
+        </div>
     </div>
 
     @if(session('success'))
@@ -26,15 +36,54 @@
         </div>
     @endif
 
-    @if($lowStockProducts > 0 || $outOfStockProducts > 0)
-    <div style="background-color: #fffbeb; border: 1px solid #fde68a; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
-        <i data-lucide="alert-triangle" style="color: #d97706; width: 24px;"></i>
-        <div>
-            <h4 style="color: #b45309; font-size: 14px; font-weight: 800; margin: 0 0 4px;">Inventory Alert</h4>
-            <p style="color: #b45309; font-size: 13px; margin: 0;">
-                @if($outOfStockProducts > 0) <strong>{{ $outOfStockProducts }}</strong> products are out of stock. @endif
-                @if($lowStockProducts > 0) <strong>{{ $lowStockProducts }}</strong> products are running low (1-5 units left). @endif
-            </p>
+    @if($totalAlerts > 0)
+    <div class="card" style="margin-bottom: 32px; border-left: 4px solid #ef4444; background: #fff;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i data-lucide="alert-circle" style="color: #ef4444; width: 20px;"></i>
+                <h3 style="font-size: 15px; font-weight: 800; color: #b91c1c;">Inventory Alerts ({{ $totalAlerts }} critical items)</h3>
+            </div>
+            <span style="font-size: 12px; color: var(--text-medium); font-weight: 600;">Showing top 10 bottlenecks</span>
+        </div>
+        <div style="padding: 0;">
+            <div class="table-responsive">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                    <thead style="background: #fdf2f2;">
+                        <tr style="text-align: left;">
+                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Product</th>
+                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Variant (Color)</th>
+                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Size</th>
+                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Stock</th>
+                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($limitedAlerts as $alert)
+                        <tr style="border-bottom: 1px solid #fee2e2;">
+                            <td style="padding: 12px 20px; font-weight: 600; color: var(--text-dark);">{{ $alert['name'] }}</td>
+                            <td style="padding: 12px 20px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="width: 12px; height: 12px; border-radius: 50%; background: {{ $alert['colorHex'] ?? '#ccc' }}; border: 1px solid rgba(0,0,0,0.1);"></span>
+                                    <span>{{ $alert['color'] }}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 20px;"><span style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">{{ $alert['size'] }}</span></td>
+                            <td style="padding: 12px 20px;">
+                                <span style="font-weight: 800; color: {{ $alert['stock'] == 0 ? '#ef4444' : '#f59e0b' }}">
+                                    {{ $alert['stock'] }} {{ Str::plural('unit', $alert['stock']) }}
+                                </span>
+                            </td>
+                            <td style="padding: 12px 20px; text-align: right;">
+                                <button class="btn btn-outline edit-product-btn" 
+                                    style="padding: 4px 10px; font-size: 11px;"
+                                    data-product-id="{{ $alert['id'] }}"
+                                    data-json="{{ json_encode(App\Models\Product::find($alert['id'])) }}">Restock</button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     @endif
@@ -49,43 +98,64 @@
                 @if($product->isOnSale)
                     <span style="position: absolute; top: 12px; right: 12px; background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; z-index: 2;">SALE</span>
                 @endif
-                <div style="width: 100%; height: 280px; background: #f4f4f4; overflow: hidden; position: relative;">
+                <div style="width: 100%; height: 260px; background: #f4f4f4; overflow: hidden; position: relative;">
                     <img src="{{ $product->images[0] ?? '/placeholder.png' }}" style="width: 100%; height: 100%; object-fit: cover;">
-                    @if($product->stock <= 0)
-                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(239, 68, 68, 0.9); color: white; text-align: center; padding: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase;">Out of Stock</div>
-                    @elseif($product->stock <= 5)
-                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(245, 158, 11, 0.9); color: white; text-align: center; padding: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase;">Low Stock ({{ $product->stock }} left)</div>
-                    @endif
-                </div>
-                <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                        <h4 style="font-size: 15px; font-weight: 700;">{{ $product->name }}</h4>
-                        <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                    <div style="position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+                        @if($product->stock <= 0)
+                            <span style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800;">OUT OF ORDER</span>
+                        @elseif($product->stock <= 10)
+                            <span style="background: #f59e0b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800;">LOW STOCK</span>
+                        @endif
                     </div>
+                </div>
+                <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                        <h4 style="font-size: 14px; font-weight: 800; color: var(--text-dark);">{{ $product->name }}</h4>
+                        <span style="font-size: 10px; font-weight: 700; color: var(--text-medium); text-transform: uppercase;">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                    </div>
+                    
+                    <!-- Variant Breakdown -->
+                    <div style="margin: 12px 0; border: 1px solid #f1f5f9; border-radius: 8px; padding: 8px; background: #f8fafc;">
+                        <div style="font-size: 10px; font-weight: 800; color: var(--text-medium); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em;">Variant Status</div>
+                        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 80px; overflow-y: auto;">
+                            @php $variants = $product->variants; @endphp
+                            @if(!empty($variants))
+                                @foreach($variants as $v)
+                                    <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ $v['colorHex'] ?? '#ccc' }}; border: 1px solid rgba(0,0,0,0.1);"></span>
+                                            <span style="font-size: 11px; font-weight: 700; color: var(--text-dark);">{{ $v['color'] }}:</span>
+                                        </div>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 4px; padding-left: 14px;">
+                                            @foreach($v['sizes'] ?? [] as $sz => $qty)
+                                                <span title="{{ $qty }} left" style="font-size: 10px; padding: 1px 4px; border-radius: 3px; font-weight: 600; 
+                                                    {{ $qty == 0 ? 'background: #fee2e2; color: #ef4444;' : ($qty <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;') }}">
+                                                    {{ $sz }}:{{ $qty }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div style="font-size: 11px; color: var(--text-medium); font-style: italic;">No variants defined</div>
+                            @endif
+                        </div>
+                    </div>
+
                     <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 12px;">
                         <div style="display: flex; color: #fbbf24;">
-                            <i data-lucide="star" fill="currentColor" style="width: 14px;"></i>
+                            <i data-lucide="star" fill="currentColor" style="width: 12px;"></i>
                         </div>
-                        <span style="font-size: 12px; font-weight: 600; color: var(--text-dark);">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--text-dark);">
                             {{ number_format($product->averageRating(), 1) }}
                         </span>
-                        <span style="font-size: 12px; color: var(--text-light);">({{ $product->reviews_count }} reviews)</span>
+                        <span style="font-size: 11px; color: var(--text-light);">({{ $product->reviews_count }} reviews)</span>
                     </div>
-                    {{-- Variant color dots --}}
-                    @if(!empty($product->variants))
-                        <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px;">
-                            @foreach($product->variants as $v)
-                                <span title="{{ $v['color'] }}" style="width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.15);display:inline-block;background:{{ $v['colorHex'] ?? '#ccc' }};"></span>
-                            @endforeach
-                        </div>
-                    @endif
-                    <p style="font-size: 13px; color: var(--text-medium); margin-bottom: 16px; height: 36px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
-                        {{ $product->description }}
-                    </p>
+
                     <div style="margin-top: auto;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
-                            <span style="font-size: 18px; font-weight: 800; color: var(--primary);">₱{{ number_format($product->price, 2) }}</span>
-                            <span style="font-size: 12px; font-weight: 700; color: var(--text-medium);">{{ $product->stock }} in stock</span>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
+                            <span style="font-size: 16px; font-weight: 800; color: var(--primary);">₱{{ number_format($product->price, 2) }}</span>
+                            <span style="font-size: 11px; font-weight: 700; color: var(--text-medium);">{{ $product->stock }} TOTAL</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <button class="btn btn-outline edit-product-btn"

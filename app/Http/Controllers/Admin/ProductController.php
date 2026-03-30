@@ -17,16 +17,69 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $products   = Product::with('category')->withCount('reviews')->where('isArchived', false)->latest()->paginate(20);
+        $query = Product::with('category')->withCount('reviews')->where('isArchived', false);
+        
+        // Optional status filter
+        if ($request->has('status')) {
+            if ($request->status === 'low') {
+                $query->where('stock', '<=', 5)->where('stock', '>', 0);
+            } elseif ($request->status === 'out') {
+                $query->where('stock', 0);
+            }
+        }
+
+        $products   = $query->latest()->paginate(20);
         $categories = Category::all();
         
-        // Calculate low stock summary
-        $lowStockProducts = Product::where('isArchived', false)->whereBetween('stock', [1, 5])->count();
-        $outOfStockProducts = Product::where('isArchived', false)->where('stock', 0)->count();
+        // Calculate detailed alerts for ALL variants across catalog
+        // We'll build an "Alert Map" to show exactly which color/size is low.
+        $allActive = Product::where('isArchived', false)->get(['id', 'name', 'variants', 'stock']);
+        $inventoryAlerts = [];
+        
+        foreach ($allActive as $p) {
+            $variants = is_string($p->variants) ? json_decode($p->variants, true) : $p->variants;
+            
+            if (empty($variants)) {
+                if ($p->stock <= 5) {
+                    $inventoryAlerts[] = [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'color' => 'Default',
+                        'size' => 'N/A',
+                        'stock' => $p->stock,
+                        'type' => $p->stock == 0 ? 'Out of Stock' : 'Low Stock'
+                    ];
+                }
+            } else {
+                foreach ($variants as $v) {
+                    foreach ($v['sizes'] ?? [] as $sz => $qty) {
+                        if ($qty <= 5) {
+                            $inventoryAlerts[] = [
+                                'id' => $p->id,
+                                'name' => $p->name,
+                                'color' => $v['color'],
+                                'colorHex' => $v['colorHex'] ?? '#ccc',
+                                'size' => $sz,
+                                'stock' => $qty,
+                                'type' => $qty == 0 ? 'Out of Stock' : 'Low Stock'
+                            ];
+                        }
+                    }
+                }
+            }
+        }
 
-        return view('admin.products', compact('products', 'categories', 'lowStockProducts', 'outOfStockProducts'));
+        // Sort: Out of stock first, then by quantity
+        usort($inventoryAlerts, function($a, $b) {
+            return $a['stock'] <=> $b['stock'];
+        });
+
+        $totalAlerts = count($inventoryAlerts);
+        $limitedAlerts = array_slice($inventoryAlerts, 0, 10);
+
+        return view('admin.products', compact('products', 'categories', 'limitedAlerts', 'totalAlerts'));
     }
 
     public function store(Request $request)
