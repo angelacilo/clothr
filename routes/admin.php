@@ -37,6 +37,10 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'a
     
     // Reviews
     Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews');
+    Route::post('/reviews/{id}/toggle', [\App\Http\Controllers\Admin\ReviewController::class, 'toggleVisibility'])->name('reviews.toggle');
+    
+    // Wishlists
+    Route::get('/wishlists', [\App\Http\Controllers\Admin\WishlistController::class, 'wishlistIndex'])->name('wishlists');
     
     // Settings
     Route::get('/settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings');

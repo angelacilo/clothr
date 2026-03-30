@@ -26,6 +26,19 @@
         </div>
     @endif
 
+    @if($lowStockProducts > 0 || $outOfStockProducts > 0)
+    <div style="background-color: #fffbeb; border: 1px solid #fde68a; padding: 16px; border-radius: 8px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px;">
+        <i data-lucide="alert-triangle" style="color: #d97706; width: 24px;"></i>
+        <div>
+            <h4 style="color: #b45309; font-size: 14px; font-weight: 800; margin: 0 0 4px;">Inventory Alert</h4>
+            <p style="color: #b45309; font-size: 13px; margin: 0;">
+                @if($outOfStockProducts > 0) <strong>{{ $outOfStockProducts }}</strong> products are out of stock. @endif
+                @if($lowStockProducts > 0) <strong>{{ $lowStockProducts }}</strong> products are running low (1-5 units left). @endif
+            </p>
+        </div>
+    </div>
+    @endif
+
     <!-- Product Grid -->
     <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 24px;">
         @foreach($products as $product)
@@ -36,13 +49,27 @@
                 @if($product->isOnSale)
                     <span style="position: absolute; top: 12px; right: 12px; background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; z-index: 2;">SALE</span>
                 @endif
-                <div style="width: 100%; height: 280px; background: #f4f4f4; overflow: hidden;">
+                <div style="width: 100%; height: 280px; background: #f4f4f4; overflow: hidden; position: relative;">
                     <img src="{{ $product->images[0] ?? '/placeholder.png' }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    @if($product->stock <= 0)
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(239, 68, 68, 0.9); color: white; text-align: center; padding: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase;">Out of Stock</div>
+                    @elseif($product->stock <= 5)
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(245, 158, 11, 0.9); color: white; text-align: center; padding: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase;">Low Stock ({{ $product->stock }} left)</div>
+                    @endif
                 </div>
                 <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                         <h4 style="font-size: 15px; font-weight: 700;">{{ $product->name }}</h4>
                         <span style="font-size: 11px; font-weight: 600; color: var(--text-medium); text-transform: uppercase;">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 12px;">
+                        <div style="display: flex; color: #fbbf24;">
+                            <i data-lucide="star" fill="currentColor" style="width: 14px;"></i>
+                        </div>
+                        <span style="font-size: 12px; font-weight: 600; color: var(--text-dark);">
+                            {{ number_format($product->averageRating(), 1) }}
+                        </span>
+                        <span style="font-size: 12px; color: var(--text-light);">({{ $product->reviews_count }} reviews)</span>
                     </div>
                     {{-- Variant color dots --}}
                     @if(!empty($product->variants))
@@ -56,7 +83,10 @@
                         {{ $product->description }}
                     </p>
                     <div style="margin-top: auto;">
-                        <span style="font-size: 18px; font-weight: 800; color: var(--primary); display: block; margin-bottom: 20px;">₱{{ number_format($product->price, 2) }}</span>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                            <span style="font-size: 18px; font-weight: 800; color: var(--primary);">₱{{ number_format($product->price, 2) }}</span>
+                            <span style="font-size: 12px; font-weight: 700; color: var(--text-medium);">{{ $product->stock }} in stock</span>
+                        </div>
                         <div style="display: flex; gap: 8px;">
                             <button class="btn btn-outline edit-product-btn"
                                     style="flex: 1; font-size: 12px; padding: 8px;"

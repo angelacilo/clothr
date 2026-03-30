@@ -92,7 +92,19 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                $oldPath = str_replace('storage/', '', $user->avatar);
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = 'storage/' . $path;
+        }
 
         $user->update($validated);
         return back()->with('status', 'Profile updated successfully!');

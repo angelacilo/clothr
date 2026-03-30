@@ -18,7 +18,22 @@ class CartController extends Controller
 
     public function getCart()
     {
-        $items = Auth::user()->cartItems()->with('product')->get();
+        $items = Auth::user()->cartItems()->with('product:id,name,price,images,isArchived')->get()->map(function($item) {
+            return [
+                'product_id' => $item->product_id,
+                'size' => $item->size,
+                'color' => $item->color,
+                'quantity' => $item->quantity,
+                'is_selected' => $item->is_selected,
+                'product' => $item->product ? [
+                    'id' => $item->product->id,
+                    'name' => $item->product->name,
+                    'price' => $item->product->price,
+                    'images' => $item->product->images,
+                    'isArchived' => $item->product->isArchived,
+                ] : null,
+            ];
+        });
         return response()->json($items);
     }
 

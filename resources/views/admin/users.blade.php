@@ -33,9 +33,15 @@
                     <td style="padding: 16px; font-size: 14px; color: var(--text-medium);">#{{ $user->id }}</td>
                     <td style="padding: 16px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: #f3f4f6;">
-                                <img src="{{ $user->avatar ?? 'https://i.pravatar.cc/150?u=' . $user->id }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                            </div>
+                            @if($user->avatar)
+                                <img src="{{ asset($user->avatar) }}" alt="{{ $user->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            @else
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#94a3b8" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                                    </svg>
+                                </div>
+                            @endif
                             <div style="display: flex; flex-direction: column;">
                                 <span style="font-weight: 700; color: var(--text-dark); font-size: 14px;">{{ $user->name }}</span>
                                 <span style="font-size: 12px; color: var(--text-light);">{{ $user->email }}</span>

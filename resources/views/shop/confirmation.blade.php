@@ -12,7 +12,21 @@
     
     <div style="background: rgba(28,25,23,0.04); border-radius: var(--radius-sm); padding: 16px 20px; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 40px; text-align: left; max-width: 100%;">
         <i data-lucide="bell" style="width: 24px; height: 24px; color: var(--accent-warm); flex-shrink: 0;"></i>
-        <p style="font-size: 13px; color: var(--ink-soft); margin: 0; line-height: 1.5;">We will notify you when your order status is updated. Check your notifications bell at the top of the page.</p>
+        <p style="font-size: 13px; color: var(--ink-soft); margin: 0; line-height: 1.5;">Track your order progress in My Orders under your profile. We will also notify you in the notifications bell when the status is updated.</p>
+    </div>
+
+    <!-- Simplified Timeline -->
+    <div style="background: white; border: 1px solid #eee; border-radius: 12px; padding: 24px; text-align: left; margin-bottom: 40px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; position: relative; gap: 20px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #f59e0b; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; z-index: 2; box-shadow: 0 0 0 4px rgba(245,158,11,0.2);">
+                <i data-lucide="shopping-bag" style="width: 16px;"></i>
+            </div>
+            <div style="padding-top: 6px;">
+                <div style="font-size: 15px; font-weight: 800; color: #111;">Order Placed</div>
+                <div style="font-size: 13px; color: #64748b; margin-top: 4px;">Your order has been placed and is waiting for confirmation</div>
+                <div style="font-size: 12px; color: #94a3b8; font-weight: 500; margin-top: 4px;">{{ $order->created_at->format('F j, Y \a\t g:i A') }}</div>
+            </div>
+        </div>
     </div>
 
     <div style="background: #f8f9fa; border-radius: var(--radius-md); padding: 30px; text-align: left; margin-bottom: 40px;">

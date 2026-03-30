@@ -45,8 +45,23 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::with('user')->findOrFail($id);
-        return response()->json($order);
+        $order = Order::with('user:id,name,email,phone')->findOrFail($id);
+        return response()->json([
+            'id' => $order->id,
+            'status' => $order->status,
+            'total' => $order->total,
+            'items' => $order->items,
+            'customer_info' => $order->customer_info,
+            'courier_name' => $order->courier_name,
+            'tracking_number' => $order->tracking_number,
+            'created_at' => $order->created_at,
+            'user' => $order->user ? [
+                'id' => $order->user->id,
+                'name' => $order->user->name,
+                'email' => $order->user->email,
+                'phone' => $order->user->phone,
+            ] : null,
+        ]);
     }
 
     public function updateStatus(Request $request, $id)

@@ -140,33 +140,194 @@
 
     <!-- Order History Timeline -->
     @php
-        $events = [];
-        $events[] = ['label' => 'Order Placed', 'date' => $order->created_at, 'icon' => 'shopping-bag', 'color' => '#3b82f6'];
-        if ($order->processing_at) $events[] = ['label' => 'Processing', 'date' => $order->processing_at, 'icon' => 'settings', 'color' => '#1e40af'];
-        if ($order->shipped_at) {
-            $shippedLabel = 'Shipped';
-            if ($order->tracking_number) $shippedLabel .= ' (Tracking: ' . $order->tracking_number . ')';
-            $events[] = ['label' => $shippedLabel, 'date' => $order->shipped_at, 'icon' => 'truck', 'color' => '#7c3aed'];
+        // Ordered Steps from top to bottom
+        $orderedSteps = [];
+        
+        // Step 1: Placed
+        $orderedSteps[] = [
+            'key' => 'Order Placed',
+            'is_complete' => true,
+            'is_active' => $order->status === 'Pending',
+            'icon' => 'shopping-bag',
+            'title' => 'Order Placed',
+            'desc' => 'Your order has been placed and is waiting for confirmation',
+            'date' => $order->created_at,
+            'color' => '#f59e0b'
+        ];
+        
+        // Step 2: Processing
+        if ($order->processing_at || in_array($order->status, ['Processing', 'Shipped', 'Delivered'])) {
+            $orderedSteps[] = [
+                'key' => 'Processing',
+                'is_complete' => in_array($order->status, ['Processing', 'Shipped', 'Delivered']),
+                'is_active' => $order->status === 'Processing',
+                'icon' => 'clock',
+                'title' => 'Processing',
+                'desc' => 'Your order is being prepared by our team',
+                'date' => $order->processing_at,
+                'color' => '#3b82f6'
+            ];
+        } else {
+            $orderedSteps[] = [
+                'key' => 'Processing',
+                'is_complete' => false,
+                'is_active' => false,
+                'icon' => 'clock',
+                'title' => 'Processing',
+                'desc' => 'Your order is being prepared by our team',
+                'date' => null,
+                'color' => '#94a3b8'
+            ];
         }
-        if ($order->delivered_at) $events[] = ['label' => 'Delivered', 'date' => $order->delivered_at, 'icon' => 'check-circle', 'color' => '#10b981'];
-        if ($order->cancelled_at) $events[] = ['label' => 'Cancelled', 'date' => $order->cancelled_at, 'icon' => 'x-circle', 'color' => '#ef4444'];
+        
+        // Step 3: Shipped
+        if ($order->shipped_at || in_array($order->status, ['Shipped', 'Delivered'])) {
+            $orderedSteps[] = [
+                'key' => 'Shipped',
+                'is_complete' => in_array($order->status, ['Shipped', 'Delivered']),
+                'is_active' => $order->status === 'Shipped',
+                'icon' => 'truck',
+                'title' => 'Shipped',
+                'desc' => 'Your order is on its way!',
+                'date' => $order->shipped_at,
+                'color' => '#8b5cf6'
+            ];
+        } else {
+            $orderedSteps[] = [
+                'key' => 'Shipped',
+                'is_complete' => false,
+                'is_active' => false,
+                'icon' => 'truck',
+                'title' => 'Shipped',
+                'desc' => 'Your order is on its way!',
+                'date' => null,
+                'color' => '#94a3b8'
+            ];
+        }
+        
+        // Step 4: Delivered
+        if ($order->delivered_at || $order->status === 'Delivered') {
+            $orderedSteps[] = [
+                'key' => 'Delivered',
+                'is_complete' => $order->status === 'Delivered',
+                'is_active' => $order->status === 'Delivered',
+                'icon' => 'check-circle',
+                'title' => 'Delivered',
+                'desc' => 'Your order has been delivered. Thank you for shopping with CLOTHR!',
+                'date' => $order->delivered_at,
+                'color' => '#10b981'
+            ];
+        } else {
+            $orderedSteps[] = [
+                'key' => 'Delivered',
+                'is_complete' => false,
+                'is_active' => false,
+                'icon' => 'check-circle',
+                'title' => 'Delivered',
+                'desc' => 'Your order has been delivered. Thank you for shopping with CLOTHR!',
+                'date' => null,
+                'color' => '#94a3b8'
+            ];
+        }
+        
+        // Step 5: Cancelled
+        if ($order->status === 'Cancelled') {
+            // override the others for cancelled state cleanly
+            $orderedSteps = [];
+            $orderedSteps[] = [
+                'key' => 'Order Placed',
+                'is_complete' => true,
+                'is_active' => false,
+                'icon' => 'shopping-bag',
+                'title' => 'Order Placed',
+                'desc' => 'Your order was placed successfully',
+                'date' => $order->created_at,
+                'color' => '#111'
+            ];
+            $orderedSteps[] = [
+                'key' => 'Cancelled',
+                'is_complete' => true,
+                'is_active' => true,
+                'icon' => 'x-circle',
+                'title' => 'Cancelled',
+                'desc' => 'Your order has been cancelled. Contact us if you have questions.',
+                'date' => $order->cancelled_at,
+                'color' => '#ef4444'
+            ];
+        }
     @endphp
-    <div class="history-container">
-        <div class="history-title">Order Timeline</div>
-        @foreach($events as $idx => $ev)
-            @php $isLast = $idx === count($events) - 1; @endphp
-            <div class="history-event">
-                <div class="history-dot-col">
-                    <div class="history-dot" style="background: {{ $ev['color'] }}15;">
-                        <i data-lucide="{{ $ev['icon'] }}" style="width: 14px; color: {{ $ev['color'] }};"></i>
-                    </div>
-                    @if(!$isLast)
-                        <div class="history-line"></div>
-                    @endif
+
+    <style>
+        .timeline-container { padding: 30px; background: white; border: 1px solid #eee; border-radius: 12px; margin-bottom: 30px; box-shadow: var(--shadow-sm); }
+        .timeline-title { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 30px; color: #111; }
+        .timeline-item { display: flex; position: relative; gap: 20px; padding-bottom: 35px; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        
+        .timeline-item::before { content: ''; position: absolute; left: 19px; top: 40px; bottom: 0; width: 2px; }
+        .timeline-item:last-child::before { display: none; }
+        .timeline-item.completed::before { background: currentColor; opacity: 0.3; }
+        .timeline-item.pending::before { background: #e2e8f0; border-right: 2px dashed #cbd5e1; width: 0; left: 18px; }
+
+        .timeline-icon-wrap { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; z-index: 2; transition: all 0.3s; }
+        .timeline-item.completed .timeline-icon-wrap { background: currentColor; color: white !important; }
+        .timeline-item.pending .timeline-icon-wrap { background: white; border: 2px solid #e2e8f0; color: #94a3b8 !important; }
+
+        .timeline-item.active .timeline-icon-wrap {
+            box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+            animation: pulse-active 2s infinite;
+        }
+
+        @keyframes pulse-active {
+            0% { box-shadow: 0 0 0 0 currentColor; }
+            70% { box-shadow: 0 0 0 8px rgba(0,0,0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0,0,0, 0); }
+        }
+
+        .timeline-content { padding-top: 8px; flex-grow: 1; }
+        .timeline-header { font-size: 15px; font-weight: 800; color: #111; }
+        .timeline-item.pending .timeline-header { color: #94a3b8; }
+        
+        .timeline-desc { font-size: 13px; color: #64748b; margin-top: 4px; line-height: 1.5; }
+        .timeline-time { font-size: 12px; color: #94a3b8; margin-top: 6px; font-weight: 500; }
+        
+        .timeline-item.cancelled .timeline-header { color: #ef4444; }
+        .timeline-item.cancelled .timeline-icon-wrap { background: #ef4444; color: white !important; }
+        .timeline-item.cancelled .timeline-desc { color: #ef4444; opacity: 0.8; }
+    </style>
+
+    <div class="timeline-container">
+        <div class="timeline-title">Order Timeline</div>
+        
+        @foreach($orderedSteps as $step)
+            @php
+                $statusClass = 'pending';
+                if ($step['is_complete']) $statusClass = 'completed';
+                if ($step['key'] === 'Cancelled') $statusClass = 'cancelled';
+                if ($step['is_active']) $statusClass .= ' active';
+            @endphp
+            <div class="timeline-item {{ $statusClass }}" style="color: {{ $step['color'] }};">
+                <div class="timeline-icon-wrap" style="{{ $step['key'] === 'Cancelled' ? '' : ($step['is_complete'] ? 'background:' . $step['color'] . ';' : '') }}">
+                    <i data-lucide="{{ $step['icon'] }}" style="width: 18px; {{ $step['is_complete'] && $step['key'] !== 'Cancelled' ? 'color:white;' : '' }}"></i>
                 </div>
-                <div class="history-info" style="{{ $isLast ? 'padding-bottom: 0;' : '' }}">
-                    <div class="history-label" style="color: {{ $ev['color'] }};">{{ $ev['label'] }}</div>
-                    <div class="history-date">{{ $ev['date']->format('M d, Y — g:i A') }}</div>
+                <div class="timeline-content">
+                    <div class="timeline-header">{{ $step['title'] }}</div>
+                    <div class="timeline-desc">
+                        {{ $step['desc'] }}
+                        @if($step['key'] === 'Shipped' && $step['is_complete'])
+                            @if($order->courier_name)
+                                <br><span style="font-weight:600; color:#111;">Courier:</span> {{ $order->courier_name }}
+                            @endif
+                            @if($order->tracking_number)
+                                <br><span style="font-weight:600; color:#111;">Tracking:</span> {{ $order->tracking_number }}
+                            @endif
+                            @if($order->tracking_url)
+                                <br><a href="{{ $order->tracking_url }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:4px; margin-top:8px; font-size:12px; font-weight:700; color:#8b5cf6; text-decoration:none;">Track your package <i data-lucide="arrow-right" style="width:12px;"></i></a>
+                            @endif
+                        @endif
+                    </div>
+                    @if($step['date'])
+                        <div class="timeline-time">{{ $step['date']->format('F j, Y \a\t g:i A') }}</div>
+                    @endif
                 </div>
             </div>
         @endforeach

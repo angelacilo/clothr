@@ -103,10 +103,23 @@
 
     /* ── Reviews ── */
     .reviews-section  { margin-top:80px; padding-top:60px; border-top:1px solid var(--border-color); }
-    .review-item      { margin-bottom:40px; }
+    .review-item      { margin-bottom:40px; padding-bottom:30px; border-bottom:1px solid #f1f5f9; }
     .review-meta      { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
     .review-stars     { color:#fbbf24; display:flex; gap:2px; }
     .review-content   { font-size:15px; color:var(--text-secondary); line-height:1.65; }
+    .review-summary { display: flex; gap: 40px; margin-bottom: 40px; align-items: center; flex-wrap: wrap; }
+    .review-avg { text-align: center; min-width: 140px; }
+    .review-avg-big { font-size: 48px; font-weight: 800; line-height: 1; color: #111; margin-bottom: 8px; }
+    .review-bars { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 200px; }
+    .review-bar-row { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #64748b; }
+    .review-bar-bg { flex: 1; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+    .review-bar-fill { height: 100%; background: #fbbf24; border-radius: 4px; transition: width 0.5s ease; }
+    .star-btn { cursor: pointer; color: #cbd5e1; transition: 0.2s; background: none; border: none; padding: 0; outline: none; }
+    .star-btn.active { color: #fbbf24; }
+    .review-form-card { background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 40px; border: 1px solid #e2e8f0; }
+    .review-edit-actions { display: flex; gap: 12px; margin-top: 14px; }
+    .review-edit-actions button { font-size: 13px; font-weight: 700; cursor: pointer; background: none; border: none; color: #64748b; padding: 0; }
+    .review-edit-actions button:hover { color: #111; text-decoration: underline; }
 
     @media (max-width:768px) {
         .product-detail { grid-template-columns:1fr; gap:40px; }
@@ -211,50 +224,127 @@
     {{-- ── REVIEWS ── --}}
     <div class="reviews-section">
         <h2 class="section-title">Customer Reviews</h2>
-        @forelse($product->reviews ?? [] as $review)
-            <div class="review-item">
-                <div class="review-meta">
-                    <div class="review-stars">
-                        @for($s=1;$s<=5;$s++)
-                            <i data-lucide="star" {{ $s<=$review->rating ? 'fill="currentColor"' : '' }} size="16"></i>
-                        @endfor
-                    </div>
-                    <span style="font-weight:700; font-size:14px;">{{ $review->user->name ?? 'Customer' }}</span>
-                    <span style="color:var(--text-muted); font-size:13px;">Verified Buyer</span>
+
+        <div class="review-summary">
+            <div class="review-avg">
+                <div class="review-avg-big">{{ number_format($avgRating, 1) }}</div>
+                <div class="review-stars" style="justify-content: center; margin-bottom: 6px;">
+                    @for($s=1; $s<=5; $s++)
+                        <i data-lucide="star" {{ $s<=$avgRating ? 'fill="currentColor"' : '' }} size="18" style="color: {{ $s<=$avgRating ? '#fbbf24' : '#e2e8f0' }}"></i>
+                    @endfor
                 </div>
-                <p class="review-content">{{ $review->comment }}</p>
+                <div style="font-size: 13px; color: #64748b; font-weight: 600;">{{ $totalReviews }} {{ Str::plural('review', $totalReviews) }}</div>
             </div>
-        @empty
-            {{-- Placeholder reviews --}}
-            <div class="review-item">
-                <div class="review-meta">
-                    <div class="review-stars">
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
+            <div class="review-bars">
+                @for($i = 5; $i >= 1; $i--)
+                    @php 
+                        $pct = $totalReviews > 0 ? ($ratingCounts[$i] / $totalReviews) * 100 : 0; 
+                    @endphp
+                    <div class="review-bar-row">
+                        <span style="width: 48px; text-align: right;">{{ $i }} stars</span>
+                        <div class="review-bar-bg">
+                            <div class="review-bar-fill" style="width: {{ $pct }}%"></div>
+                        </div>
+                        <span style="width: 32px; text-align: left;">{{ round($pct) }}%</span>
                     </div>
-                    <span style="font-weight:700; font-size:14px;">Sarah M.</span>
-                    <span style="color:var(--text-muted); font-size:13px;">Verified Buyer</span>
-                </div>
-                <p class="review-content">Absolutely love this! The fabric is high quality and the fit is perfect. Received so many compliments.</p>
+                @endfor
             </div>
-            <div class="review-item">
-                <div class="review-meta">
-                    <div class="review-stars">
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" fill="currentColor" size="16"></i>
-                        <i data-lucide="star" size="16"></i>
+        </div>
+
+        {{-- Review Form Area --}}
+        @auth
+            @if($userReview)
+                {{-- User already reviewed --}}
+                <div class="review-form-card" id="userReviewCard">
+                    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">Your Review</h3>
+                    <div class="review-meta">
+                        <div class="review-stars">
+                            @for($s=1; $s<=5; $s++)
+                                <i data-lucide="star" {{ $s<=$userReview->rating ? 'fill="currentColor"' : '' }} size="16"></i>
+                            @endfor
+                        </div>
+                        <span style="color:var(--text-muted); font-size:13px;">{{ $userReview->updated_at->format('F j, Y') }}</span>
                     </div>
-                    <span style="font-weight:700; font-size:14px;">Maria L.</span>
-                    <span style="color:var(--text-muted); font-size:13px;">Verified Buyer</span>
+                    <p class="review-content">{{ $userReview->comment }}</p>
+                    <div class="review-edit-actions">
+                        <button onclick="editReview()">Edit Review</button>
+                        <button onclick="deleteReview('{{ $userReview->id }}')" style="color: #ef4444;">Delete</button>
+                    </div>
                 </div>
-                <p class="review-content">Beautiful design and colors. Runs slightly small—size up if you're between sizes.</p>
+                
+                {{-- Hidden edit form --}}
+                <div class="review-form-card" id="editReviewFormCard" style="display: none;">
+                    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">Edit Your Review</h3>
+                    <form id="editReviewForm" onsubmit="submitEditReview(event, '{{ $userReview->id }}')">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Rating <span style="color: red;">*</span></label>
+                            <div id="editStarRating" style="display: flex; gap: 4px;">
+                                @for($i=1; $i<=5; $i++)
+                                    <button type="button" class="star-btn {{ $i <= $userReview->rating ? 'active' : '' }}" data-val="{{ $i }}" onmouseover="hoverStars(this, 'editStarRating')" onmouseout="resetStars('editStarRating')" onclick="selectStar(this, 'editStarRating')">
+                                        <i data-lucide="star" fill="currentColor" size="24"></i>
+                                    </button>
+                                @endfor
+                            </div>
+                            <input type="hidden" id="editRatingValue" value="{{ $userReview->rating }}" required>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Comment (optional)</label>
+                            <textarea id="editReviewComment" maxlength="1000" rows="4" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-family: inherit; resize: vertical;" onkeyup="document.getElementById('editCharCounter').innerText = this.value.length">{{ $userReview->comment }}</textarea>
+                            <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 4px;"><span id="editCharCounter">{{ strlen($userReview->comment) }}</span> / 1000</div>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button type="submit" class="btn btn-dark" style="padding: 10px 24px;" id="submitEditBtn">Update Review</button>
+                            <button type="button" class="btn btn-outline" style="padding: 10px 24px;" onclick="cancelEditReview()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            @elseif($canReview)
+                {{-- User can review --}}
+                <div class="review-form-card">
+                    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">Write a Review</h3>
+                    <form id="newReviewForm" onsubmit="submitNewReview(event)">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Rating <span style="color: red;">*</span></label>
+                            <div id="newStarRating" style="display: flex; gap: 4px;">
+                                @for($i=1; $i<=5; $i++)
+                                    <button type="button" class="star-btn" data-val="{{ $i }}" onmouseover="hoverStars(this, 'newStarRating')" onmouseout="resetStars('newStarRating')" onclick="selectStar(this, 'newStarRating')">
+                                        <i data-lucide="star" fill="currentColor" size="24"></i>
+                                    </button>
+                                @endfor
+                            </div>
+                            <input type="hidden" id="newRatingValue" value="" required>
+                            <div id="ratingError" style="color: red; font-size: 12px; display: none; margin-top: 4px;">Please select a rating.</div>
+                        </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Comment (optional)</label>
+                            <textarea id="newReviewComment" maxlength="1000" placeholder="Share your thoughts about this product..." rows="4" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-family: inherit; resize: vertical;" onkeyup="document.getElementById('newCharCounter').innerText = this.value.length"></textarea>
+                            <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 4px;"><span id="newCharCounter">0</span> / 1000</div>
+                        </div>
+                        <button type="submit" class="btn btn-dark" style="padding: 12px 24px;" id="submitNewBtn">Submit Review</button>
+                    </form>
+                </div>
+            @else
+                {{-- User has not purchased --}}
+                <div class="review-form-card" style="text-align: center; color: var(--text-medium);">
+                    <i data-lucide="shopping-bag" style="margin-bottom: 12px; color: #94a3b8;"></i>
+                    <p style="margin: 0; font-size: 14px; font-weight: 600;">Purchase this product to leave a review</p>
+                </div>
+            @endif
+        @else
+            {{-- Guest --}}
+            <div class="review-form-card" style="text-align: center;">
+                <p style="margin-bottom: 16px; font-size: 14px; color: var(--text-medium); font-weight: 600;">Please sign in to leave a review</p>
+                <button class="btn btn-outline" onclick="document.getElementById('openLoginModal').click()">Sign In</button>
             </div>
-        @endforelse
+        @endauth
+
+        <div id="reviewsList">
+            {{-- Rendered via JS AJAX --}}
+        </div>
+        
+        <div id="reviewsPagination" style="margin-top: 30px; display: flex; justify-content: center; gap: 10px;">
+            {{-- Rendered via JS AJAX --}}
+        </div>
     </div>
 </div>
 @endsection
@@ -588,8 +678,210 @@ function toggleWishlist(id, btn) {
     btn.innerHTML = isActive
         ? '<i data-lucide="heart" size="20" fill="currentColor"></i> Added to Wishlist'
         : '<i data-lucide="heart" size="20"></i> Add to Wishlist';
-    lucide.createIcons();
     showToast(isActive ? 'Added to wishlist' : 'Removed from wishlist', 'info');
 }
+
+/* ══════════════════════════════════════════════════════════
+   REVIEWS LOGIC
+══════════════════════════════════════════════════════════ */
+// Star Rating Interaction
+function hoverStars(btn, containerId) {
+    let val = parseInt(btn.dataset.val);
+    let btns = document.querySelectorAll(`#${containerId} .star-btn`);
+    btns.forEach(b => {
+        if (parseInt(b.dataset.val) <= val) {
+            b.style.color = '#fbbf24';
+        } else {
+            b.style.color = '#cbd5e1';
+        }
+    });
+}
+function resetStars(containerId) {
+    let inputId = containerId === 'newStarRating' ? 'newRatingValue' : 'editRatingValue';
+    let val = parseInt(document.getElementById(inputId).value) || 0;
+    let btns = document.querySelectorAll(`#${containerId} .star-btn`);
+    btns.forEach(b => {
+        if (parseInt(b.dataset.val) <= val) {
+            b.style.color = '#fbbf24';
+            b.classList.add('active');
+        } else {
+            b.style.color = '#cbd5e1';
+            b.classList.remove('active');
+        }
+    });
+}
+function selectStar(btn, containerId) {
+    let inputId = containerId === 'newStarRating' ? 'newRatingValue' : 'editRatingValue';
+    document.getElementById(inputId).value = btn.dataset.val;
+    if (inputId === 'newRatingValue') document.getElementById('ratingError').style.display = 'none';
+    resetStars(containerId);
+}
+
+// Fetch Reviews
+let reviewsPage = 1;
+function fetchReviews(page = 1) {
+    fetch(`/product/{{ $product->id }}/reviews?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+            renderReviews(data.data);
+            renderPagination(data);
+        });
+}
+
+function renderReviews(reviews) {
+    const list = document.getElementById('reviewsList');
+    if (!reviews || reviews.length === 0) {
+        if (reviewsPage === 1) {
+            list.innerHTML = '<div style="padding: 40px; text-align: center; color: #94a3b8;">No reviews yet.</div>';
+        }
+        return;
+    }
+    
+    list.innerHTML = reviews.map(r => {
+        let starsHtml = '';
+        for(let s=1; s<=5; s++) {
+            starsHtml += `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${s <= r.rating ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
+        }
+        
+        // Hide edit/delete for their own review context if it's already in the top form, safely escaping comment
+        const isOwnBadge = r.is_own ? '<span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 8px;">Your Review</span>' : '';
+
+        // Safely escape comment text to prevent XSS
+        const safeComment = document.createElement('div');
+        safeComment.textContent = r.comment || '';
+        const commentHtml = safeComment.innerHTML;
+        
+        return `
+            <div class="review-item">
+                <div class="review-meta">
+                    <div class="review-stars">${starsHtml}</div>
+                    <span style="font-weight:700; font-size:14px; color: #111;">${r.reviewer_name} ${isOwnBadge}</span>
+                    <span style="color:var(--text-muted); font-size:13px; display: inline-flex; align-items: center; gap: 4px;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified Buyer</span>
+                    <span style="color:var(--text-light); font-size:12px; margin-left: auto;">${r.created_at}</span>
+                </div>
+                <p class="review-content">${commentHtml}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderPagination(data) {
+    const p = document.getElementById('reviewsPagination');
+    if (data.last_page <= 1) { p.innerHTML = ''; return; }
+    
+    let html = '';
+    if (data.current_page > 1) {
+        html += `<button class="btn btn-outline" style="padding: 6px 14px; font-size: 13px;" onclick="fetchReviews(${data.current_page - 1})">Prev</button>`;
+    }
+    html += `<span style="font-size: 13px; font-weight: 600; padding: 8px 12px; color: #64748b;">Page ${data.current_page} of ${data.last_page}</span>`;
+    if (data.current_page < data.last_page) {
+        html += `<button class="btn btn-outline" style="padding: 6px 14px; font-size: 13px;" onclick="fetchReviews(${data.current_page + 1})">Next</button>`;
+    }
+    p.innerHTML = html;
+}
+
+// Submission Logic
+function submitNewReview(e) {
+    e.preventDefault();
+    let val = document.getElementById('newRatingValue').value;
+    if (!val) { document.getElementById('ratingError').style.display = 'block'; return; }
+    
+    let btn = document.getElementById('submitNewBtn');
+    btn.disabled = true;
+    btn.innerText = 'Submitting...';
+    
+    let payload = {
+        rating: val,
+        comment: document.getElementById('newReviewComment').value
+    };
+    
+    fetch(`/product/{{ $product->id }}/review`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json().then(data => ({ status: r.status, body: data })))
+    .then(res => {
+        if (res.status === 200) {
+            showToast(res.body.message);
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showToast(res.body.error || 'Failed to submit review', 'error');
+            btn.disabled = false;
+            btn.innerText = 'Submit Review';
+        }
+    });
+}
+
+function editReview() {
+    document.getElementById('userReviewCard').style.display = 'none';
+    document.getElementById('editReviewFormCard').style.display = 'block';
+}
+
+function cancelEditReview() {
+    document.getElementById('userReviewCard').style.display = 'block';
+    document.getElementById('editReviewFormCard').style.display = 'none';
+    resetStars('editStarRating'); // return to existing rating on cancel
+}
+
+function submitEditReview(e, id) {
+    e.preventDefault();
+    let val = document.getElementById('editRatingValue').value;
+    
+    let btn = document.getElementById('submitEditBtn');
+    btn.disabled = true;
+    btn.innerText = 'Updating...';
+    
+    fetch(`/review/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            rating: val,
+            comment: document.getElementById('editReviewComment').value
+        })
+    })
+    .then(r => r.json().then(data => ({ status: r.status, body: data })))
+    .then(res => {
+        if (res.status === 200) {
+            showToast(res.body.message);
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showToast(res.body.error || 'Failed to update review', 'error');
+            btn.disabled = false;
+            btn.innerText = 'Update Review';
+        }
+    });
+}
+
+function deleteReview(id) {
+    if (!confirm('Are you sure you want to delete your review?')) return;
+    
+    fetch(`/review/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(r => r.json().then(data => ({ status: r.status, body: data })))
+    .then(res => {
+        if (res.status === 200) {
+            showToast(res.body.message);
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showToast('Failed to delete review', 'error');
+        }
+    });
+}
+
+// Initial fetch
+document.addEventListener('DOMContentLoaded', () => {
+    fetchReviews(1);
+});
 </script>
 @endsection

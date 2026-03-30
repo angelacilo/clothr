@@ -12,7 +12,7 @@ class Product extends Model
     protected $fillable = [
         'name', 'description', 'price', 'originalPrice', 'category_id',
         'images', 'stock', 'isNew', 'isOnSale', 'isFeatured', 'isArchived', 'sizes', 'colors',
-        'variants', 'sales_count', 'isTrending'
+        'variants', 'variant_stock', 'sales_count', 'isTrending'
     ];
 
     protected $casts = [
@@ -20,6 +20,7 @@ class Product extends Model
         'sizes'        => 'array',
         'colors'       => 'array',
         'variants'     => 'array',
+        'variant_stock'=> 'array',
         'isNew'        => 'boolean',
         'isOnSale'     => 'boolean',
         'isFeatured'   => 'boolean',

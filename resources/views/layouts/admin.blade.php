@@ -176,6 +176,10 @@
                     <i data-lucide="star"></i>
                     Reviews
                 </a>
+                <a href="{{ route('admin.wishlists') }}" class="nav-item {{ request()->routeIs('admin.wishlists') ? 'active' : '' }}">
+                    <i data-lucide="heart"></i>
+                    Wishlists
+                </a>
                 <a href="{{ route('admin.users') }}" class="nav-item {{ request()->routeIs('admin.users') ? 'active' : '' }}">
                     <i data-lucide="users"></i>
                     Users
@@ -242,7 +246,15 @@
                     
                     <a href="{{ route('admin.settings') }}" class="user-profile" style="text-decoration: none; cursor: pointer;">
                         <div class="avatar">
-                            <img src="{{ auth()->user()->avatar ?? 'https://i.pravatar.cc/150?u=admin' }}" alt="Admin">
+                            @if(auth()->user()->avatar)
+                                <img src="{{ asset(auth()->user()->avatar) }}" alt="Admin" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            @else
+                                <div style="width: 100%; height: 100%; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#94a3b8" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                                    </svg>
+                                </div>
+                            @endif
                         </div>
                         <div class="user-details">
                             <span class="user-name">{{ auth()->user()->name ?? 'Admin User' }}</span>

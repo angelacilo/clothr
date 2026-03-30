@@ -31,7 +31,7 @@ Route::get('/category/{slug}', [\App\Http\Controllers\Shop\ShopController::class
 Route::get('/product/{id}', [\App\Http\Controllers\Shop\ProductController::class, 'show'])->name('product');
 Route::get('/cart', [\App\Http\Controllers\Shop\CartController::class, 'index'])->name('cart');
 Route::get('/info/{slug}', [\App\Http\Controllers\Shop\HomeController::class, 'info'])->name('info');
-
+Route::get('/product/{id}/reviews', [\App\Http\Controllers\Shop\ReviewController::class, 'index'])->name('product.reviews');
 // Authenticated Shop Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [\App\Http\Controllers\Shop\OrderController::class, 'checkout'])->name('checkout');
@@ -71,6 +71,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications', [\App\Http\Controllers\Shop\NotificationController::class, 'getNotifications'])->name('user.notifications');
     Route::post('/notifications/read-all', [\App\Http\Controllers\Shop\NotificationController::class, 'markAllAsRead'])->name('user.notifications.read-all');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Shop\NotificationController::class, 'markAsRead'])->name('user.notifications.read');
+    Route::post('/product/{id}/review', [\App\Http\Controllers\Shop\ReviewController::class, 'store'])->name('review.store');
+    Route::put('/review/{id}', [\App\Http\Controllers\Shop\ReviewController::class, 'update'])->name('review.update');
+    Route::delete('/review/{id}', [\App\Http\Controllers\Shop\ReviewController::class, 'destroy'])->name('review.destroy');
 });
 
 require __DIR__ . '/admin.php';

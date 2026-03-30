@@ -35,8 +35,19 @@
 
                 <div style="display: flex; gap: 32px; align-items: flex-start; margin-bottom: 32px;">
                     <div style="position: relative;">
-                        <img id="profile-preview" src="{{ $admin->avatar ?? 'https://i.pravatar.cc/150?u=admin' }}" alt="Admin" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid #f3f4f6; object-fit: cover;">
-                        <input type="file" name="avatar" id="profile-upload" style="display: none;" accept="image/*" onchange="previewProfileImage(this)">
+                        <div style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid #f3f4f6; overflow: hidden; background: #e2e8f0;">
+                            @if($admin->avatar)
+                                <img id="profile-preview" src="{{ asset($admin->avatar) }}" alt="Admin" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                <div id="avatar-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#94a3b8" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                                    </svg>
+                                </div>
+                                <img id="profile-preview" src="" alt="Admin" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                            @endif
+                        </div>
+                        <input type="file" name="avatar" id="profile-upload" style="display: none;" accept="image/png, image/jpeg, image/jpg, image/webp" onchange="previewProfileImage(this)">
                         <button type="button" id="camera-btn" style="position: absolute; bottom: 0; right: 0; background: white; border: 1px solid #e5e7eb; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); display: none;" onclick="document.getElementById('profile-upload').click()">
                             <i data-lucide="camera" style="width: 16px; color: var(--text-medium);"></i>
                         </button>
@@ -275,7 +286,11 @@
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('profile-preview').src = e.target.result;
+                const img = document.getElementById('profile-preview');
+                const placeholder = document.getElementById('avatar-placeholder');
+                if (placeholder) placeholder.style.display = 'none';
+                img.style.display = 'block';
+                img.src = e.target.result;
             }
             reader.readAsDataURL(input.files[0]);
         }

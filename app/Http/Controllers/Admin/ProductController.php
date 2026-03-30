@@ -19,9 +19,14 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products   = Product::with('category')->where('isArchived', false)->latest()->paginate(20);
+        $products   = Product::with('category')->withCount('reviews')->where('isArchived', false)->latest()->paginate(20);
         $categories = Category::all();
-        return view('admin.products', compact('products', 'categories'));
+        
+        // Calculate low stock summary
+        $lowStockProducts = Product::where('isArchived', false)->whereBetween('stock', [1, 5])->count();
+        $outOfStockProducts = Product::where('isArchived', false)->where('stock', 0)->count();
+
+        return view('admin.products', compact('products', 'categories', 'lowStockProducts', 'outOfStockProducts'));
     }
 
     public function store(Request $request)

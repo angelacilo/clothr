@@ -31,8 +31,14 @@ class SettingsController extends Controller
         $data = $request->only(['name', 'email', 'phone', 'bio']);
 
         if ($request->hasFile('avatar')) {
+            if ($admin->avatar) {
+                $oldPath = str_replace(['/storage/', 'storage/'], '', $admin->avatar);
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+            }
             $path = $request->file('avatar')->store('avatars', 'public');
-            $data['avatar'] = '/storage/' . $path;
+            $data['avatar'] = 'storage/' . $path; // Matches how profile works
         }
 
         $admin->update($data);
