@@ -246,7 +246,7 @@
                     
                     <a href="{{ route('admin.settings') }}" class="user-profile" style="text-decoration: none; cursor: pointer;">
                         <div class="avatar">
-                            @if(auth()->user()->avatar)
+                            @if(optional(auth()->user())->avatar)
                                 <img src="{{ asset(auth()->user()->avatar) }}" alt="Admin" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                             @else
                                 <div style="width: 100%; height: 100%; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center;">
@@ -257,8 +257,8 @@
                             @endif
                         </div>
                         <div class="user-details">
-                            <span class="user-name">{{ auth()->user()->name ?? 'Admin User' }}</span>
-                            <span class="user-email">{{ auth()->user()->email ?? 'admin@clothr.com' }}</span>
+                            <span class="user-name">{{ optional(auth()->user())->name ?? 'Admin User' }}</span>
+                            <span class="user-email">{{ optional(auth()->user())->email ?? 'admin@clothr.com' }}</span>
                         </div>
                     </a>
                 </div>

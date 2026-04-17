@@ -141,14 +141,27 @@
                         </td>
                         <td onclick="openOrderModal({{ $order->id }})">
                             <div style="display: flex; flex-direction: column;">
-                                <span style="font-size: 13px;">{{ $order->created_at->format('M d, Y') }}</span>
-                                <span style="font-size: 11px; color: var(--text-medium);">{{ $order->created_at->format('g:i A') }}</span>
+                                <span style="font-size: 13px; font-weight: 600;" title="{{ $order->created_at->timezone('Asia/Manila')->format('M d, Y g:i A') }}">
+                                    {{ $order->created_at->diffForHumans() }}
+                                </span>
+                                <span style="font-size: 11px; color: var(--text-medium);">
+                                    {{ $order->created_at->timezone('Asia/Manila')->format('M d, Y g:i A') }}
+                                </span>
                             </div>
                         </td>
                         <td onclick="openOrderModal({{ $order->id }})">
                             <div style="display: flex; align-items: center; gap: 4px;">
                                 @if($firstItem)
-                                    <img src="{{ $firstItem['image'] ?? '/placeholder.png' }}" style="width: 32px; height: 32px; border-radius: 6px; object-fit: cover; border: 1px solid #eee;">
+                                    @php
+                                        $product = isset($firstItem['id']) ? \App\Models\Product::find($firstItem['id']) : null;
+                                        $imgSrc = $firstItem['image'] ?? null;
+                                        if (!$imgSrc && $product && !empty($product->images)) {
+                                            $imgSrc = is_array($product->images) ? $product->images[0] : $product->images;
+                                        }
+                                        $svgPlaceholder = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23f1f5f9'/%3E%3Cpath d='M22 26c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4zm18 12H24c-1.8 0-3.3-1.2-3.8-2.9L24 30l6.5 8.5 5.5-7.5 7.8 11.2c-.8 1.1-2.1 1.8-3.8 1.8z' fill='%23cbd5e1'/%3E%3C/svg%3E";
+                                        $imgSrc = $imgSrc ?: $svgPlaceholder;
+                                    @endphp
+                                    <img src="{{ is_array($imgSrc) ? ($imgSrc[0] ?? $svgPlaceholder) : $imgSrc }}" style="width: 32px; height: 32px; border-radius: 6px; object-fit: cover; border: 1px solid #eee;" onerror="this.src='{{ $svgPlaceholder }}'">
                                 @endif
                                 <span style="font-size: 12px; color: var(--text-medium); margin-left: 4px;">{{ count($items) }} item{{ count($items) > 1 ? 's' : '' }}</span>
                             </div>
@@ -472,12 +485,13 @@
                 const itemsContainer = document.getElementById('modalItems');
                 itemsContainer.innerHTML = '';
                 const items = order.items || [];
+                const svgPlaceholder = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23f1f5f9'/%3E%3Cpath d='M22 26c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4zm18 12H24c-1.8 0-3.3-1.2-3.8-2.9L24 30l6.5 8.5 5.5-7.5 7.8 11.2c-.8 1.1-2.1 1.8-3.8 1.8z' fill='%23cbd5e1'/%3E%3C/svg%3E";
                 items.forEach(item => {
                     const qty = item.quantity || 1;
                     const price = item.price || 0;
                     itemsContainer.innerHTML += `
                         <div style="display: flex; align-items: center; gap: 14px; padding: 12px; background: #f8fafc; border-radius: 10px;">
-                            <img src="${item.image || '/placeholder.png'}" style="width: 52px; height: 52px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;">
+                            <img src="${item.image || svgPlaceholder}" style="width: 52px; height: 52px; border-radius: 8px; object-fit: cover; border: 1px solid #eee;" onerror="this.src='${svgPlaceholder}'">
                             <div style="flex: 1;">
                                 <div style="font-weight: 700; font-size: 13px;">${item.name || 'Product'}</div>
                                 <div style="font-size: 11px; color: var(--text-medium); margin-top: 2px;">Size: ${item.size || 'N/A'} &bull; Qty: ${qty}</div>

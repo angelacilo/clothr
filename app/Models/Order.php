@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id', 'customer_info', 'items', 'total', 'status',
-        'courier_name', 'tracking_number',
+        'courier_name', 'courier_service', 'tracking_number', 'rider_id',
         'processing_at', 'shipped_at', 'delivered_at', 'cancelled_at',
     ];
 
@@ -51,5 +51,13 @@ class Order extends Model
         ];
 
         return $urls[$this->courier_name] ?? null;
+    }
+
+    public function rider() { 
+        return $this->belongsTo(Rider::class); 
+    }
+
+    public function delivery() { 
+        return $this->hasOne(Delivery::class); 
     }
 }

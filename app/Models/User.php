@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'is_admin', 'phone', 'avatar', 'bio'
+        'name', 'email', 'password', 'is_admin', 'role', 'phone', 'avatar', 'bio'
     ];
 
     /**
@@ -62,5 +62,13 @@ class User extends Authenticatable
     public function cartItems()
     {
         return $this->hasMany(CartItem::class);
+    }
+
+    public function rider() { 
+        return $this->hasOne(Rider::class); 
+    }
+
+    public function courierAccount() { 
+        return $this->hasOne(Courier::class); 
     }
 }

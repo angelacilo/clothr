@@ -46,11 +46,24 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Order::with('user:id,name,email,phone')->findOrFail($id);
+        $items = collect($order->items)->map(function($item) {
+            $svgPlaceholder = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23f1f5f9'/%3E%3Cpath d='M22 26c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4zm18 12H24c-1.8 0-3.3-1.2-3.8-2.9L24 30l6.5 8.5 5.5-7.5 7.8 11.2c-.8 1.1-2.1 1.8-3.8 1.8z' fill='%23cbd5e1'/%3E%3C/svg%3E";
+            if (empty($item['image'])) {
+                $product = \App\Models\Product::find($item['id']);
+                if ($product && !empty($product->images)) {
+                    $item['image'] = is_array($product->images) ? $product->images[0] : $product->images;
+                } else {
+                    $item['image'] = $svgPlaceholder;
+                }
+            }
+            return $item;
+        })->toArray();
+
         return response()->json([
             'id' => $order->id,
             'status' => $order->status,
             'total' => $order->total,
-            'items' => $order->items,
+            'items' => $items,
             'customer_info' => $order->customer_info,
             'courier_name' => $order->courier_name,
             'tracking_number' => $order->tracking_number,
@@ -82,10 +95,20 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($id);
         $data = $request->validate([
-            'courier_name' => 'nullable|string|max:100',
+            'courier_name'    => 'nullable|string|max:100',
             'tracking_number' => 'nullable|string|max:100',
         ]);
         
+        // Find corresponding courier code for the portal logic
+        if (!empty($data['courier_name'])) {
+            $courier = \App\Models\Courier::where('name', $data['courier_name'])->first();
+            if ($courier) {
+                $data['courier_service'] = $courier->code;
+            }
+        } else {
+            $data['courier_service'] = null;
+        }
+
         $order->update($data);
         return back()->with('success', 'Courier information updated');
     }

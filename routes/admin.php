@@ -51,4 +51,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'a
     Route::post('/notifications/read-all', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.read');
 
+    // Courier Management
+    Route::post('/couriers', [\App\Http\Controllers\Admin\AdminController::class, 'storeCourier'])->name('couriers.store');
+
 });

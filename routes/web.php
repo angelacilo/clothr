@@ -4,9 +4,19 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
 */
+
+// Primary Redirect Safety Net
+Route::get('/home', function() {
+    if (!auth()->check()) return redirect()->route('login');
+    
+    switch (auth()->user()->role) {
+        case 'admin':   return redirect()->route('admin.dashboard');
+        case 'courier': return redirect()->route('courier.dashboard');
+        case 'rider':   return redirect()->route('rider.dashboard');
+        default:        return redirect()->route('home'); // which is /
+    }
+})->middleware('auth');
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
@@ -74,6 +84,52 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/product/{id}/review', [\App\Http\Controllers\Shop\ReviewController::class, 'store'])->name('review.store');
     Route::put('/review/{id}', [\App\Http\Controllers\Shop\ReviewController::class, 'update'])->name('review.update');
     Route::delete('/review/{id}', [\App\Http\Controllers\Shop\ReviewController::class, 'destroy'])->name('review.destroy');
+});
+
+use App\Http\Controllers\Courier\AuthController as CourierAuthController;
+use App\Http\Controllers\Rider\AuthController as RiderAuthController;
+use App\Http\Controllers\CourierController;
+use App\Http\Controllers\RiderController;
+
+// ─── COURIER PORTAL ──────────────────────────────────────
+Route::prefix('courier')->name('courier.')->group(function () {
+
+    // Guest-only auth routes
+    Route::middleware('guest')->group(function () {
+        Route::get('/login',  [CourierAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [CourierAuthController::class, 'login']);
+    });
+    Route::post('/logout', [CourierAuthController::class, 'logout'])->name('logout');
+
+    // Protected courier routes
+    Route::middleware(['auth', 'role:courier'])->group(function () {
+        Route::get('/dashboard',                      [CourierController::class, 'dashboard'])->name('dashboard');
+        Route::get('/orders',                         [CourierController::class, 'orders'])->name('orders');
+        Route::get('/orders/{order}',                 [CourierController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/assign-rider',   [CourierController::class, 'assignRider'])->name('assign-rider');
+        Route::get('/riders',                         [CourierController::class, 'riders'])->name('riders');
+        Route::post('/riders',                        [CourierController::class, 'storeRider'])->name('riders.store');
+    });
+});
+
+// ─── RIDER PORTAL ────────────────────────────────────────
+Route::prefix('rider')->name('rider.')->group(function () {
+
+    // Guest-only auth routes
+    Route::middleware('guest')->group(function () {
+        Route::get('/login',  [RiderAuthController::class, 'showLogin'])->name('login');
+        Route::post('/login', [RiderAuthController::class, 'login']);
+    });
+    Route::post('/logout', [RiderAuthController::class, 'logout'])->name('logout');
+
+    // Protected rider routes
+    Route::middleware(['auth', 'role:rider'])->group(function () {
+        Route::get('/dashboard',                              [RiderController::class, 'dashboard'])->name('dashboard');
+        Route::get('/deliveries',                             [RiderController::class, 'deliveries'])->name('deliveries');
+        Route::get('/deliveries/{delivery}',                  [RiderController::class, 'show'])->name('deliveries.show');
+        Route::post('/deliveries/{delivery}/update-status',   [RiderController::class, 'updateStatus'])->name('update-status');
+        Route::post('/toggle-availability',                   [RiderController::class, 'toggleAvailability'])->name('toggle-availability');
+    });
 });
 
 require __DIR__ . '/admin.php';

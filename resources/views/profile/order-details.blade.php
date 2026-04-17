@@ -66,9 +66,10 @@
 
     <!-- Order Progress Timeline -->
     @php
-        $steps = ['Pending', 'Processing', 'Shipped', 'Delivered'];
-        $isCancelled = $order->status === 'Cancelled';
-        $currentIdx = array_search($order->status, $steps);
+        $status = strtolower($order->status);
+        $steps = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+        $isCancelled = $status === 'cancelled';
+        $currentIdx = array_search($status, $steps);
         if ($currentIdx === false) $currentIdx = -1;
         $progressPercent = $currentIdx >= 0 ? ($currentIdx / (count($steps) - 1) * 100) : 0;
     @endphp
@@ -82,28 +83,37 @@
                 <div class="progress-label active" style="color: #ef4444;">Cancelled</div>
             </div>
         @else
-            @foreach($steps as $i => $step)
+            @foreach($steps as $i => $stepKey)
                 @php
                     $isActive = $i <= $currentIdx;
+                    $stepNames = [
+                        'pending' => 'Pending',
+                        'processing' => 'Processing',
+                        'shipped' => 'Shipped',
+                        'out_for_delivery' => 'Out for delivery',
+                        'delivered' => 'Delivered',
+                    ];
                     $stepColors = [
-                        'Pending' => '#f59e0b',
-                        'Processing' => '#3b82f6',
-                        'Shipped' => '#a855f7',
-                        'Delivered' => '#10b981',
+                        'pending' => '#f59e0b',
+                        'processing' => '#3b82f6',
+                        'shipped' => '#a855f7',
+                        'out_for_delivery' => '#06b6d4',
+                        'delivered' => '#10b981',
                     ];
                     $stepIcons = [
-                        'Pending' => 'clock',
-                        'Processing' => 'settings',
-                        'Shipped' => 'truck',
-                        'Delivered' => 'check-circle',
+                        'pending' => 'clock',
+                        'processing' => 'settings',
+                        'shipped' => 'truck',
+                        'out_for_delivery' => 'map-pin',
+                        'delivered' => 'check-circle',
                     ];
-                    $clr = $isActive ? $stepColors[$step] : '#cbd5e1';
+                    $clr = $isActive ? $stepColors[$stepKey] : '#cbd5e1';
                 @endphp
                 <div class="progress-step">
                     <div class="progress-dot {{ $isActive ? 'active' : '' }}" style="background: {{ $isActive ? $clr . '20' : '#f1f5f9' }};">
-                        <i data-lucide="{{ $stepIcons[$step] }}" style="width: 16px; color: {{ $isActive ? $clr : '#94a3b8' }};"></i>
+                        <i data-lucide="{{ $stepIcons[$stepKey] }}" style="width: 16px; color: {{ $isActive ? $clr : '#94a3b8' }};"></i>
                     </div>
-                    <div class="progress-label {{ $isActive ? 'active' : '' }}" style="{{ $isActive ? 'color: ' . $clr : '' }}">{{ $step }}</div>
+                    <div class="progress-label {{ $isActive ? 'active' : '' }}" style="{{ $isActive ? 'color: ' . $clr : '' }}">{{ $stepNames[$stepKey] }}</div>
                 </div>
             @endforeach
         @endif
@@ -156,11 +166,11 @@
         ];
         
         // Step 2: Processing
-        if ($order->processing_at || in_array($order->status, ['Processing', 'Shipped', 'Delivered'])) {
+        if ($order->processing_at || in_array($status, ['processing', 'shipped', 'out_for_delivery', 'delivered'])) {
             $orderedSteps[] = [
-                'key' => 'Processing',
-                'is_complete' => in_array($order->status, ['Processing', 'Shipped', 'Delivered']),
-                'is_active' => $order->status === 'Processing',
+                'key' => 'processing',
+                'is_complete' => in_array($status, ['processing', 'shipped', 'out_for_delivery', 'delivered']),
+                'is_active' => $status === 'processing',
                 'icon' => 'clock',
                 'title' => 'Processing',
                 'desc' => 'Your order is being prepared by our team',
@@ -169,7 +179,7 @@
             ];
         } else {
             $orderedSteps[] = [
-                'key' => 'Processing',
+                'key' => 'processing',
                 'is_complete' => false,
                 'is_active' => false,
                 'icon' => 'clock',
@@ -181,20 +191,20 @@
         }
         
         // Step 3: Shipped
-        if ($order->shipped_at || in_array($order->status, ['Shipped', 'Delivered'])) {
+        if ($order->shipped_at || in_array($status, ['shipped', 'out_for_delivery', 'delivered'])) {
             $orderedSteps[] = [
-                'key' => 'Shipped',
-                'is_complete' => in_array($order->status, ['Shipped', 'Delivered']),
-                'is_active' => $order->status === 'Shipped',
+                'key' => 'shipped',
+                'is_complete' => in_array($status, ['shipped', 'out_for_delivery', 'delivered']),
+                'is_active' => $status === 'shipped',
                 'icon' => 'truck',
                 'title' => 'Shipped',
                 'desc' => 'Your order is on its way!',
                 'date' => $order->shipped_at,
-                'color' => '#8b5cf6'
+                'color' => '#a855f7'
             ];
         } else {
             $orderedSteps[] = [
-                'key' => 'Shipped',
+                'key' => 'shipped',
                 'is_complete' => false,
                 'is_active' => false,
                 'icon' => 'truck',
@@ -204,13 +214,27 @@
                 'color' => '#94a3b8'
             ];
         }
+
+        // Step 3.5: Out For Delivery
+        if ($order->out_for_delivery_at || in_array($status, ['out_for_delivery', 'delivered'])) {
+            $orderedSteps[] = [
+                'key' => 'out_for_delivery',
+                'is_complete' => in_array($status, ['out_for_delivery', 'delivered']),
+                'is_active' => $status === 'out_for_delivery',
+                'icon' => 'map-pin',
+                'title' => 'Out for delivery',
+                'desc' => 'Our rider is on the way to your location!',
+                'date' => $order->out_for_delivery_at ?? ($order->status === 'out_for_delivery' ? $order->updated_at : null),
+                'color' => '#06b6d4'
+            ];
+        }
         
         // Step 4: Delivered
-        if ($order->delivered_at || $order->status === 'Delivered') {
+        if ($order->delivered_at || $status === 'delivered') {
             $orderedSteps[] = [
-                'key' => 'Delivered',
-                'is_complete' => $order->status === 'Delivered',
-                'is_active' => $order->status === 'Delivered',
+                'key' => 'delivered',
+                'is_complete' => $status === 'delivered',
+                'is_active' => $status === 'delivered',
                 'icon' => 'check-circle',
                 'title' => 'Delivered',
                 'desc' => 'Your order has been delivered. Thank you for shopping with CLOTHR!',
@@ -219,7 +243,7 @@
             ];
         } else {
             $orderedSteps[] = [
-                'key' => 'Delivered',
+                'key' => 'delivered',
                 'is_complete' => false,
                 'is_active' => false,
                 'icon' => 'check-circle',

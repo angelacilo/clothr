@@ -76,6 +76,7 @@ class OrderService
                     'size'     => $size,
                     'color'    => $color,
                     'category' => $product->category->name ?? 'N/A',
+                    'image'    => is_array($product->images) && count($product->images) > 0 ? $product->images[0] : null,
                 ];
             }
 
