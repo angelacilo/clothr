@@ -52,6 +52,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'a
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     // Courier Management
+    Route::get('/couriers', [\App\Http\Controllers\Admin\AdminController::class, 'couriers'])->name('couriers');
     Route::post('/couriers', [\App\Http\Controllers\Admin\AdminController::class, 'storeCourier'])->name('couriers.store');
+    Route::delete('/couriers/{id}', [\App\Http\Controllers\Admin\AdminController::class, 'deleteCourier'])->name('couriers.delete');
 
 });

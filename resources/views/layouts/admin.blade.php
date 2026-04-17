@@ -184,6 +184,10 @@
                     <i data-lucide="users"></i>
                     Users
                 </a>
+                <a href="{{ route('admin.couriers') }}" class="nav-item {{ request()->routeIs('admin.couriers') ? 'active' : '' }}">
+                    <i data-lucide="truck"></i>
+                    Couriers
+                </a>
                 <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
                     <i data-lucide="settings"></i>
                     Settings

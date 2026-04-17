@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
+    public function couriers()
+    {
+        $couriers = Courier::with('user')->get();
+        return view('admin.couriers', compact('couriers'));
+    }
+
     public function storeCourier(Request $request)
     {
         $request->validate([
@@ -33,5 +39,16 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Courier ' . $request->name . ' created successfully.');
+    }
+
+    public function deleteCourier($id)
+    {
+        $courier = Courier::findOrFail($id);
+        $user = User::findOrFail($courier->user_id);
+        
+        $courier->delete();
+        $user->delete();
+        
+        return back()->with('success', 'Courier deleted successfully.');
     }
 }
