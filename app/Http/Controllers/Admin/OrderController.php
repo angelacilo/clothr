@@ -40,7 +40,9 @@ class OrderController extends Controller
         }
 
         $orders = $query->paginate(20);
-        return view('admin.orders', compact('orders', 'statusFilter'));
+        $riders = \App\Models\User::where('is_rider', true)->get();
+        
+        return view('admin.orders', compact('orders', 'statusFilter', 'riders'));
     }
 
     public function show($id)
@@ -78,15 +80,17 @@ class OrderController extends Controller
         }
     }
 
-    public function updateCourier(Request $request, $id)
+    public function updateDelivery(Request $request, $id)
     {
         $order = Order::findOrFail($id);
         $data = $request->validate([
-            'courier_name' => 'nullable|string|max:100',
-            'tracking_number' => 'nullable|string|max:100',
+            'rider_id' => 'required|exists:users,id',
+            'delivery_type' => 'required|in:rider,courier',
+            'courier_name' => 'nullable|string|max:100|required_if:delivery_type,courier',
+            'tracking_number' => 'nullable|string|max:100|required_if:delivery_type,courier',
         ]);
         
         $order->update($data);
-        return back()->with('success', 'Courier information updated');
+        return back()->with('success', 'Delivery information updated');
     }
 }

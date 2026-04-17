@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'is_admin', 'phone', 'avatar', 'bio'
+        'name', 'email', 'password', 'is_admin', 'is_rider', 'phone', 'avatar', 'bio'
     ];
 
     /**
@@ -37,6 +37,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_admin' => 'boolean',
+        'is_rider' => 'boolean',
     ];
 
     public function addresses()
@@ -62,5 +63,10 @@ class User extends Authenticatable
     public function cartItems()
     {
         return $this->hasMany(CartItem::class);
+    }
+
+    public function riderOrders()
+    {
+        return $this->hasMany(Order::class, 'rider_id');
     }
 }

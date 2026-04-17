@@ -74,6 +74,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/product/{id}/review', [\App\Http\Controllers\Shop\ReviewController::class, 'store'])->name('review.store');
     Route::put('/review/{id}', [\App\Http\Controllers\Shop\ReviewController::class, 'update'])->name('review.update');
     Route::delete('/review/{id}', [\App\Http\Controllers\Shop\ReviewController::class, 'destroy'])->name('review.destroy');
+
+    // Rider Routes
+    Route::middleware(['rider'])->prefix('rider')->as('rider.')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Rider\DashboardController::class, 'index'])->name('dashboard');
+        Route::put('/order/{id}/status', [\App\Http\Controllers\Rider\DashboardController::class, 'updateStatus'])->name('orders.status');
+    });
 });
 
 require __DIR__ . '/admin.php';

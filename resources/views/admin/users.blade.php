@@ -52,6 +52,8 @@
                     <td style="padding: 16px;">
                         @if($user->is_admin)
                             <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #dbeafe; color: #1e40af; text-transform: uppercase;">Admin</span>
+                        @elseif($user->is_rider)
+                            <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #f3e8ff; color: #6b21a8; text-transform: uppercase;">Rider</span>
                         @else
                             <span style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: #dcfce7; color: #166534; text-transform: uppercase;">Customer</span>
                         @endif
@@ -60,15 +62,22 @@
                     <td style="padding: 16px; text-align: right;">
                         <div style="display: flex; justify-content: flex-end; gap: 8px;">
                             @if(!$user->is_admin)
-                                <form action="#" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                <form action="{{ route('admin.users.toggle-rider', $user->id) }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" style="background: none; border: none; color: {{ $user->is_rider ? '#6b21a8' : '#64748b' }}; cursor: pointer; padding: 4px;" title="{{ $user->is_rider ? 'Remove Rider Role' : 'Make Rider' }}">
+                                        <i data-lucide="{{ $user->is_rider ? 'user-minus' : 'user-plus' }}" style="width: 18px; height: 18px;"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Delete Customer">
+                                    <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Delete User">
                                         <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
                                     </button>
                                 </form>
                             @else
-                                <span style="color: var(--text-light); cursor: not-allowed; padding: 4px;" title="Admins cannot be deleted">
+                                <span style="color: var(--text-light); cursor: not-allowed; padding: 4px;" title="Admins cannot be modified">
                                     <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
                                 </span>
                             @endif

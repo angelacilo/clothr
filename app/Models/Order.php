@@ -10,8 +10,8 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'customer_info', 'items', 'total', 'status',
-        'courier_name', 'tracking_number',
+        'user_id', 'rider_id', 'customer_info', 'items', 'total', 'status',
+        'delivery_type', 'courier_name', 'tracking_number',
         'processing_at', 'shipped_at', 'delivered_at', 'cancelled_at',
     ];
 
@@ -51,5 +51,10 @@ class Order extends Model
         ];
 
         return $urls[$this->courier_name] ?? null;
+    }
+
+    public function rider()
+    {
+        return $this->belongsTo(User::class, 'rider_id');
     }
 }

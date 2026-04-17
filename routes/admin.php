@@ -12,7 +12,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'a
     Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders');
     Route::get('/orders/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.details');
     Route::put('/orders/{id}/status', [\App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.status');
-    Route::put('/orders/{id}/courier', [\App\Http\Controllers\Admin\OrderController::class, 'updateCourier'])->name('orders.courier');
+    Route::put('/orders/{id}/delivery', [\App\Http\Controllers\Admin\OrderController::class, 'updateDelivery'])->name('orders.delivery');
     
     // Products
     Route::get('/products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products');
@@ -31,6 +31,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'a
     
     // Users
     Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users');
+    Route::put('/users/{user}/toggle-rider', [\App\Http\Controllers\Admin\UserController::class, 'toggleRider'])->name('users.toggle-rider');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
     
     // Reports
     Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');

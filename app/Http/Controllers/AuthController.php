@@ -20,12 +20,12 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $request->has('remember'))) {
             $request->session()->regenerate();
             
-            if ($request->input('action') === 'admin') {
-                if (!Auth::user()->is_admin) {
-                    Auth::logout();
-                    return back()->withErrors(['email' => 'Access denied. You are not an admin.'])->withInput();
-                }
+            if (Auth::user()->is_admin) {
                 return redirect()->intended('/admin/dashboard');
+            }
+
+            if (Auth::user()->is_rider) {
+                return redirect()->intended('/rider/dashboard');
             }
 
             if ($request->input('has_cart') == '1') {

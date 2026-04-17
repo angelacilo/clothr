@@ -148,46 +148,56 @@
             </div>
             
             <nav class="sidebar-nav">
-                <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i data-lucide="layout-dashboard"></i>
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.orders') }}" class="nav-item {{ request()->routeIs('admin.orders') ? 'active' : '' }}">
-                    <i data-lucide="shopping-bag"></i>
-                    Orders
-                </a>
-                <a href="{{ route('admin.products') }}" class="nav-item {{ request()->routeIs('admin.products') ? 'active' : '' }}">
-                    <i data-lucide="package"></i>
-                    Products
-                </a>
-                <a href="{{ route('admin.categories') }}" class="nav-item {{ request()->routeIs('admin.categories') ? 'active' : '' }}">
-                    <i data-lucide="layers"></i>
-                    Categories
-                </a>
-                <a href="{{ route('admin.archive') }}" class="nav-item {{ request()->routeIs('admin.archive') ? 'active' : '' }}">
-                    <i data-lucide="archive"></i>
-                    Archive
-                </a>
-                <a href="{{ route('admin.reports') }}" class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
-                    <i data-lucide="bar-chart-2"></i>
-                    Reports
-                </a>
-                <a href="{{ route('admin.reviews') }}" class="nav-item {{ request()->routeIs('admin.reviews') ? 'active' : '' }}">
-                    <i data-lucide="star"></i>
-                    Reviews
-                </a>
-                <a href="{{ route('admin.wishlists') }}" class="nav-item {{ request()->routeIs('admin.wishlists') ? 'active' : '' }}">
-                    <i data-lucide="heart"></i>
-                    Wishlists
-                </a>
-                <a href="{{ route('admin.users') }}" class="nav-item {{ request()->routeIs('admin.users') ? 'active' : '' }}">
-                    <i data-lucide="users"></i>
-                    Users
-                </a>
-                <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-                    <i data-lucide="settings"></i>
-                    Settings
-                </a>
+                @if(auth()->user()->is_admin)
+                    <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                        <i data-lucide="layout-dashboard"></i>
+                        Dashboard
+                    </a>
+                    <a href="{{ route('admin.orders') }}" class="nav-item {{ request()->routeIs('admin.orders') ? 'active' : '' }}">
+                        <i data-lucide="shopping-bag"></i>
+                        Orders
+                    </a>
+                    <a href="{{ route('admin.products') }}" class="nav-item {{ request()->routeIs('admin.products') ? 'active' : '' }}">
+                        <i data-lucide="package"></i>
+                        Products
+                    </a>
+                    <a href="{{ route('admin.categories') }}" class="nav-item {{ request()->routeIs('admin.categories') ? 'active' : '' }}">
+                        <i data-lucide="layers"></i>
+                        Categories
+                    </a>
+                    <a href="{{ route('admin.archive') }}" class="nav-item {{ request()->routeIs('admin.archive') ? 'active' : '' }}">
+                        <i data-lucide="archive"></i>
+                        Archive
+                    </a>
+                    <a href="{{ route('admin.reports') }}" class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+                        <i data-lucide="bar-chart-2"></i>
+                        Reports
+                    </a>
+                    <a href="{{ route('admin.reviews') }}" class="nav-item {{ request()->routeIs('admin.reviews') ? 'active' : '' }}">
+                        <i data-lucide="star"></i>
+                        Reviews
+                    </a>
+                    <a href="{{ route('admin.wishlists') }}" class="nav-item {{ request()->routeIs('admin.wishlists') ? 'active' : '' }}">
+                        <i data-lucide="heart"></i>
+                        Wishlists
+                    </a>
+                    <a href="{{ route('admin.users') }}" class="nav-item {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                        <i data-lucide="users"></i>
+                        Users
+                    </a>
+                    <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+                        <i data-lucide="settings"></i>
+                        Settings
+                    </a>
+                @endif
+
+                @if(auth()->user()->is_rider)
+                    <div style="padding: 10px 16px; font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 10px;">Rider Portal</div>
+                    <a href="{{ route('rider.dashboard') }}" class="nav-item {{ request()->routeIs('rider.dashboard') ? 'active' : '' }}">
+                        <i data-lucide="truck"></i>
+                        Assigned Orders
+                    </a>
+                @endif
             </nav>
             
             <div class="sidebar-footer">

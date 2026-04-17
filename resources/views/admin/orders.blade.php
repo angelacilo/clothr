@@ -106,7 +106,7 @@
                     <th>Items</th>
                     <th>Total</th>
                     <th>Status</th>
-                    <th>Courier</th>
+                    <th>Delivery</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -181,14 +181,28 @@
                         </td>
                         <td onclick="event.stopPropagation()">
                             <div style="display: flex; flex-direction: column; gap: 2px;">
-                                @if($order->courier_name)
-                                    <span style="font-size: 11px; font-weight: 600; color: #6b21a8;">{{ $order->courier_name }}</span>
+                                @if($order->rider)
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <i data-lucide="user" style="width: 10px; color: #3b82f6;"></i>
+                                        <span style="font-size: 11px; font-weight: 700; color: #1e40af;">{{ $order->rider->name }}</span>
+                                    </div>
                                 @endif
-                                @if($order->tracking_number)
-                                    <span style="font-size: 10px; color: var(--text-medium); font-family: monospace;">{{ $order->tracking_number }}</span>
+                                
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: {{ $order->delivery_type == 'courier' ? '#f3e8ff' : '#dcfce7' }}; color: {{ $order->delivery_type == 'courier' ? '#6b21a8' : '#166534' }}; font-weight: 700; text-transform: uppercase;">
+                                        {{ $order->delivery_type }}
+                                    </span>
+                                </div>
+
+                                @if($order->delivery_type == 'courier' && $order->courier_name)
+                                    <span style="font-size: 11px; font-weight: 600; color: #6b21a8; margin-top: 2px;">{{ $order->courier_name }}</span>
+                                    @if($order->tracking_number)
+                                        <span style="font-size: 10px; color: var(--text-medium); font-family: monospace;">{{ $order->tracking_number }}</span>
+                                    @endif
                                 @endif
-                                @if(!$order->courier_name && !$order->tracking_number)
-                                    <span style="font-size: 11px; color: var(--text-light);">—</span>
+                                
+                                @if(!$order->rider && !$order->courier_name)
+                                    <span style="font-size: 11px; color: var(--text-light);">Unassigned</span>
                                 @endif
                             </div>
                         </td>
@@ -197,7 +211,7 @@
                                 <button onclick="openOrderModal({{ $order->id }})" title="View Details" style="width: 30px; height: 30px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s;" onmouseover="this.style.borderColor='#3b82f6'; this.style.color='#3b82f6'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='inherit'">
                                     <i data-lucide="eye" style="width: 14px;"></i>
                                 </button>
-                                <button onclick="openCourierModal({{ $order->id }}, '{{ addslashes($order->courier_name ?? '') }}', '{{ addslashes($order->tracking_number ?? '') }}')" title="Assign Courier" style="width: 30px; height: 30px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s;" onmouseover="this.style.borderColor='#a855f7'; this.style.color='#a855f7'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='inherit'">
+                                <button onclick="openDeliveryModal({{ $order->id }}, '{{ $order->rider_id }}', '{{ $order->delivery_type }}', '{{ addslashes($order->courier_name ?? '') }}', '{{ addslashes($order->tracking_number ?? '') }}')" title="Assign Delivery" style="width: 30px; height: 30px; border: 1px solid var(--border-color); border-radius: 6px; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s;" onmouseover="this.style.borderColor='#a855f7'; this.style.color='#a855f7'" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='inherit'">
                                     <i data-lucide="truck" style="width: 14px;"></i>
                                 </button>
                             </div>
@@ -266,16 +280,24 @@
                 <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #7c3aed; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="truck" style="width: 13px;"></i> Delivery Information
                 </h4>
-                <div style="display: flex; gap: 24px; align-items: flex-end;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; align-items: flex-start;">
                     <div>
+                        <span style="font-size: 11px; color: var(--text-medium); display: block; margin-bottom: 2px;">Assigned Rider</span>
+                        <span id="modalRider" style="font-weight: 700; font-size: 14px;">—</span>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-medium); display: block; margin-bottom: 2px;">Delivery Type</span>
+                        <span id="modalDeliveryType" style="font-weight: 700; font-size: 11px; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: #eee;">—</span>
+                    </div>
+                    <div id="modalCourierSection" style="display: none;">
                         <span style="font-size: 11px; color: var(--text-medium); display: block; margin-bottom: 2px;">Courier</span>
                         <span id="modalCourier" style="font-weight: 700; font-size: 14px;">—</span>
                     </div>
-                    <div>
+                    <div id="modalTrackingSection" style="display: none;">
                         <span style="font-size: 11px; color: var(--text-medium); display: block; margin-bottom: 2px;">Tracking Number</span>
                         <span id="modalTracking" style="font-weight: 700; font-size: 14px; font-family: monospace;">—</span>
                     </div>
-                    <div id="modalTrackBtn" style="margin-left: auto; display: none;">
+                    <div id="modalTrackBtn" style="grid-column: span 2; display: none; margin-top: 8px;">
                         <a id="modalTrackLink" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; transition: opacity 0.15s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
                             <i data-lucide="external-link" style="width: 13px;"></i> Track Package
                         </a>
@@ -304,8 +326,8 @@
     </div>
 </div>
 
-<!-- ========== COURIER ASSIGNMENT MODAL ========== -->
-<div id="courierModal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center;" onclick="if(event.target===this)closeCourierModal()">
+<!-- ========== DELIVERY ASSIGNMENT MODAL ========== -->
+<div id="deliveryModal" style="display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); align-items: center; justify-content: center;" onclick="if(event.target===this)closeDeliveryModal()">
     <div style="background: white; border-radius: 16px; width: 440px; box-shadow: 0 25px 60px rgba(0,0,0,0.2); animation: modalSlideIn 0.25s ease;">
         <div style="padding: 24px 28px 18px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -313,40 +335,62 @@
                     <i data-lucide="truck" style="color: white; width: 18px;"></i>
                 </div>
                 <div>
-                    <h2 style="font-size: 16px; font-weight: 800;">Assign Courier</h2>
-                    <span id="courierModalOrderId" style="font-size: 12px; color: var(--text-medium);"></span>
+                    <h2 style="font-size: 16px; font-weight: 800;">Assign Delivery</h2>
+                    <span id="deliveryModalOrderId" style="font-size: 12px; color: var(--text-medium);"></span>
                 </div>
             </div>
-            <button onclick="closeCourierModal()" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            <button onclick="closeDeliveryModal()" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: #f1f5f9; cursor: pointer; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                 <i data-lucide="x" style="width: 16px;"></i>
             </button>
         </div>
-        <form id="courierForm" method="POST" style="padding: 24px 28px;">
+        <form id="deliveryForm" method="POST" style="padding: 24px 28px;">
             @csrf
             @method('PUT')
+            
             <div style="margin-bottom: 20px;">
-                <label style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Courier Service</label>
-                <select id="courierSelect" name="courier_name" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; background: white; appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 12px center;">
-                    <option value="">Select Courier</option>
-                    <option value="J&T Express">J&T Express</option>
-                    <option value="LBC Express">LBC Express</option>
-                    <option value="Ninja Van">Ninja Van</option>
-                    <option value="Flash Express">Flash Express</option>
-                    <option value="Grab Express">Grab Express</option>
-                    <option value="Lalamove">Lalamove</option>
-                    <option value="Local Rider">Local Rider</option>
-                    <option value="GoGo Xpress">GoGo Xpress</option>
+                <label style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Assign Rider <span style="color: red;">*</span></label>
+                <select name="rider_id" id="riderSelect" required style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; background: white; appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 12px center;">
+                    <option value="">Select a Rider</option>
+                    @foreach($riders as $rider)
+                        <option value="{{ $rider->id }}">{{ $rider->name }}</option>
+                    @endforeach
                 </select>
             </div>
-            <div style="margin-bottom: 24px;">
-                <label style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Tracking Number</label>
-                <input type="text" id="trackingInput" name="tracking_number" placeholder="e.g. JT3849201832" 
-                       style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; font-family: monospace; letter-spacing: 0.5px; transition: border-color 0.2s;"
-                       onfocus="this.style.borderColor='#a855f7'" onblur="this.style.borderColor='var(--border-color)'">
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Delivery Type</label>
+                <select name="delivery_type" id="deliveryTypeSelect" onchange="toggleCourierFields(this.value)" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; background: white; appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 12px center;">
+                    <option value="rider">Rider Delivery (Direct)</option>
+                    <option value="courier">Courier Delivery (Third-party)</option>
+                </select>
             </div>
+
+            <div id="courierFields" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <label style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Courier Service</label>
+                    <select id="courierSelect" name="courier_name" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; background: white; appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 12px center;">
+                        <option value="">Select Courier</option>
+                        <option value="J&T Express">J&T Express</option>
+                        <option value="LBC Express">LBC Express</option>
+                        <option value="Ninja Van">Ninja Van</option>
+                        <option value="Flash Express">Flash Express</option>
+                        <option value="Grab Express">Grab Express</option>
+                        <option value="Lalamove">Lalamove</option>
+                        <option value="Local Rider">Local Rider</option>
+                        <option value="GoGo Xpress">GoGo Xpress</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 24px;">
+                    <label style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Tracking Number</label>
+                    <input type="text" id="trackingInput" name="tracking_number" placeholder="e.g. JT3849201832" 
+                           style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; font-family: monospace; letter-spacing: 0.5px; transition: border-color 0.2s;"
+                           onfocus="this.style.borderColor='#a855f7'" onblur="this.style.borderColor='var(--border-color)'">
+                </div>
+            </div>
+
             <div style="display: flex; gap: 10px;">
-                <button type="button" onclick="closeCourierModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: white; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Cancel</button>
-                <button type="submit" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.15s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">Save Courier Info</button>
+                <button type="button" onclick="closeDeliveryModal()" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); background: white; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">Cancel</button>
+                <button type="submit" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.15s;" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">Save Delivery Info</button>
             </div>
         </form>
     </div>
@@ -447,9 +491,25 @@
                 if (ci.zip) addr += ' ' + ci.zip;
                 document.getElementById('modalAddress').textContent = addr || 'N/A';
 
-                // Courier info
-                document.getElementById('modalCourier').textContent = order.courier_name || '—';
-                document.getElementById('modalTracking').textContent = order.tracking_number || '—';
+                // Delivery info
+                document.getElementById('modalRider').textContent = order.rider ? order.rider.name : '—';
+                const dt = document.getElementById('modalDeliveryType');
+                dt.textContent = order.delivery_type || 'rider';
+                dt.style.background = (order.delivery_type === 'courier') ? '#f3e8ff' : '#dcfce7';
+                dt.style.color = (order.delivery_type === 'courier') ? '#6b21a8' : '#166534';
+
+                const courierSection = document.getElementById('modalCourierSection');
+                const trackingSection = document.getElementById('modalTrackingSection');
+                
+                if (order.delivery_type === 'courier') {
+                    courierSection.style.display = 'block';
+                    trackingSection.style.display = 'block';
+                    document.getElementById('modalCourier').textContent = order.courier_name || '—';
+                    document.getElementById('modalTracking').textContent = order.tracking_number || '—';
+                } else {
+                    courierSection.style.display = 'none';
+                    trackingSection.style.display = 'none';
+                }
 
                 // Track Package button
                 const trackBtn = document.getElementById('modalTrackBtn');
@@ -582,25 +642,46 @@
         container.innerHTML = html;
     }
 
-    // ========== COURIER MODAL ==========
-    function openCourierModal(orderId, courierName, trackingNum) {
-        document.getElementById('courierModalOrderId').textContent = 'Order #' + (1000 + orderId);
-        document.getElementById('courierForm').action = '/admin/orders/' + orderId + '/courier';
+    // ========== DELIVERY MODAL ==========
+    function openDeliveryModal(orderId, riderId, deliveryType, courierName, trackingNum) {
+        document.getElementById('deliveryModalOrderId').textContent = 'Order #' + (1000 + orderId);
+        document.getElementById('deliveryForm').action = '/admin/orders/' + orderId + '/delivery';
+        document.getElementById('riderSelect').value = riderId || '';
+        document.getElementById('deliveryTypeSelect').value = deliveryType || 'rider';
         document.getElementById('courierSelect').value = courierName || '';
         document.getElementById('trackingInput').value = trackingNum || '';
-        document.getElementById('courierModal').style.display = 'flex';
+        
+        toggleCourierFields(deliveryType || 'rider');
+        
+        document.getElementById('deliveryModal').style.display = 'flex';
         lucide.createIcons();
     }
 
-    function closeCourierModal() {
-        document.getElementById('courierModal').style.display = 'none';
+    function toggleCourierFields(type) {
+        const fields = document.getElementById('courierFields');
+        const courierSelect = document.getElementById('courierSelect');
+        const trackingInput = document.getElementById('trackingInput');
+        
+        if (type === 'courier') {
+            fields.style.display = 'block';
+            courierSelect.required = true;
+            trackingInput.required = true;
+        } else {
+            fields.style.display = 'none';
+            courierSelect.required = false;
+            trackingInput.required = false;
+        }
+    }
+
+    function closeDeliveryModal() {
+        document.getElementById('deliveryModal').style.display = 'none';
     }
 
     // ESC key to close modals
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeOrderModal();
-            closeCourierModal();
+            closeDeliveryModal();
         }
     });
 </script>
