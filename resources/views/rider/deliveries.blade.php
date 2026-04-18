@@ -5,15 +5,17 @@
 @section('brand_route', route('rider.dashboard'))
 @section('logout_route', route('rider.logout'))
 
-@section('nav_extra')
-    <div style="display: flex; gap: 1rem; margin-right: 1.5rem;">
-        <a href="{{ route('rider.dashboard') }}" class="tab {{ request()->routeIs('rider.dashboard') ? 'tab-active' : '' }}">My Tasks</a>
-        <a href="{{ route('rider.deliveries') }}" class="tab {{ request()->routeIs('rider.deliveries') ? 'tab-active' : '' }}">History</a>
+@section('badge')
+    <div class="nav-info">
+        <span style="color: #fff; font-weight: 600;">{{ auth()->user()->name }}</span>
+        <span style="opacity: 0.3; margin: 0 4px;">|</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">{{ $rider->courier->name }}</span>
     </div>
 @endsection
 
-@section('badge')
-    <span class="badge badge-green" style="margin-left: 5px;">{{ $rider->courier->code }}</span>
+@section('nav_extra')
+    <a href="{{ route('rider.dashboard') }}" class="tab {{ request()->routeIs('rider.dashboard') ? 'tab-active' : '' }}">My Tasks</a>
+    <a href="{{ route('rider.deliveries') }}" class="tab {{ request()->routeIs('rider.deliveries') ? 'tab-active' : '' }}">History</a>
 @endsection
 
 @section('content')
@@ -50,13 +52,23 @@
                 <td>{{ $delivery->order->user->name ?? 'Guest' }}</td>
                 <td>
                     @php
-                        $badgeClass = match($delivery->status) {
-                            'assigned' => 'badge-orange',
-                            'picked_up', 'out_for_delivery' => 'badge-blue',
-                            'delivered' => 'badge-green',
-                            'failed' => 'badge-red',
-                            default => 'badge-orange'
-                        };
+                        switch($delivery->status) {
+                            case 'assigned':
+                                $badgeClass = 'badge-orange';
+                                break;
+                            case 'picked_up':
+                            case 'out_for_delivery':
+                                $badgeClass = 'badge-blue';
+                                break;
+                            case 'delivered':
+                                $badgeClass = 'badge-green';
+                                break;
+                            case 'failed':
+                                $badgeClass = 'badge-red';
+                                break;
+                            default:
+                                $badgeClass = 'badge-orange';
+                        }
                     @endphp
                     <span class="badge {{ $badgeClass }}">{{ str_replace('_', ' ', strtoupper($delivery->status)) }}</span>
                 </td>

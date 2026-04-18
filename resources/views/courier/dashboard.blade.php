@@ -8,114 +8,142 @@
 @section('badge')
     <div class="nav-info">
         <span>{{ $courier->name }}</span>
-        <span>•</span>
-        <span>{{ auth()->user()->email }}</span>
+        <span style="opacity: 0.3;">|</span>
+        <span style="font-size: 0.8rem;">{{ auth()->user()->email }}</span>
     </div>
 @endsection
 
 @section('nav_extra')
-    <div style="display: flex; gap: 1rem; margin-right: 1.5rem;">
-        <a href="{{ route('courier.dashboard') }}" class="tab {{ request()->routeIs('courier.dashboard') ? 'tab-active' : '' }}">Dashboard</a>
-        <a href="{{ route('courier.orders') }}" class="tab {{ request()->routeIs('courier.orders') ? 'tab-active' : '' }}">Orders</a>
-        <a href="{{ route('courier.riders') }}" class="tab {{ request()->routeIs('courier.riders') ? 'tab-active' : '' }}">Riders</a>
-    </div>
+    <a href="{{ route('courier.dashboard') }}" class="tab {{ request()->routeIs('courier.dashboard') ? 'tab-active' : '' }}">Dashboard</a>
+    <a href="{{ route('courier.orders') }}" class="tab {{ request()->routeIs('courier.orders') ? 'tab-active' : '' }}">Orders</a>
+    <a href="{{ route('courier.riders') }}" class="tab {{ request()->routeIs('courier.riders') ? 'tab-active' : '' }}">Riders</a>
 @endsection
 
 @section('content')
-<div class="grid grid-cols-4">
+<div class="grid grid-cols-4" style="margin-bottom: 2rem;">
     <div class="card stat-card">
-        <span class="stat-label">Unassigned orders</span>
+        <span class="stat-label">Unassigned Orders</span>
         <span class="stat-value">{{ $stats['unassigned'] }}</span>
-        <span class="stat-meta" style="color: var(--accent-orange);">Needs rider</span>
+        <div class="stat-meta" style="color: var(--accent-orange); display: flex; align-items: center; gap: 6px;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-orange);"></div>
+            Needs rider
+        </div>
     </div>
     <div class="card stat-card">
-        <span class="stat-label">In transit</span>
+        <span class="stat-label">In Transit</span>
         <span class="stat-value">{{ $stats['in_transit'] }}</span>
-        <span class="stat-meta" style="color: var(--accent-blue);">Out for delivery</span>
+        <div class="stat-meta" style="color: var(--accent-blue); display: flex; align-items: center; gap: 6px;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-blue);"></div>
+            Out for delivery
+        </div>
     </div>
     <div class="card stat-card">
-        <span class="stat-label">Delivered today</span>
+        <span class="stat-label">Completed Today</span>
         <span class="stat-value">{{ $stats['delivered'] }}</span>
-        <span class="stat-meta" style="color: var(--accent-green);">Completed</span>
+        <div class="stat-meta" style="color: var(--accent-green); display: flex; align-items: center; gap: 6px;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green);"></div>
+            Delivered
+        </div>
     </div>
     <div class="card stat-card">
-        <span class="stat-label">Active riders</span>
+        <span class="stat-label">Active Riders</span>
         <span class="stat-value">{{ $stats['active_riders'] }}</span>
-        <span class="stat-meta" style="color: var(--accent-green);">Available</span>
+        <div class="stat-meta" style="color: var(--accent-green); display: flex; align-items: center; gap: 6px;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green);"></div>
+            Available now
+        </div>
     </div>
 </div>
 
-<div class="grid grid-main" style="margin-top: 1.5rem;">
+<div class="grid grid-main">
     <!-- Left Column: Pending Orders -->
     <div class="card">
         <div class="section-header">
-            <span class="section-title">Orders needing a rider</span>
+            <div>
+                <span class="section-title">Orders needing a rider</span>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Assign these orders to your active riders.</p>
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Order</th>
-                    <th>Customer</th>
-                    <th>Address</th>
-                    <th>Total</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($pendingOrders as $order)
-                <tr>
-                    <td><a href="{{ route('courier.orders.show', $order->id) }}" class="order-id">#{{ $order->id }}</a></td>
-                    <td>{{ $order->user->name ?? 'Guest' }}</td>
-                    <td><strong>{{ $order->customer_info['city'] ?? $order->customer_info['address'] ?? 'Davao City' }}</strong></td>
-                    <td>₱{{ number_format($order->total, 0) }}</td>
-                    <td>
-                        <button onclick="openAssignModal({{ $order->id }})" class="btn btn-dark">
-                            Assign rider ↗
-                        </button>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                        No orders awaiting assignment.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div style="margin-top: 1rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Location</th>
+                        <th>Total</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($pendingOrders as $order)
+                    <tr>
+                        <td><a href="{{ route('courier.orders.show', $order->id) }}" class="order-id">#{{ $order->id }}</a></td>
+                        <td style="font-weight: 500;">{{ $order->user->name ?? 'Guest' }}</td>
+                        <td>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: 600;">{{ $order->customer_info['city'] ?? 'Davao City' }}</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">{{ Str::limit($order->customer_info['address'] ?? 'No address', 30) }}</span>
+                            </div>
+                        </td>
+                        <td style="font-weight: 700; color: var(--accent-green);">₱{{ number_format($order->total, 2) }}</td>
+                        <td style="text-align: right;">
+                            <button onclick="openAssignModal({{ $order->id }})" class="btn btn-green btn-sm" style="padding: 8px 16px;">
+                                Assign Rider
+                            </button>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 4rem 2rem;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.2;">🚚</div>
+                            <div>No orders awaiting assignment.</div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Right Column: Riders -->
     <div class="card">
         <div class="section-header">
-            <span class="section-title">My riders</span>
-            <button onclick="openModal('addRiderModal')" class="btn btn-outline btn-sm">+ Add</button>
+            <span class="section-title">My Riders</span>
+            <button onclick="openModal('addRiderModal')" class="btn btn-outline btn-sm" style="border-radius: 8px; font-size: 0.7rem;">+ Add</button>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
             @forelse($riders as $rider)
-            <div class="rider-item">
+            <div class="rider-item" style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--card-border);">
                 <div class="rider-info">
                     @php
                         $initials = collect(explode(' ', $rider->user->name))->map(fn($n) => strtoupper(substr($n, 0, 1)))->take(2)->implode('');
                         $colors = ['#22c55e', '#f59e0b', '#3b82f6', '#14b8a6', '#ef4444'];
                         $bgColor = $colors[$rider->id % count($colors)];
                     @endphp
-                    <div class="rider-avatar" style="background-color: rgba({{ hexdec(substr($bgColor, 1, 2)) }}, {{ hexdec(substr($bgColor, 3, 2)) }}, {{ hexdec(substr($bgColor, 5, 2)) }}, 0.1); color: {{ $bgColor }}; border: 1.5px solid {{ $bgColor }};">
+                    <div class="rider-avatar" style="width: 38px; height: 38px; background-color: {{ $bgColor }}22; color: {{ $bgColor }}; border: 1px solid {{ $bgColor }}44; font-size: 0.8rem;">
                         {{ $initials }}
                     </div>
                     <div class="rider-main">
-                        <div class="rider-name">{{ $rider->user->name }}</div>
-                        <div class="rider-meta">{{ $rider->activeDeliveries->count() }} active</div>
+                        <div class="rider-name" style="font-size: 0.9rem;">{{ $rider->user->name }}</div>
+                        <div class="rider-meta" style="font-size: 0.75rem;">{{ $rider->activeDeliveries->count() }} active task</div>
                     </div>
                 </div>
-                <span class="badge {{ $rider->is_available ? 'badge-green' : 'badge-orange' }}">
-                    {{ $rider->is_available ? 'Available' : 'Busy' }}
-                </span>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                    <span class="badge {{ $rider->is_available ? 'badge-green' : 'badge-orange' }}" style="font-size: 0.65rem; padding: 2px 8px;">
+                        {{ $rider->is_available ? 'Available' : 'Busy' }}
+                    </span>
+                </div>
             </div>
             @empty
-            <div style="text-align: center; color: var(--text-muted); padding: 1rem;">No riders registered yet.</div>
+            <div style="text-align: center; color: var(--text-muted); padding: 2rem 1rem; font-size: 0.85rem;">
+                No riders registered yet.
+            </div>
             @endforelse
         </div>
+        @if($riders->count() > 0)
+            <a href="{{ route('courier.riders') }}" style="display: block; text-align: center; margin-top: 1.5rem; color: var(--accent-green); text-decoration: none; font-size: 0.85rem; font-weight: 600;">View all riders →</a>
+        @endif
     </div>
 </div>
 @endsection

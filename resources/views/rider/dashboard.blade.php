@@ -6,13 +6,11 @@
 @section('logout_route', route('rider.logout'))
 
 @section('nav_extra')
-    <div style="display: flex; gap: 1rem; margin-right: 1.5rem;">
-        <a href="{{ route('rider.dashboard') }}" class="tab {{ request()->routeIs('rider.dashboard') ? 'tab-active' : '' }}">My Tasks</a>
-        <a href="{{ route('rider.deliveries') }}" class="tab {{ request()->routeIs('rider.deliveries') ? 'tab-active' : '' }}">History</a>
-    </div>
+    <a href="{{ route('rider.dashboard') }}" class="tab {{ request()->routeIs('rider.dashboard') ? 'tab-active' : '' }}">My Tasks</a>
+    <a href="{{ route('rider.deliveries') }}" class="tab {{ request()->routeIs('rider.deliveries') ? 'tab-active' : '' }}">History</a>
     
-    <div class="toggle-container">
-        <span style="font-size: 0.85rem; font-weight: 600; color: #fff;">{{ $rider->is_available ? 'Available' : 'Unavailable' }}</span>
+    <div class="toggle-container" style="margin-left: 1rem; padding-left: 1rem; border-left: 1px solid var(--card-border);">
+        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-right: 8px;">{{ $rider->is_available ? 'Available' : 'Busy' }}</span>
         <form id="availabilityForm" action="{{ route('rider.toggle-availability') }}" method="POST" style="height: 24px;">
             @csrf
             <label class="switch">
@@ -25,9 +23,9 @@
 
 @section('badge')
     <div class="nav-info">
-        <span>{{ auth()->user()->name }}</span>
-        <span>•</span>
-        <span>{{ $rider->courier->name }}</span>
+        <span style="color: #fff; font-weight: 600;">{{ auth()->user()->name }}</span>
+        <span style="opacity: 0.3; margin: 0 4px;">|</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">{{ $rider->courier->name }}</span>
     </div>
 @endsection
 

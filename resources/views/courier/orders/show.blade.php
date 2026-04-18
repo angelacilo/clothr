@@ -6,7 +6,17 @@
 @section('logout_route', route('courier.logout'))
 
 @section('badge')
-    <span class="badge badge-green">{{ $courier->code }}</span>
+    <div class="nav-info">
+        <span style="color: #fff; font-weight: 600;">{{ $courier->name }}</span>
+        <span style="opacity: 0.3; margin: 0 4px;">|</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">{{ auth()->user()->email }}</span>
+    </div>
+@endsection
+
+@section('nav_extra')
+    <a href="{{ route('courier.dashboard') }}" class="tab {{ request()->routeIs('courier.dashboard') ? 'tab-active' : '' }}">Dashboard</a>
+    <a href="{{ route('courier.orders') }}" class="tab {{ request()->routeIs('courier.orders') ? 'tab-active' : '' }}">Orders</a>
+    <a href="{{ route('courier.riders') }}" class="tab {{ request()->routeIs('courier.riders') ? 'tab-active' : '' }}">Riders</a>
 @endsection
 
 @section('content')
@@ -19,12 +29,21 @@
         <div class="section-header">
             <span class="section-title">Order #{{ $order->id }} details</span>
             @php
-                $badgeClass = match($order->status) {
-                    'pending', 'processing' => 'badge-orange',
-                    'shipped', 'out_for_delivery' => 'badge-blue',
-                    'delivered' => 'badge-green',
-                    default => 'badge-orange'
-                };
+                switch($order->status) {
+                    case 'pending':
+                    case 'processing':
+                        $badgeClass = 'badge-orange';
+                        break;
+                    case 'shipped':
+                    case 'out_for_delivery':
+                        $badgeClass = 'badge-blue';
+                        break;
+                    case 'delivered':
+                        $badgeClass = 'badge-green';
+                        break;
+                    default:
+                        $badgeClass = 'badge-orange';
+                }
             @endphp
             <span class="badge {{ $badgeClass }}">{{ str_replace('_', ' ', strtoupper($order->status)) }}</span>
         </div>

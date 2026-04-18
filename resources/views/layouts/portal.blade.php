@@ -61,7 +61,7 @@
         .grid { display: grid; gap: 1.5rem; }
         .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
         .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-        .grid-main { grid-template-columns: 2fr 1fr; }
+        .grid-main { grid-template-columns: 2.5fr 1fr; }
 
         @media (max-width: 1024px) { .grid-main { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { .grid-cols-4, .grid-cols-3 { grid-template-columns: 1fr; } .navbar { padding: 0 1rem; } }
@@ -141,19 +141,32 @@
         .alert-success { background: rgba(34, 197, 94, 0.1); color: var(--accent-green); border: 1px solid rgba(34, 197, 94, 0.2); }
         .alert-error { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.2); }
 
+        /* Premium UI Enhancements */
+        .card, .btn, .tab, .rider-item, .slider { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { border-color: #333; transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #333; }
+
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div style="display: flex; flex-direction: column;">
-            <a href="@yield('brand_route', '#')" class="nav-brand">CLOTHR</a>
-            <span class="nav-title">@yield('portal_title')</span>
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <div style="display: flex; flex-direction: column;">
+                <a href="@yield('brand_route', '#')" class="nav-brand">CLOTHR</a>
+                <span class="nav-title">@yield('portal_title')</span>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                @yield('nav_extra')
+            </div>
         </div>
         
         <div class="nav-right">
-            @yield('nav_extra')
             <div class="nav-user">
-                {{ auth()->user()->name }}
                 @yield('badge')
             </div>
             <form action="@yield('logout_route')" method="POST" style="display: inline;">

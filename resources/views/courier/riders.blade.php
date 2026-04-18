@@ -6,15 +6,17 @@
 @section('logout_route', route('courier.logout'))
 
 @section('badge')
-    <span class="badge badge-green">{{ $courier->code }}</span>
+    <div class="nav-info">
+        <span style="color: #fff; font-weight: 600;">{{ $courier->name }}</span>
+        <span style="opacity: 0.3; margin: 0 4px;">|</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">{{ auth()->user()->email }}</span>
+    </div>
 @endsection
 
 @section('nav_extra')
-    <div style="display: flex; gap: 1rem; margin-right: 1.5rem;">
-        <a href="{{ route('courier.dashboard') }}" class="tab {{ request()->routeIs('courier.dashboard') ? 'tab-active' : '' }}">Dashboard</a>
-        <a href="{{ route('courier.orders') }}" class="tab {{ request()->routeIs('courier.orders') ? 'tab-active' : '' }}">Orders</a>
-        <a href="{{ route('courier.riders') }}" class="tab {{ request()->routeIs('courier.riders') ? 'tab-active' : '' }}">Riders</a>
-    </div>
+    <a href="{{ route('courier.dashboard') }}" class="tab {{ request()->routeIs('courier.dashboard') ? 'tab-active' : '' }}">Dashboard</a>
+    <a href="{{ route('courier.orders') }}" class="tab {{ request()->routeIs('courier.orders') ? 'tab-active' : '' }}">Orders</a>
+    <a href="{{ route('courier.riders') }}" class="tab {{ request()->routeIs('courier.riders') ? 'tab-active' : '' }}">Riders</a>
 @endsection
 
 @section('content')
