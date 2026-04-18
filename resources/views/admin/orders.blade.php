@@ -120,12 +120,14 @@
                             'pending' => ['bg' => '#fef9c3', 'color' => '#854d0e', 'icon' => 'clock'],
                             'processing' => ['bg' => '#dbeafe', 'color' => '#1e40af', 'icon' => 'settings'],
                             'shipped' => ['bg' => '#f3e8ff', 'color' => '#6b21a8', 'icon' => 'truck'],
+                            'out_for_delivery' => ['bg' => '#dcfce7', 'color' => '#166534', 'icon' => 'bike'],
                             'delivered' => ['bg' => '#dcfce7', 'color' => '#166534', 'icon' => 'check-circle'],
                             'cancelled' => ['bg' => '#fee2e2', 'color' => '#991b1b', 'icon' => 'x-circle'],
+                            'lost' => ['bg' => '#111', 'color' => '#fff', 'icon' => 'alert-triangle'],
                         ];
                         $sc = $statusColors[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#374151', 'icon' => 'circle'];
                     @endphp
-                    <tr style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor=''">
+                    <tr id="order-row-{{ $order->id }}" style="cursor: pointer; transition: background 0.15s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor=''">
                         <td onclick="event.stopPropagation()"><input type="checkbox" class="order-check"></td>
                         <td onclick="openOrderModal({{ $order->id }})"><span style="color: var(--primary); font-weight: 700;">#{{ 1000 + $order->id }}</span></td>
                         <td onclick="openOrderModal({{ $order->id }})">
@@ -170,22 +172,31 @@
                         <td onclick="event.stopPropagation()">
                             <div style="position: relative;" class="status-dropdown-container">
                                 <button onclick="toggleStatusDropdown(this, {{ $order->id }})" class="status-badge-btn" style="background-color: {{ $sc['bg'] }}; color: {{ $sc['color'] }}; display: flex; align-items: center; gap: 5px; width: fit-content; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; transition: transform 0.15s;">
-                                    <i data-lucide="{{ $sc['icon'] }}" style="width: 12px;"></i> {{ ucfirst($order->status) }}
+                                    <i data-lucide="{{ $sc['icon'] }}" style="width: 12px;"></i> {{ ucfirst(str_replace('_', ' ', $order->status)) }}
                                     <i data-lucide="chevron-down" style="width: 10px; margin-left: 2px;"></i>
                                 </button>
                                 <div class="status-dropdown" id="statusDrop-{{ $order->id }}" style="display: none; position: absolute; top: 100%; left: 0; z-index: 100; background: white; border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); padding: 6px; min-width: 160px; margin-top: 4px;">
-                                    @foreach(['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $s)
+                                    @php
+                                        $adminTransitions = [
+                                            'pending'          => ['processing', 'cancelled'],
+                                            'processing'       => ['pending', 'cancelled'],
+                                            'shipped'          => ['cancelled'],
+                                            'lost'             => ['cancelled', 'pending'],
+                                            'cancelled'        => ['pending'],
+                                            'out_for_delivery' => [],
+                                            'delivered'        => [],
+                                        ];
+                                        $allowed = $adminTransitions[$order->status] ?? [];
+                                    @endphp
+                                    @foreach($allowed as $s)
                                         @php $ssc = $statusColors[$s]; @endphp
                                         <form method="POST" action="{{ route('admin.orders.status', $order->id) }}" style="margin:0;">
                                             @csrf
                                             @method('PUT')
                                             <input type="hidden" name="status" value="{{ $s }}">
-                                            <button type="submit" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; border: none; background: {{ $order->status == $s ? $ssc['bg'] : 'transparent' }}; cursor: pointer; border-radius: 6px; font-size: 12px; color: {{ $ssc['color'] }}; font-weight: {{ $order->status == $s ? '700' : '500' }}; transition: background 0.15s;" onmouseover="this.style.backgroundColor='{{ $ssc['bg'] }}'" onmouseout="this.style.backgroundColor='{{ $order->status == $s ? $ssc['bg'] : 'transparent' }}'">
+                                            <button type="submit" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; border: none; background: transparent; cursor: pointer; border-radius: 6px; font-size: 12px; color: {{ $ssc['color'] }}; font-weight: 500; transition: background 0.15s;" onmouseover="this.style.backgroundColor='{{ $ssc['bg'] }}'" onmouseout="this.style.backgroundColor='transparent'">
                                                 <i data-lucide="{{ $ssc['icon'] }}" style="width: 13px;"></i>
-                                                {{ ucfirst($s) }}
-                                                @if($order->status == $s)
-                                                    <i data-lucide="check" style="width: 12px; margin-left: auto;"></i>
-                                                @endif
+                                                {{ ucfirst(str_replace('_', ' ', $s)) }}
                                             </button>
                                         </form>
                                     @endforeach
@@ -619,6 +630,30 @@
         } else if (!code && trackingInput.value) {
             // Optional: clear if "Select Courier" is chosen? Maybe not.
         }
+    }
+
+    // Real-time Refresh
+    window.refreshOrders = function() {
+        // For simplicity, we just reload the page to get the latest DB state with pagination
+        // but a more advanced version would use AJAX to update the specific row
+        window.location.reload();
+    };
+
+    // Listen for order status updates on this specific page
+    if (window.Echo) {
+        window.Echo.private('admin')
+            .listen('OrderStatusUpdated', (e) => {
+                showToast(`Order #${1000 + e.order.id}: ${e.message}`);
+                // Highlight the row if it exists
+                const row = document.getElementById(`order-row-${e.order.id}`);
+                if (row) {
+                    row.style.backgroundColor = '#f0fdf4';
+                    setTimeout(() => { row.style.backgroundColor = ''; }, 5000);
+                    // We could update the status badge here via DOM manipulation
+                    // but a reload is safer for now to ensure all counts/stats are correct
+                    setTimeout(() => { window.location.reload(); }, 2000);
+                }
+            });
     }
 
     // ESC key to close modals

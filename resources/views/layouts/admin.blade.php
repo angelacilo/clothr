@@ -11,6 +11,8 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.14.0/dist/echo.iife.js"></script>
     
     <style>
         .bell-badge {
@@ -428,6 +430,33 @@
                 })
                 .catch(() => {});
         }, 30000);
+
+        // Initialize Laravel Echo
+        window.Pusher = Pusher;
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: '{{ env("PUSHER_APP_KEY") }}',
+            cluster: '{{ env("PUSHER_APP_CLUSTER") }}',
+            wsHost: window.location.hostname,
+            wsPort: 6001,
+            forceTLS: false,
+            encrypted: false,
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        // Listen for Global Admin Events
+        window.Echo.private('admin')
+            .listen('NewOrderPlaced', (e) => {
+                showToast(e.message);
+                fetchNotifications(); // Refresh the list
+                if (window.refreshOrders) window.refreshOrders(); // If on orders page
+            })
+            .listen('PackageLostReported', (e) => {
+                showToast("⚠️ " + e.message);
+                fetchNotifications();
+                if (window.refreshOrders) window.refreshOrders();
+            });
 
     </script>
     @yield('scripts')

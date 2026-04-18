@@ -60,7 +60,7 @@
                     <div class="info-value">{{ $delivery->order->customer_info['phone'] ?? 'N/A' }}</div>
                     <div class="info-label" style="margin-top: 10px;">Address</div>
                     <div class="info-value" style="color: var(--accent-primary); font-weight: 600;">
-                        {{ $delivery->order->customer_info['address'] ?? 'N/A' }}
+                        {{ $delivery->order->customer_info['address'] ?? $delivery->order->customer_info['complete_address'] ?? $delivery->order->customer_info['street'] ?? $delivery->order->customer_info['city'] ?? 'Address Not Provided' }}
                     </div>
                 </div>
             </div>
@@ -128,19 +128,7 @@
         <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Update the status of this delivery as you progress.</p>
         
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            @if($delivery->status === 'assigned')
-                <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="status" value="picked_up">
-                    <button type="submit" class="btn btn-dark" style="width: 100%; justify-content: center; padding: 12px;">Mark Picked Up</button>
-                </form>
-            @elseif($delivery->status === 'picked_up')
-                <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="status" value="out_for_delivery">
-                    <button type="submit" class="btn btn-dark" style="width: 100%; justify-content: center; padding: 12px;">Mark Out for Delivery</button>
-                </form>
-            @elseif($delivery->status === 'out_for_delivery')
+            @if($delivery->order->status === 'out_for_delivery')
                 <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
                     @csrf
                     <input type="hidden" name="status" value="delivered">
@@ -151,6 +139,12 @@
                     <input type="hidden" name="status" value="failed">
                     <button type="submit" class="btn btn-red" style="width: 100%; justify-content: center; padding: 12px;">Mark Failed</button>
                 </form>
+            @elseif($delivery->order->status === 'shipped' || $delivery->order->status === 'processing')
+                <div class="info-card" style="text-align: center; background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2); padding: 20px;">
+                    <div style="font-size: 1.5rem; margin-bottom: 8px;">🚚</div>
+                    <div style="font-weight: 600; color: var(--accent-blue);">Awaiting Release</div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 0;">The courier will release this to you once ready.</p>
+                </div>
             @else
                 <div class="info-card" style="text-align: center; color: var(--text-muted);">
                     No further actions available for this status.

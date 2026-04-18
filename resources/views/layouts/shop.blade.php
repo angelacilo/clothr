@@ -948,6 +948,32 @@
             });
         }
     </script>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.14.0/dist/echo.iife.js"></script>
+    <script>
+        window.Pusher = Pusher;
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: '{{ env("PUSHER_APP_KEY") }}',
+            cluster: '{{ env("PUSHER_APP_CLUSTER") }}',
+            wsHost: window.location.hostname,
+            wsPort: 6001,
+            forceTLS: false,
+            encrypted: false,
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        @auth
+            window.Echo.private('App.Models.User.{{ auth()->id() }}')
+                .listen('OrderStatusUpdated', (e) => {
+                    showToast(`Order Update: ${e.message}`, 'info');
+                    if (window.refreshShop) window.refreshShop();
+                    // Also refresh notifications if visible
+                    if(typeof fetchCustNotifications === 'function') fetchCustNotifications();
+                });
+        @endauth
+    </script>
     @yield('extra_js')
 </body>
 </html>

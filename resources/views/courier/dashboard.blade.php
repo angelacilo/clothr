@@ -89,9 +89,19 @@
                         </td>
                         <td style="font-weight: 700; color: var(--accent-green);">₱{{ number_format($order->total, 2) }}</td>
                         <td style="text-align: right;">
-                            <button onclick="openAssignModal({{ $order->id }})" class="btn btn-primary btn-sm" style="padding: 8px 16px;">
-                                Assign Rider
-                            </button>
+                            @if($order->status === 'processing')
+                                <form action="{{ route('courier.update-status', $order->id) }}" method="POST" style="margin: 0; display: inline;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="shipped">
+                                    <button type="submit" class="btn btn-primary btn-sm" style="background: var(--accent-orange); color: #000; padding: 8px 16px;">
+                                        Mark Shipped
+                                    </button>
+                                </form>
+                            @else
+                                <button onclick="openAssignModal({{ $order->id }})" class="btn btn-primary btn-sm" style="padding: 8px 16px;">
+                                    Assign Rider
+                                </button>
+                            @endif
                         </td>
                     </tr>
                     @empty

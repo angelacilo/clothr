@@ -46,44 +46,42 @@ class RiderController extends Controller
 
     public function show(Delivery $delivery)
     {
-        abort_if($delivery->rider_id !== $this->getRider()->id, 403);
+        $rider = $this->getRider();
+        abort_if($delivery->rider_id !== $rider->id, 403);
         $delivery->load(['order.user']);
-        return view('rider.deliveries.show', compact('delivery'));
+        return view('rider.deliveries.show', compact('delivery', 'rider'));
     }
 
     public function updateStatus(Request $request, Delivery $delivery)
     {
-        abort_if($delivery->rider_id !== $this->getRider()->id, 403);
+        $rider = $this->getRider();
+        abort_if($delivery->rider_id !== $rider->id, 403);
 
         $request->validate([
-            'status' => 'required|in:picked_up,out_for_delivery,delivered,failed',
+            'status' => 'required|in:out_for_delivery,delivered',
         ]);
 
-        DB::transaction(function () use ($request, $delivery) {
-            $update = ['status' => $request->status];
+        try {
+            DB::transaction(function () use ($request, $delivery) {
+                $orderService = app(\App\Services\OrderService::class);
+                
+                // Map delivery status to order status if different
+                // In our plan: out_for_delivery (delivery) = out_for_delivery (order)
+                // delivered (delivery) = delivered (order)
+                
+                $orderService->updateStatus($delivery->order, $request->status, 'rider');
 
-            if ($request->status === 'picked_up')       $update['picked_up_at'] = now();
-            if ($request->status === 'delivered')        $update['delivered_at'] = now();
+                $update = ['status' => $request->status];
+                if ($request->status === 'out_for_delivery') $update['picked_up_at'] = now();
+                if ($request->status === 'delivered')        $update['delivered_at'] = now();
 
-            $delivery->update($update);
+                $delivery->update($update);
+            });
 
-            $orderStatus = $delivery->order->status;
-            switch ($request->status) {
-                case 'picked_up':
-                    $orderStatus = 'shipped';
-                    break;
-                case 'out_for_delivery':
-                    $orderStatus = 'out_for_delivery';
-                    break;
-                case 'delivered':
-                    $orderStatus = 'delivered';
-                    break;
-            }
-
-            $delivery->order->update(['status' => $orderStatus]);
-        });
-
-        return back()->with('success', 'Delivery status updated to ' . str_replace('_', ' ', $request->status) . '.');
+            return back()->with('success', 'Delivery status updated to ' . str_replace('_', ' ', $request->status) . '.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function toggleAvailability()

@@ -107,6 +107,8 @@ Route::prefix('courier')->name('courier.')->group(function () {
         Route::get('/orders',                         [CourierController::class, 'orders'])->name('orders');
         Route::get('/orders/{order}',                 [CourierController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/assign-rider',   [CourierController::class, 'assignRider'])->name('assign-rider');
+        Route::post('/orders/{order}/update-status',  [CourierController::class, 'updateStatus'])->name('update-status');
+        Route::post('/orders/{order}/report-lost',    [CourierController::class, 'reportLost'])->name('report-lost');
         Route::get('/riders',                         [CourierController::class, 'riders'])->name('riders');
         Route::post('/riders',                        [CourierController::class, 'storeRider'])->name('riders.store');
     });

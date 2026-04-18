@@ -208,7 +208,37 @@
 
     @yield('modals')
 
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.14.0/dist/echo.iife.js"></script>
     <script>
+        window.Pusher = Pusher;
+        window.Echo = new Echo({
+            broadcaster: 'pusher',
+            key: '{{ env("PUSHER_APP_KEY") }}',
+            cluster: '{{ env("PUSHER_APP_CLUSTER") }}',
+            wsHost: window.location.hostname,
+            wsPort: 6001,
+            forceTLS: false,
+            encrypted: false,
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        // Listen for Role-based Events
+        @if(auth()->check() && auth()->user()->role === 'courier' && auth()->user()->courierAccount)
+            window.Echo.private('courier.{{ auth()->user()->courierAccount->code }}')
+                .listen('OrderStatusUpdated', (e) => {
+                    alert(`Order Update: ${e.message}`);
+                    if (window.refreshPortal) window.refreshPortal();
+                });
+        @elseif(auth()->check() && auth()->user()->role === 'rider' && auth()->user()->rider)
+            window.Echo.private('rider.{{ auth()->user()->rider->id }}')
+                .listen('RiderAssigned', (e) => {
+                    alert("New delivery assigned to you!");
+                    if (window.refreshPortal) window.refreshPortal();
+                });
+        @endif
+
         function openModal(id) {
             document.getElementById(id).style.display = 'flex';
         }

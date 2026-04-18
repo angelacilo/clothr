@@ -405,4 +405,14 @@
         <div style="font-weight: 800; font-size: 16px;">Total Paid: ₱{{ number_format($order->total, 2) }}</div>
     </div>
 </div>
+@section('extra_js')
+<script>
+    window.refreshShop = function() {
+        // Slow refresh to allow DB to catch up if needed
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    };
+</script>
+@endsection
 @endsection

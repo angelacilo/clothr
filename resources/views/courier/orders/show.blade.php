@@ -163,7 +163,29 @@
             </div>
             
             @if($order->status !== 'delivered' && $order->status !== 'cancelled')
-                <button onclick="openAssignModal({{ $order->id }})" class="btn btn-dark" style="width: 100%; justify-content: center; margin-top: 1rem;">Update Rider</button>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 1rem;">
+                    <button onclick="openAssignModal({{ $order->id }})" class="btn btn-outline" style="width: 100%; justify-content: center;">Update Rider</button>
+                    
+                    @if($order->status === 'processing')
+                        <form action="{{ route('courier.update-status', $order->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="shipped">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Mark as Shipped (Picked Up)</button>
+                        </form>
+                    @endif
+
+                    @if($order->status === 'shipped' && $order->rider)
+                        <form action="{{ route('courier.update-status', $order->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="out_for_delivery">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Mark Out for Delivery</button>
+                        </form>
+                    @endif
+
+                    @if($order->status !== 'lost')
+                        <button onclick="openLostModal()" class="btn btn-red" style="width: 100%; justify-content: center; background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;">Report Lost Package</button>
+                    @endif
+                </div>
             @endif
         @endif
     </div>
@@ -194,4 +216,28 @@
         </form>
     </div>
 </div>
+
+<div id="lostModal" class="modal-overlay">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal('lostModal')">&times;</button>
+        <h3 class="modal-title">Report Lost Package</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">Please provide a reason for the lost report. This will notify the Admin immediately.</p>
+        <form method="POST" action="{{ route('courier.report-lost', $order->id) }}">
+            @csrf
+            <div class="form-group">
+                <textarea name="reason" placeholder="e.g. Rider reported theft, or package missing from warehouse..." required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-color); color: white; min-height: 100px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                <button type="submit" class="btn btn-red" style="flex: 1;">Confirm Lost Report</button>
+                <button type="button" class="btn btn-dark" style="flex: 1;" onclick="closeModal('lostModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openLostModal() {
+        document.getElementById('lostModal').style.display = 'flex';
+    }
+</script>
 @endsection

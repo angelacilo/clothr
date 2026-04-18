@@ -167,5 +167,13 @@
     window.onclick = function(event) {
         if (event.target.id === 'addCourierModal') toggleModal('addCourierModal');
     }
+    // Listen for real-time updates to couriers
+    if (window.Echo) {
+        window.Echo.private('admin')
+            .listen('.CourierCreated', (e) => {
+                showToast("New Courier Partner Added: " + e.name);
+                setTimeout(() => window.location.reload(), 1500);
+            });
+    }
 </script>
 @endsection

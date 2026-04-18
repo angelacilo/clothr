@@ -79,31 +79,23 @@
             </div>
 
             <div class="delivery-footer">
-                @if($delivery->status === 'assigned')
-                    <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="status" value="picked_up">
-                        <button type="submit" class="btn btn-dark">Mark Picked Up ↗</button>
-                    </form>
-                @elseif($delivery->status === 'picked_up')
-                    <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="status" value="out_for_delivery">
-                        <button type="submit" class="btn btn-dark">Mark Out for Delivery ↗</button>
-                    </form>
-                @elseif($delivery->status === 'out_for_delivery')
-                    <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
+                @if($delivery->status === 'out_for_delivery')
+                    <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST" style="flex: 1;">
                         @csrf
                         <input type="hidden" name="status" value="delivered">
-                        <button type="submit" class="btn btn-status-green">Mark Delivered</button>
+                        <button type="submit" class="btn btn-status-green" style="width: 100%;">Mark Delivered</button>
                     </form>
-                    <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
+                    <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST" style="flex: 1;">
                         @csrf
                         <input type="hidden" name="status" value="failed">
-                        <button type="submit" class="btn btn-red">Mark Failed</button>
+                        <button type="submit" class="btn btn-red" style="width: 100%;">Mark Failed</button>
                     </form>
+                @elseif($delivery->status === 'shipped')
+                    <div style="background: #111; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); width: 100%; text-align: center;">
+                        Awaiting Courier release...
+                    </div>
                 @endif
-                <a href="{{ route('rider.deliveries.show', $delivery->id) }}" class="btn btn-outline">View details</a>
+                <a href="{{ route('rider.deliveries.show', $delivery->id) }}" class="btn btn-outline" style="flex: 0 0 auto;">View details</a>
             </div>
         </div>
         @empty

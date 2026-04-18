@@ -89,6 +89,9 @@ class OrderService
                 'status'        => 'pending'
             ]);
 
+            // Fire real-time event
+            broadcast(new \App\Events\NewOrderPlaced($order))->toOthers();
+
             // Clear only the checked-out items from the user's cart
             if (class_exists(\App\Models\CartItem::class)) {
                 foreach ($items as $item) {
@@ -107,27 +110,50 @@ class OrderService
     /**
      * Update order status with validation and timestamps
      */
-    public function updateStatus(Order $order, string $newStatus)
+    /**
+     * Update order status with validation and timestamps
+     */
+    public function updateStatus(Order $order, string $newStatus, string $role = 'admin')
     {
         $newStatus = strtolower($newStatus);
-        return DB::transaction(function () use ($order, $newStatus) {
+        return DB::transaction(function () use ($order, $newStatus, $role) {
             $currentStatus = $order->status;
 
-            // Valid transitions based on rules
+            // Valid transitions based on role permissions (The Plan)
             $validTransitions = [
-                'pending'          => ['processing', 'cancelled'],
-                'processing'       => ['pending', 'shipped', 'cancelled'],
-                'shipped'          => ['processing', 'out_for_delivery', 'delivered', 'cancelled'],
-                'out_for_delivery' => ['delivered', 'shipped'],
-                'delivered'        => ['shipped'], // allow rollback for mistakes
-                'cancelled'        => ['pending'], // allow restoring
+                'pending'          => [
+                    'admin' => ['processing', 'cancelled']
+                ],
+                'processing'       => [
+                    'admin'   => ['pending', 'cancelled'],
+                    'courier' => ['shipped'] // Courier marks as "Picked up/Shipped"
+                ],
+                'shipped'          => [
+                    'courier' => ['out_for_delivery'],
+                    'admin'   => ['cancelled']
+                ],
+                'out_for_delivery' => [
+                    'rider'   => ['delivered'],
+                    'courier' => ['shipped', 'lost']
+                ],
+                'delivered'        => [],
+                'cancelled'        => [
+                    'admin' => ['pending']
+                ],
+                'lost'             => [
+                    'admin' => ['cancelled', 'pending']
+                ],
             ];
 
             if ($newStatus !== $currentStatus) {
-                $allowed = $validTransitions[$currentStatus] ?? [];
-                if (!in_array($newStatus, $allowed)) {
-                    throw new \Exception("Invalid state transition from {$currentStatus} to {$newStatus}.");
+                $allowedForRole = $validTransitions[$currentStatus][$role] ?? [];
+                
+                // STRICTOR CHECK: Every role (including Admin) MUST stay within their assigned transitions
+                if (!in_array($newStatus, $allowedForRole)) {
+                    throw new \Exception("Unauthorized or invalid transition from {$currentStatus} to {$newStatus} for role: {$role}.");
                 }
+                
+                $order->status = $newStatus;
             }
 
             // --- RESTORE STOCK IF CANCELLED (atomically) ---
@@ -259,11 +285,17 @@ class OrderService
                             $link);
                         break;
                     case 'shipped':
-                        $trackingText = $order->courier_tracking ? " Tracking: {$order->courier_tracking}" : "";
-                        $courierText = $order->courier ? " Courier: {$order->courier}" : "";
+                        $trackingText = $order->tracking_number ? " Tracking: {$order->tracking_number}" : "";
+                        $courierText = $order->courier_name ? " Courier: {$order->courier_name}" : "";
                         \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_shipped', 
                             'Your Order Has Been Shipped', 
                             "Your order #{$displayId} is on its way!{$courierText}{$trackingText}", 
+                            $link);
+                        break;
+                    case 'out_for_delivery':
+                        \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_out_for_delivery', 
+                            'Your Order is Out for Delivery', 
+                            "Your order #{$displayId} is out for delivery with our rider. Please be ready to receive it!", 
                             $link);
                         break;
                     case 'delivered':
@@ -280,6 +312,9 @@ class OrderService
                         break;
                 }
             }
+
+            // --- REAL-TIME BROADCAST ---
+            broadcast(new \App\Events\OrderStatusUpdated($order))->toOthers();
             
             return $order;
         });

@@ -81,12 +81,12 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate(['status' => 'required|in:pending,processing,shipped,delivered,cancelled']);
+        $request->validate(['status' => 'required|in:pending,processing,shipped,out_for_delivery,delivered,cancelled,lost']);
         
         $order = Order::findOrFail($id);
 
         try {
-            $this->orderService->updateStatus($order, $request->status);
+            $this->orderService->updateStatus($order, $request->status, 'admin');
             return back()->with('success', 'Order status updated to ' . $request->status);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
