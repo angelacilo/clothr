@@ -4,6 +4,7 @@
 @section('portal_title', 'Courier Portal')
 @section('brand_route', route('courier.dashboard'))
 @section('logout_route', route('courier.logout'))
+@section('theme_class', 'theme-courier')
 
 
 

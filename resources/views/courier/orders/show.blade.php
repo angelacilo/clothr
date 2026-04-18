@@ -4,6 +4,7 @@
 @section('portal_title', 'Courier Portal')
 @section('brand_route', route('courier.dashboard'))
 @section('logout_route', route('courier.logout'))
+@section('theme_class', 'theme-courier')
 
 @section('badge')
     <div class="nav-info">
@@ -139,7 +140,7 @@
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="btn btn-green" style="width: 100%; justify-content: center; margin-top: 1rem;">Assign Rider Now</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;">Assign Rider Now</button>
             </form>
         @else
             <h3 class="section-title">Assigned Rider</h3>
@@ -187,7 +188,7 @@
                 </select>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 2rem;">
-                <button type="submit" class="btn btn-green" style="flex: 1;">Update Assignment</button>
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Update Assignment</button>
                 <button type="button" class="btn btn-dark" style="flex: 1;" onclick="closeModal('assignModal')">Cancel</button>
             </div>
         </form>

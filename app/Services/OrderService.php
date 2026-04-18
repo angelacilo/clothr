@@ -86,7 +86,7 @@ class OrderService
                 'customer_info' => $customerInfo,
                 'items'         => $processedItems,
                 'total'         => $calculatedTotal,
-                'status'        => 'Pending'
+                'status'        => 'pending'
             ]);
 
             // Clear only the checked-out items from the user's cart
@@ -109,16 +109,18 @@ class OrderService
      */
     public function updateStatus(Order $order, string $newStatus)
     {
+        $newStatus = strtolower($newStatus);
         return DB::transaction(function () use ($order, $newStatus) {
             $currentStatus = $order->status;
 
             // Valid transitions based on rules
             $validTransitions = [
-                'Pending'    => ['Processing', 'Cancelled'],
-                'Processing' => ['Pending', 'Shipped', 'Cancelled'],
-                'Shipped'    => ['Processing', 'Delivered', 'Cancelled'],
-                'Delivered'  => ['Shipped'], // allow rollback for mistakes
-                'Cancelled'  => ['Pending'], // allow restoring
+                'pending'          => ['processing', 'cancelled'],
+                'processing'       => ['pending', 'shipped', 'cancelled'],
+                'shipped'          => ['processing', 'out_for_delivery', 'delivered', 'cancelled'],
+                'out_for_delivery' => ['delivered', 'shipped'],
+                'delivered'        => ['shipped'], // allow rollback for mistakes
+                'cancelled'        => ['pending'], // allow restoring
             ];
 
             if ($newStatus !== $currentStatus) {
@@ -129,7 +131,7 @@ class OrderService
             }
 
             // --- RESTORE STOCK IF CANCELLED (atomically) ---
-            if ($newStatus === 'Cancelled') {
+            if ($newStatus === 'cancelled') {
                 foreach ($order->items as $item) {
                     $productId = $item['id'] ?? null;
                     if (!$productId) continue;
@@ -167,7 +169,7 @@ class OrderService
             }
 
             // --- RE-DEDUCT STOCK IF UN-CANCELLED (Restore from Cancelled back to Pending) ---
-            if ($currentStatus === 'Cancelled' && $newStatus === 'Pending') {
+            if ($currentStatus === 'cancelled' && $newStatus === 'pending') {
                 foreach ($order->items as $item) {
                     $productId = $item['id'] ?? null;
                     if (!$productId) continue;
@@ -215,22 +217,26 @@ class OrderService
             // Auto-set timestamps based on status
             $now = now();
             switch ($newStatus) {
-                case 'Processing':
+                case 'processing':
                     $data['processing_at'] = $now;
                     break;
-                case 'Shipped':
+                case 'shipped':
                     if (!$order->processing_at) $data['processing_at'] = $now;
                     $data['shipped_at'] = $now;
                     break;
-                case 'Delivered':
+                case 'out_for_delivery':
+                    if (!$order->processing_at) $data['processing_at'] = $now;
+                    if (!$order->shipped_at) $data['shipped_at'] = $now;
+                    break;
+                case 'delivered':
                     if (!$order->processing_at) $data['processing_at'] = $now;
                     if (!$order->shipped_at) $data['shipped_at'] = $now;
                     $data['delivered_at'] = $now;
                     break;
-                case 'Cancelled':
+                case 'cancelled':
                     $data['cancelled_at'] = $now;
                     break;
-                case 'Pending':
+                case 'pending':
                     $data['processing_at'] = null;
                     $data['shipped_at']    = null;
                     $data['delivered_at']  = null;
@@ -246,13 +252,13 @@ class OrderService
                 $link = '/profile/order/' . $order->id;
                 
                 switch ($newStatus) {
-                    case 'Processing':
+                    case 'processing':
                         \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_processing', 
                             'Order is Being Processed', 
                             "Your order #{$displayId} is now being processed by our team. We will ship it out soon!", 
                             $link);
                         break;
-                    case 'Shipped':
+                    case 'shipped':
                         $trackingText = $order->courier_tracking ? " Tracking: {$order->courier_tracking}" : "";
                         $courierText = $order->courier ? " Courier: {$order->courier}" : "";
                         \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_shipped', 
@@ -260,13 +266,13 @@ class OrderService
                             "Your order #{$displayId} is on its way!{$courierText}{$trackingText}", 
                             $link);
                         break;
-                    case 'Delivered':
+                    case 'delivered':
                         \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_delivered', 
                             'Order Delivered Successfully', 
                             "Your order #{$displayId} has been delivered. Thank you for shopping with CLOTHR!", 
                             $link);
                         break;
-                    case 'Cancelled':
+                    case 'cancelled':
                         \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_cancelled', 
                             'Order Has Been Cancelled', 
                             "We are sorry. Your order #{$displayId} has been cancelled. Please contact us if you have any questions.", 

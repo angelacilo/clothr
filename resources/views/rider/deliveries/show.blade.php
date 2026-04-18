@@ -4,6 +4,7 @@
 @section('portal_title', 'Rider Portal')
 @section('brand_route', route('rider.dashboard'))
 @section('logout_route', route('rider.logout'))
+@section('theme_class', 'theme-rider')
 
 @section('badge')
     <div class="nav-info">
@@ -58,7 +59,7 @@
                     <div class="info-label" style="margin-top: 10px;">Phone</div>
                     <div class="info-value">{{ $delivery->order->customer_info['phone'] ?? 'N/A' }}</div>
                     <div class="info-label" style="margin-top: 10px;">Address</div>
-                    <div class="info-value" style="color: var(--accent-green); font-weight: 600;">
+                    <div class="info-value" style="color: var(--accent-primary); font-weight: 600;">
                         {{ $delivery->order->customer_info['address'] ?? 'N/A' }}
                     </div>
                 </div>
@@ -143,7 +144,7 @@
                 <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
                     @csrf
                     <input type="hidden" name="status" value="delivered">
-                    <button type="submit" class="btn btn-green" style="width: 100%; justify-content: center; padding: 12px;">Mark Delivered</button>
+                    <button type="submit" class="btn btn-status-green" style="width: 100%; justify-content: center; padding: 12px;">Mark Delivered</button>
                 </form>
                 <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
                     @csrf
@@ -159,7 +160,7 @@
         
         <div style="margin-top: 2rem; border-top: 1px solid var(--card-border); padding-top: 1.5rem;">
             <div class="info-label">Courier Service</div>
-            <div class="info-value" style="font-size: 1.1rem; color: var(--accent-green);">{{ $rider->courier->name }}</div>
+            <div class="info-value" style="font-size: 1.1rem; color: var(--accent-primary);">{{ $rider->courier->name }}</div>
             
             <div class="info-label" style="margin-top: 1rem;">Rider Support</div>
             <div class="info-value">{{ $rider->courier->user->phone ?? 'Contact Office' }}</div>

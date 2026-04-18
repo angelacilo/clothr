@@ -4,6 +4,7 @@
 @section('portal_title', 'Rider Portal')
 @section('brand_route', route('rider.dashboard'))
 @section('logout_route', route('rider.logout'))
+@section('theme_class', 'theme-rider')
 
 @section('nav_extra')
     <a href="{{ route('rider.dashboard') }}" class="tab {{ request()->routeIs('rider.dashboard') ? 'tab-active' : '' }}">My Tasks</a>
@@ -94,7 +95,7 @@
                     <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
                         @csrf
                         <input type="hidden" name="status" value="delivered">
-                        <button type="submit" class="btn btn-green">Mark Delivered</button>
+                        <button type="submit" class="btn btn-status-green">Mark Delivered</button>
                     </form>
                     <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
                         @csrf

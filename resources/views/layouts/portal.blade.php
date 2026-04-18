@@ -12,10 +12,21 @@
             --card-border: #262626;
             --text-primary: #ffffff;
             --text-muted: #888888;
+            --accent-primary: #22c55e; /* Default Green */
             --accent-green: #22c55e;
             --accent-orange: #f59e0b;
             --accent-blue: #3b82f6;
             --accent-red: #ef4444;
+        }
+
+        body.theme-rider {
+            --accent-primary: var(--accent-blue);
+            --accent-primary-rgb: 59, 130, 246;
+        }
+
+        body.theme-courier {
+            --accent-primary: var(--accent-green);
+            --accent-primary-rgb: 34, 197, 94;
         }
 
         body { 
@@ -38,7 +49,7 @@
             padding: 0 2.5rem; z-index: 1000; 
         }
         .nav-brand { font-size: 1.5rem; font-weight: 800; text-decoration: none; color: white; letter-spacing: -1px; }
-        .nav-title { font-weight: 600; color: var(--accent-green); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+        .nav-title { font-weight: 600; color: var(--accent-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
         .nav-right { display: flex; align-items: center; gap: 2rem; }
         
         .nav-info { 
@@ -78,19 +89,21 @@
         th { text-align: left; padding: 12px; color: var(--text-muted); font-size: 0.8rem; font-weight: 600; border-bottom: 1px solid var(--card-border); text-transform: uppercase; letter-spacing: 1px; }
         td { padding: 16px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.95rem; }
         
-        .order-id { color: var(--accent-green); text-decoration: none; font-weight: 600; border-bottom: 1.5px solid rgba(34, 197, 94, 0.2); transition: all 0.2s; }
-        .order-id:hover { border-bottom-color: var(--accent-green); }
+        .order-id { color: var(--accent-primary); text-decoration: none; font-weight: 600; border-bottom: 1.5px solid rgba(var(--accent-primary-rgb), 0.2); transition: all 0.2s; }
+        .order-id:hover { border-bottom-color: var(--accent-primary); }
 
         .btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; text-decoration: none; border: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; }
-        .btn-green { background-color: var(--accent-green); color: #000; }
+        .btn-primary { background-color: var(--accent-primary); color: #000; }
         .btn-outline { background-color: transparent; border: 1.5px solid var(--card-border); color: #fff; }
         .btn-outline:hover { background-color: #1a1a1a; border-color: #444; }
         .btn-dark { background-color: #222; color: #fff; border: 1px solid #333; }
         .btn-dark:hover { background-color: #2a2a2a; }
         .btn-red { background-color: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-status-green { background-color: var(--accent-green); color: #000; }
         .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
 
         .badge { padding: 6px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .badge-primary { background-color: rgba(var(--accent-primary-rgb), 0.1); color: var(--accent-primary); border-color: rgba(var(--accent-primary-rgb), 0.2); }
         .badge-green { background-color: rgba(34, 197, 94, 0.1); color: var(--accent-green); border-color: rgba(34, 197, 94, 0.2); }
         .badge-orange { background-color: rgba(245, 158, 11, 0.1); color: var(--accent-orange); border-color: rgba(245, 158, 11, 0.2); }
         .badge-blue { background-color: rgba(59, 130, 246, 0.1); color: var(--accent-blue); border-color: rgba(59, 130, 246, 0.2); }
@@ -117,13 +130,13 @@
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
         .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: var(--accent-green); }
+        input:checked + .slider { background-color: var(--accent-primary); }
         input:checked + .slider:before { transform: translateX(20px); }
 
         /* Tabs */
         .tab { padding: 8px 16px; color: var(--text-muted); text-decoration: none; font-size: 0.95rem; font-weight: 600; border-radius: 8px; transition: all 0.2s; }
         .tab:hover { background: rgba(255,255,255,0.05); color: #fff; }
-        .tab-active { color: var(--accent-green); background: rgba(34, 197, 94, 0.1); }
+        .tab-active { color: var(--accent-primary); background: rgba(var(--accent-primary-rgb), 0.1); }
 
         /* Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 1.5rem; }
@@ -134,7 +147,7 @@
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.6rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; }
         .form-group input, .form-group select { width: 100%; padding: 12px 14px; background-color: #0c0c0c; border: 1px solid var(--card-border); border-radius: 10px; color: white; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s; }
-        .form-group input:focus { outline: none; border-color: var(--accent-green); }
+        .form-group input:focus { outline: none; border-color: var(--accent-primary); }
 
         /* Alert Banners */
         .alert-banner { padding: 12px 20px; border-radius: 12px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 0.9rem; }
@@ -152,7 +165,7 @@
 
     </style>
 </head>
-<body>
+<body class="@yield('theme_class')">
     <nav class="navbar">
         <div style="display: flex; align-items: center; gap: 2rem;">
             <div style="display: flex; flex-direction: column;">

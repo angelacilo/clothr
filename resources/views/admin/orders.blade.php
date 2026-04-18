@@ -27,7 +27,7 @@
                     <i data-lucide="clock" style="color: #fff; width: 16px;"></i>
                 </div>
             </div>
-            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ $orders->where('status', 'Pending')->count() }}</div>
+            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ $orders->where('status', 'pending')->count() }}</div>
             <div style="font-size: 11px; color: #f97316; font-weight: 600;">Needs attention</div>
         </div>
         
@@ -39,7 +39,7 @@
                     <i data-lucide="truck" style="color: #fff; width: 16px;"></i>
                 </div>
             </div>
-            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ $orders->where('status', 'Shipped')->count() }}</div>
+            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ $orders->where('status', 'shipped')->count() }}</div>
             <div style="font-size: 11px; color: #a855f7; font-weight: 600;">In transit</div>
         </div>
         
@@ -51,7 +51,7 @@
                     <i data-lucide="check-circle" style="color: #fff; width: 16px;"></i>
                 </div>
             </div>
-            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ $orders->where('status', 'Delivered')->count() }}</div>
+            <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ $orders->where('status', 'delivered')->count() }}</div>
             <div style="font-size: 11px; color: #10b981; font-weight: 600;">Completed</div>
         </div>
         
@@ -80,11 +80,11 @@
             
             <select name="status" onchange="this.form.submit()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-size: 13px; color: var(--text-dark); background-color: white; width: 170px; cursor: pointer;">
                 <option value="all" {{ $statusFilter == 'all' ? 'selected' : '' }}>All Orders</option>
-                <option value="Pending" {{ $statusFilter == 'Pending' ? 'selected' : '' }}>Pending</option>
-                <option value="Processing" {{ $statusFilter == 'Processing' ? 'selected' : '' }}>Processing</option>
-                <option value="Shipped" {{ $statusFilter == 'Shipped' ? 'selected' : '' }}>Shipped</option>
-                <option value="Delivered" {{ $statusFilter == 'Delivered' ? 'selected' : '' }}>Delivered</option>
-                <option value="Cancelled" {{ $statusFilter == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                <option value="pending" {{ $statusFilter == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="processing" {{ $statusFilter == 'processing' ? 'selected' : '' }}>Processing</option>
+                <option value="shipped" {{ $statusFilter == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                <option value="delivered" {{ $statusFilter == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                <option value="cancelled" {{ $statusFilter == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
             </select>
             
             <button type="submit" class="btn" style="display: flex; align-items: center; gap: 6px; background: #3b82f6; color: white; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer;">
@@ -117,11 +117,11 @@
                         $items = $order->items;
                         $firstItem = isset($items[0]) ? $items[0] : null;
                         $statusColors = [
-                            'Pending' => ['bg' => '#fef9c3', 'color' => '#854d0e', 'icon' => 'clock'],
-                            'Processing' => ['bg' => '#dbeafe', 'color' => '#1e40af', 'icon' => 'settings'],
-                            'Shipped' => ['bg' => '#f3e8ff', 'color' => '#6b21a8', 'icon' => 'truck'],
-                            'Delivered' => ['bg' => '#dcfce7', 'color' => '#166534', 'icon' => 'check-circle'],
-                            'Cancelled' => ['bg' => '#fee2e2', 'color' => '#991b1b', 'icon' => 'x-circle'],
+                            'pending' => ['bg' => '#fef9c3', 'color' => '#854d0e', 'icon' => 'clock'],
+                            'processing' => ['bg' => '#dbeafe', 'color' => '#1e40af', 'icon' => 'settings'],
+                            'shipped' => ['bg' => '#f3e8ff', 'color' => '#6b21a8', 'icon' => 'truck'],
+                            'delivered' => ['bg' => '#dcfce7', 'color' => '#166534', 'icon' => 'check-circle'],
+                            'cancelled' => ['bg' => '#fee2e2', 'color' => '#991b1b', 'icon' => 'x-circle'],
                         ];
                         $sc = $statusColors[$order->status] ?? ['bg' => '#f3f4f6', 'color' => '#374151', 'icon' => 'circle'];
                     @endphp
@@ -170,11 +170,11 @@
                         <td onclick="event.stopPropagation()">
                             <div style="position: relative;" class="status-dropdown-container">
                                 <button onclick="toggleStatusDropdown(this, {{ $order->id }})" class="status-badge-btn" style="background-color: {{ $sc['bg'] }}; color: {{ $sc['color'] }}; display: flex; align-items: center; gap: 5px; width: fit-content; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; border: none; cursor: pointer; transition: transform 0.15s;">
-                                    <i data-lucide="{{ $sc['icon'] }}" style="width: 12px;"></i> {{ $order->status }}
+                                    <i data-lucide="{{ $sc['icon'] }}" style="width: 12px;"></i> {{ ucfirst($order->status) }}
                                     <i data-lucide="chevron-down" style="width: 10px; margin-left: 2px;"></i>
                                 </button>
                                 <div class="status-dropdown" id="statusDrop-{{ $order->id }}" style="display: none; position: absolute; top: 100%; left: 0; z-index: 100; background: white; border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); padding: 6px; min-width: 160px; margin-top: 4px;">
-                                    @foreach(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'] as $s)
+                                    @foreach(['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $s)
                                         @php $ssc = $statusColors[$s]; @endphp
                                         <form method="POST" action="{{ route('admin.orders.status', $order->id) }}" style="margin:0;">
                                             @csrf
@@ -182,7 +182,7 @@
                                             <input type="hidden" name="status" value="{{ $s }}">
                                             <button type="submit" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; border: none; background: {{ $order->status == $s ? $ssc['bg'] : 'transparent' }}; cursor: pointer; border-radius: 6px; font-size: 12px; color: {{ $ssc['color'] }}; font-weight: {{ $order->status == $s ? '700' : '500' }}; transition: background 0.15s;" onmouseover="this.style.backgroundColor='{{ $ssc['bg'] }}'" onmouseout="this.style.backgroundColor='{{ $order->status == $s ? $ssc['bg'] : 'transparent' }}'">
                                                 <i data-lucide="{{ $ssc['icon'] }}" style="width: 13px;"></i>
-                                                {{ $s }}
+                                                {{ ucfirst($s) }}
                                                 @if($order->status == $s)
                                                     <i data-lucide="check" style="width: 12px; margin-left: auto;"></i>
                                                 @endif
@@ -339,16 +339,11 @@
             @method('PUT')
             <div style="margin-bottom: 20px;">
                 <label style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 8px;">Courier Service</label>
-                <select id="courierSelect" name="courier_name" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; background: white; appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 12px center;">
+                <select id="courierSelect" name="courier_name" onchange="updateTrackingPrefix(this)" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); outline: none; font-size: 14px; background: white; appearance: none; cursor: pointer; background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23666%22 stroke-width=%222%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 12px center;">
                     <option value="">Select Courier</option>
-                    <option value="J&T Express">J&T Express</option>
-                    <option value="LBC Express">LBC Express</option>
-                    <option value="Ninja Van">Ninja Van</option>
-                    <option value="Flash Express">Flash Express</option>
-                    <option value="Grab Express">Grab Express</option>
-                    <option value="Lalamove">Lalamove</option>
-                    <option value="Local Rider">Local Rider</option>
-                    <option value="GoGo Xpress">GoGo Xpress</option>
+                    @foreach($couriers as $c)
+                        <option value="{{ $c->name }}" data-code="{{ $c->code }}">{{ $c->name }}</option>
+                    @endforeach
                 </select>
             </div>
             <div style="margin-bottom: 24px;">
@@ -550,22 +545,22 @@
     }
 
     function buildTimeline(currentStatus) {
-        const steps = ['Pending', 'Processing', 'Shipped', 'Delivered'];
-        const isCancelled = currentStatus === 'Cancelled';
+        const steps = ['pending', 'processing', 'shipped', 'delivered'];
+        const isCancelled = currentStatus === 'cancelled';
         const currentIdx = steps.indexOf(currentStatus);
         const container = document.getElementById('modalTimeline');
         
         const colors = {
-            'Pending': '#f59e0b',
-            'Processing': '#3b82f6',
-            'Shipped': '#a855f7',
-            'Delivered': '#10b981'
+            'pending': '#f59e0b',
+            'processing': '#3b82f6',
+            'shipped': '#a855f7',
+            'delivered': '#10b981'
         };
         const icons = {
-            'Pending': 'clock',
-            'Processing': 'settings',
-            'Shipped': 'truck',
-            'Delivered': 'check-circle'
+            'pending': 'clock',
+            'processing': 'settings',
+            'shipped': 'truck',
+            'delivered': 'check-circle'
         };
 
         let html = '<div class="timeline-bar"><div class="timeline-bar-fill" style="width: ' + (isCancelled ? '0%' : (currentIdx >= 0 ? (currentIdx / (steps.length - 1) * 100) + '%' : '0%')) + '"></div></div>';
@@ -588,7 +583,7 @@
                         <div class="timeline-dot ${isCurrent ? 'active' : ''}" style="background: ${isActive ? color + '20' : '#f1f5f9'};">
                             <i data-lucide="${icons[step]}" style="width: 14px; color: ${isActive ? color : '#94a3b8'};"></i>
                         </div>
-                        <span class="timeline-label" style="color: ${isActive ? color : '#94a3b8'};">${step}</span>
+                        <span class="timeline-label" style="color: ${isActive ? color : '#94a3b8'};">${step.charAt(0).toUpperCase() + step.slice(1)}</span>
                     </div>`;
             });
         }
@@ -608,6 +603,22 @@
 
     function closeCourierModal() {
         document.getElementById('courierModal').style.display = 'none';
+    }
+
+    function updateTrackingPrefix(select) {
+        const selectedOption = select.options[select.selectedIndex];
+        const code = selectedOption.getAttribute('data-code');
+        const trackingInput = document.getElementById('trackingInput');
+        
+        if (code && !trackingInput.value.startsWith(code)) {
+            // If the input is empty or contains another prefix, we replace/set it
+            // We keep the numeric part if it exists
+            const currentVal = trackingInput.value;
+            const numericPart = currentVal.replace(/^[A-Z]+/i, '');
+            trackingInput.value = code + numericPart;
+        } else if (!code && trackingInput.value) {
+            // Optional: clear if "Select Courier" is chosen? Maybe not.
+        }
     }
 
     // ESC key to close modals

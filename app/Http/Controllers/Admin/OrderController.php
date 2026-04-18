@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Courier;
 use Illuminate\Http\Request;
 use App\Services\OrderService;
 
@@ -40,7 +41,8 @@ class OrderController extends Controller
         }
 
         $orders = $query->paginate(20);
-        return view('admin.orders', compact('orders', 'statusFilter'));
+        $couriers = Courier::orderBy('name')->get();
+        return view('admin.orders', compact('orders', 'statusFilter', 'couriers'));
     }
 
     public function show($id)
@@ -79,7 +81,7 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate(['status' => 'required|in:Pending,Processing,Shipped,Delivered,Cancelled']);
+        $request->validate(['status' => 'required|in:pending,processing,shipped,delivered,cancelled']);
         
         $order = Order::findOrFail($id);
 

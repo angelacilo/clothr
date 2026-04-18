@@ -4,6 +4,7 @@
 @section('portal_title', 'Rider Portal')
 @section('brand_route', route('rider.dashboard'))
 @section('logout_route', route('rider.logout'))
+@section('theme_class', 'theme-rider')
 
 @section('badge')
     <div class="nav-info">

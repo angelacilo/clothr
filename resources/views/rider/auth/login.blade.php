@@ -9,7 +9,7 @@
         :root {
             --bg-color: #0c0c0c;
             --card-bg: #141414;
-            --accent-green: #22c55e;
+            --accent-primary: #3b82f6; /* Blue for Riders */
             --text-primary: #ffffff;
             --text-muted: #a0a0a0;
             --border-color: #262626;
@@ -24,8 +24,8 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-image: radial-gradient(circle at 80% 20%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
-                              radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%);
+            background-image: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                              radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
         }
 
         .login-card {
@@ -50,7 +50,7 @@
         }
 
         .subtitle {
-            color: var(--accent-green);
+            color: var(--accent-primary);
             text-align: center;
             font-weight: 600;
             font-size: 0.9rem;
@@ -84,8 +84,8 @@
 
         input:focus {
             outline: none;
-            border-color: var(--accent-green);
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
 
         .checkbox-group {
@@ -99,13 +99,13 @@
 
         .checkbox-group input {
             width: auto;
-            accent-color: var(--accent-green);
+            accent-color: var(--accent-primary);
         }
 
         button {
             width: 100%;
             padding: 16px;
-            background-color: var(--accent-green);
+            background-color: var(--accent-primary);
             color: #000;
             border: none;
             border-radius: 12px;

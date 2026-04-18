@@ -4,6 +4,7 @@
 @section('portal_title', 'Courier Portal')
 @section('brand_route', route('courier.dashboard'))
 @section('logout_route', route('courier.logout'))
+@section('theme_class', 'theme-courier')
 
 @section('badge')
     <div class="nav-info">
@@ -88,7 +89,7 @@
                         </td>
                         <td style="font-weight: 700; color: var(--accent-green);">₱{{ number_format($order->total, 2) }}</td>
                         <td style="text-align: right;">
-                            <button onclick="openAssignModal({{ $order->id }})" class="btn btn-green btn-sm" style="padding: 8px 16px;">
+                            <button onclick="openAssignModal({{ $order->id }})" class="btn btn-primary btn-sm" style="padding: 8px 16px;">
                                 Assign Rider
                             </button>
                         </td>
@@ -168,7 +169,7 @@
                 </select>
             </div>
             <div style="display: flex; gap: 12px; margin-top: 2rem; justify-content: flex-end;">
-                <button type="submit" class="btn btn-green" style="padding: 10px 24px;">Assign</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Assign</button>
                 <button type="button" class="btn btn-dark" style="padding: 10px 24px;" onclick="closeModal('assignModal')">Cancel</button>
             </div>
         </form>
@@ -203,7 +204,7 @@
                 <input type="password" name="password_confirmation" required>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 2rem;">
-                <button type="submit" class="btn btn-green" style="flex: 1;">Add Rider</button>
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Add Rider</button>
                 <button type="button" class="btn btn-dark" style="flex: 1;" onclick="closeModal('addRiderModal')">Cancel</button>
             </div>
         </form>

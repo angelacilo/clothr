@@ -4,6 +4,7 @@
 @section('portal_title', 'Courier Portal')
 @section('brand_route', route('courier.dashboard'))
 @section('logout_route', route('courier.logout'))
+@section('theme_class', 'theme-courier')
 
 @section('badge')
     <div class="nav-info">
@@ -23,7 +24,7 @@
 <div class="card">
     <div class="section-header">
         <span class="section-title">Registered Riders</span>
-        <button onclick="openModal('addRiderModal')" class="btn btn-green">+ Add New Rider</button>
+        <button onclick="openModal('addRiderModal')" class="btn btn-primary">+ Add New Rider</button>
     </div>
 
     <table>
@@ -98,7 +99,7 @@
                 <input type="password" name="password_confirmation" required>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 2rem;">
-                <button type="submit" class="btn btn-green" style="flex: 1;">Create Account</button>
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Create Account</button>
                 <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('addRiderModal')">Cancel</button>
             </div>
         </form>
