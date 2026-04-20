@@ -117,10 +117,18 @@ class CourierController extends Controller
         abort_if($order->courier_service !== $courier->code, 403);
 
         $request->validate([
-            'status' => 'required|in:out_for_delivery,shipped'
+            'status' => 'required|in:shipped,released'
         ]);
 
         try {
+            if ($request->status === 'released') {
+                if ($order->delivery) {
+                    $order->delivery->update(['released_at' => now()]);
+                    return back()->with('success', 'Package released to rider. Waiting for rider confirmation.');
+                }
+                return back()->with('error', 'No delivery record found for this order.');
+            }
+
             $orderService = app(\App\Services\OrderService::class);
             $orderService->updateStatus($order, $request->status, 'courier');
 

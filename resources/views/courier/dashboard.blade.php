@@ -83,8 +83,11 @@
                         <td style="font-weight: 500;">{{ $order->user->name ?? 'Guest' }}</td>
                         <td>
                             <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: 600;">{{ $order->customer_info['city'] ?? 'Davao City' }}</span>
-                                <span style="font-size: 0.75rem; color: var(--text-muted);">{{ Str::limit($order->customer_info['address'] ?? 'No address', 30) }}</span>
+                                @php $ci = $order->customer_info; @endphp
+                                <span style="font-weight: 600;">{{ $ci['city'] ?? 'Davao City' }}</span>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">
+                                    {{ $ci['address_line_1'] ?? '' }}, {{ $ci['city'] ?? '' }}
+                                </span>
                             </div>
                         </td>
                         <td style="font-weight: 700; color: var(--accent-green);">₱{{ number_format($order->total, 2) }}</td>

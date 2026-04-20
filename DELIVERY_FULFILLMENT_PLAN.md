@@ -16,6 +16,21 @@ WebSockets, and the lost package handling process.
 
 ---
 
+### Implementation Progress (COMPLETED)
+
+#### Phase 3: Real-time & Quality of Life
+1. **Real-time Clock**: Added live clock to Portal Layout. [DONE]
+2. **Accurate Timestamps**: All order lifecycle events now record precise `at` timestamps. [DONE]
+3. **Enhanced Address Display**: Courier and Rider views now show full, formatted addresses. [DONE]
+4. **Buy Now Button**: One-click path from product to checkout. [DONE]
+
+#### Phase 4: Proof of Delivery System
+1. **Schema Update**: Added `proof_of_delivery` and `out_for_delivery_at` timestamps. [DONE]
+2. **Rider Upload**: Enabled image capture on delivery completion. [DONE]
+3. **Courier/Customer Visibility**: Integrated proof image viewing in portals and order details. [DONE]
+
+---
+
 ## 2. The Complete Status Flow
 
 ```
@@ -314,21 +329,21 @@ $table->timestamp('lost_at')->nullable();
 
 | Phase | Task |
 |---|---|
-| **1** | Install packages: `composer require beyondcode/laravel-websockets pusher/pusher-php-server` |
-| **2** | Publish WebSocket config, update `.env` + `broadcasting.php` |
-| **3** | Run migration: add `lost_at` + `lost_reason` to `deliveries` |
-| **4** | Create `RoleMiddleware`, register in `Kernel.php`, apply to all routes |
-| **5** | Create all 4 broadcast Event classes |
-| **6** | Update `routes/channels.php` with private channel authorization |
-| **7** | Update `OrderService` — role-aware transitions + event firing |
-| **8** | Update `RiderController` — lock transitions, fire events |
-| **9** | Update `CourierController` — assign rider + report lost + fire events |
-| **10** | Update `Admin/OrderController` — lost report handling + notify customer |
-| **11** | Update `UserNotification` model with new types |
-| **12** | Update `routes/web.php` — new routes + rate limiting |
-| **13** | Add Echo + WebSocket JS to `layouts/admin.blade.php` + `layouts/portal.blade.php` |
-| **14** | Update all Blade views (Courier, Rider, Admin) |
-| **15** | End-to-end test: full flow from order placed → delivered |
+| **1** | Install packages: `composer require beyondcode/laravel-websockets pusher/pusher-php-server` [DONE] |
+| **2** | Publish WebSocket config, update `.env` + `broadcasting.php` [DONE] |
+| **3** | Run migration: add `lost_at` + `lost_reason` to `deliveries` [DONE] |
+| **4** | Create `RoleMiddleware`, register in `Kernel.php`, apply to all routes [DONE] |
+| **5** | Create all 4 broadcast Event classes [DONE] |
+| **6** | Update `routes/channels.php` with private channel authorization [DONE] |
+| **7** | Update `OrderService` — role-aware transitions + event firing [DONE] |
+| **8** | Update `RiderController` — lock transitions, fire events [DONE] |
+| **9** | Update `CourierController` — assign rider + report lost + fire events [DONE] |
+| **10** | Update `Admin/OrderController` — lost report handling + notify customer [DONE] |
+| **11** | Update `UserNotification` model with new types [DONE] |
+| **12** | Update `routes/web.php` — new routes + rate limiting [DONE] |
+| **13** | Add Echo + WebSocket JS to `layouts/admin.blade.php` + `layouts/portal.blade.php` [DONE] |
+| **14** | Update all Blade views (Courier, Rider, Admin) [DONE] |
+| **15** | End-to-end test: full flow from order placed → delivered [DONE] |
 
 ---
 

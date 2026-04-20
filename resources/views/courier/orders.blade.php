@@ -49,6 +49,7 @@
                     <th style="padding: 1.25rem 1rem; background: #181818;">Rider</th>
                     <th style="padding: 1.25rem 1rem; background: #181818;">Total</th>
                     <th style="padding: 1.25rem 1rem; background: #181818;">Date</th>
+                    <th style="padding: 1.25rem 1rem; background: #181818;">Picked Up</th>
                     <th style="padding: 1.25rem 2rem; background: #181818; text-align: right;">Action</th>
                 </tr>
             </thead>
@@ -60,19 +61,28 @@
                     </td>
                     <td style="padding: 1.25rem 1rem;">
                         <div style="font-weight: 600;">{{ $order->user->name ?? 'Guest User' }}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $order->customer_info['city'] ?? 'Davao City' }}</div>
+                        @php $ci = $order->customer_info; @endphp
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            @php 
+                                $address = $ci['address'] ?? ($ci['address_line_1'] ?? 'No address');
+                                if (isset($ci['barangay']) && $ci['barangay']) $address .= ', ' . $ci['barangay'];
+                                if ((isset($ci['city_name']) || isset($ci['city'])) && ($ci['city_name'] ?? $ci['city'])) $address .= ', ' . ($ci['city_name'] ?? $ci['city']);
+                            @endphp
+                            {{ $address }}
+                        </div>
                     </td>
                     <td style="padding: 1.25rem 1rem;">
                         @php
                             $badgeClass = 'badge-orange';
                             switch($order->status) {
                                 case 'shipped': $badgeClass = 'badge-blue'; break;
+                                case 'picked_up': $badgeClass = 'badge-orange'; break;
                                 case 'out_for_delivery': $badgeClass = 'badge-blue'; break;
                                 case 'delivered': $badgeClass = 'badge-green'; break;
                                 case 'lost': $badgeClass = 'badge-red'; break;
                             }
                         @endphp
-                        <span class="badge {{ $badgeClass }}" style="font-size: 0.65rem; padding: 4px 10px;">
+                        <span class="badge {{ $badgeClass }}" style="font-size: 0.65rem; padding: 4px 10px; white-space: nowrap;">
                             {{ str_replace('_', ' ', strtoupper($order->status)) }}
                         </span>
                     </td>
@@ -97,6 +107,9 @@
                     <td style="padding: 1.25rem 1rem; color: var(--text-muted); font-size: 0.85rem;">
                         {{ $order->created_at->format('M d, Y') }}
                     </td>
+                    <td style="padding: 1.25rem 1rem; color: var(--text-muted); font-size: 0.85rem;">
+                        {{ $order->picked_up_at ? $order->picked_up_at->format('M d, h:i A') : '—' }}
+                    </td>
                     <td style="padding: 1.25rem 2rem; text-align: right; display: flex; gap: 8px; justify-content: flex-end;" onclick="event.stopPropagation()">
                         @if($order->status === 'processing')
                             <form action="{{ route('courier.update-status', $order->id) }}" method="POST" style="margin: 0;">
@@ -105,11 +118,15 @@
                                 <button type="submit" class="btn btn-primary btn-sm" style="background: var(--accent-orange); color: #000;">Mark Shipped</button>
                             </form>
                         @elseif($order->status === 'shipped' && $order->rider)
-                            <form action="{{ route('courier.update-status', $order->id) }}" method="POST" style="margin: 0;">
-                                @csrf
-                                <input type="hidden" name="status" value="out_for_delivery">
-                                <button type="submit" class="btn btn-primary btn-sm">Release to Rider</button>
-                            </form>
+                            @if($order->delivery && !$order->delivery->released_at)
+                                <form action="{{ route('courier.update-status', $order->id) }}" method="POST" style="margin: 0;">
+                                    @csrf
+                                    <input type="hidden" name="status" value="released">
+                                    <button type="submit" class="btn btn-primary btn-sm" style="background: var(--accent-green); color: white;">Release Package</button>
+                                </form>
+                            @else
+                                <span style="font-size: 0.75rem; color: var(--accent-green);">Releasing...</span>
+                            @endif
                         @elseif($order->status === 'shipped' && !$order->rider)
                             <button onclick="window.location='{{ route('courier.orders.show', $order->id) }}'" class="btn btn-outline btn-sm" style="border-color: var(--accent-red); color: var(--accent-red);">Assign Rider</button>
                         @endif

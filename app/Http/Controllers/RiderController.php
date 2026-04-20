@@ -58,21 +58,38 @@ class RiderController extends Controller
         abort_if($delivery->rider_id !== $rider->id, 403);
 
         $request->validate([
-            'status' => 'required|in:out_for_delivery,delivered',
+            'status' => 'required|in:picked_up,out_for_delivery,delivered',
+            'proof_of_delivery' => 'required_if:status,delivered|image|max:5120', // 5MB max
         ]);
 
         try {
-            DB::transaction(function () use ($request, $delivery) {
+            DB::transaction(function () use ($request, $delivery, $rider) {
                 $orderService = app(\App\Services\OrderService::class);
-                
-                // Map delivery status to order status if different
-                // In our plan: out_for_delivery (delivery) = out_for_delivery (order)
-                // delivered (delivery) = delivered (order)
                 
                 $orderService->updateStatus($delivery->order, $request->status, 'rider');
 
                 $update = ['status' => $request->status];
-                if ($request->status === 'out_for_delivery') $update['picked_up_at'] = now();
+                
+                if ($request->hasFile('proof_of_delivery')) {
+                    $path = $request->file('proof_of_delivery')->store('proofs', 'public');
+                    $update['proof_of_delivery'] = $path;
+                }
+
+                if ($request->status === 'picked_up') {
+                    $update['picked_up_at'] = now();
+                    // Notify Courier
+                    $courier = $rider->courier;
+                    if ($courier && $courier->user_id) {
+                        \App\Models\UserNotification::notify(
+                            $courier->user_id,
+                            $delivery->order->id,
+                            'rider_picked_up',
+                            'Package Picked Up',
+                            "Rider {$rider->user->name} successfully picked up package for Order #{$delivery->order->id}.",
+                            "/courier/orders/{$delivery->order->id}"
+                        );
+                    }
+                }
                 if ($request->status === 'delivered')        $update['delivered_at'] = now();
 
                 $delivery->update($update);

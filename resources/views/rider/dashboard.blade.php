@@ -75,27 +75,52 @@
             
             <div class="delivery-meta">
                 Tracking: {{ $delivery->order->tracking_number ?? 'JT' . str_pad($delivery->order->id, 7, '0', STR_PAD_LEFT) }} • ₱{{ number_format($delivery->order->total, 0) }}<br>
-                Address: {{ $delivery->order->customer_info['address'] ?? 'No address provided' }}
+                Address: @php $ci = $delivery->order->customer_info; @endphp
+                {{ $ci['address_line_1'] ?? '' }}, {{ $ci['city'] ?? '' }}, {{ $ci['region'] ?? '' }} {{ $ci['zip_code'] ?? '' }}
             </div>
 
             <div class="delivery-footer">
-                @if($delivery->status === 'out_for_delivery')
+                @if($delivery->status === 'assigned')
+                    @if($delivery->released_at)
+                        <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST" style="flex: 1;">
+                            @csrf
+                            <input type="hidden" name="status" value="picked_up">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--accent-orange); color: #000;">Confirm Pickup</button>
+                        </form>
+                    @else
+                        <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; height: 40px;">
+                            Waiting for Courier to release...
+                        </div>
+                    @endif
+                @elseif($delivery->status === 'picked_up')
                     <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST" style="flex: 1;">
                         @csrf
-                        <input type="hidden" name="status" value="delivered">
-                        <button type="submit" class="btn btn-status-green" style="width: 100%;">Mark Delivered</button>
+                        <input type="hidden" name="status" value="out_for_delivery">
+                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Go Out for Delivery</button>
                     </form>
-                    <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST" style="flex: 1;">
-                        @csrf
-                        <input type="hidden" name="status" value="failed">
-                        <button type="submit" class="btn btn-red" style="width: 100%;">Mark Failed</button>
-                    </form>
-                @elseif($delivery->status === 'shipped')
-                    <div style="background: #111; padding: 10px; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); width: 100%; text-align: center;">
-                        Awaiting Courier release...
+                @elseif($delivery->status === 'out_for_delivery')
+                    <div style="flex: 1;" id="delivery-form-{{ $delivery->id }}">
+                        <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 10px;">
+                            @csrf
+                            <input type="hidden" name="status" value="delivered">
+                            
+                            <div class="proof-upload-wrapper" style="position: relative; width: 100%;">
+                                <input type="file" name="proof_of_delivery" id="file-{{ $delivery->id }}" accept="image/*" required 
+                                    onchange="handleFileSelect(this, {{ $delivery->id }})"
+                                    style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; top: 0; left: 0; z-index: 2;">
+                                <div id="label-{{ $delivery->id }}" style="background: rgba(255,255,255,0.05); border: 1px dashed var(--card-border); padding: 10px; border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-muted); transition: all 0.2s;">
+                                    📸 <span id="text-{{ $delivery->id }}">Click to upload proof of delivery</span>
+                                </div>
+                            </div>
+
+                            <div id="actions-{{ $delivery->id }}" style="display: none; gap: 8px; width: 100%;">
+                                <button type="button" class="btn btn-outline" style="flex: 1; border-color: var(--accent-red); color: var(--accent-red);" onclick="cancelUpload({{ $delivery->id }})">Cancel</button>
+                                <button type="submit" class="btn btn-primary" style="flex: 2; background: var(--accent-green); color: white; border: none;">Save & Deliver</button>
+                            </div>
+                        </form>
                     </div>
                 @endif
-                <a href="{{ route('rider.deliveries.show', $delivery->id) }}" class="btn btn-outline" style="flex: 0 0 auto;">View details</a>
+                <a href="{{ route('rider.deliveries.show', $delivery->id) }}" class="btn btn-outline" style="flex: 0 0 auto; height: {{ $delivery->status == 'out_for_delivery' ? 'auto' : '40px' }}; align-self: flex-end;">View details</a>
             </div>
         </div>
         @empty
@@ -105,4 +130,35 @@
         @endforelse
     </div>
 </div>
+
+<script>
+    function handleFileSelect(input, id) {
+        const label = document.getElementById('label-' + id);
+        const text = document.getElementById('text-' + id);
+        const actions = document.getElementById('actions-' + id);
+        
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            text.innerText = "Selected: " + fileName;
+            label.style.background = "rgba(34, 197, 94, 0.1)";
+            label.style.borderColor = "var(--accent-green)";
+            label.style.color = "var(--accent-green)";
+            actions.style.display = "flex";
+        }
+    }
+
+    function cancelUpload(id) {
+        const input = document.getElementById('file-' + id);
+        const label = document.getElementById('label-' + id);
+        const text = document.getElementById('text-' + id);
+        const actions = document.getElementById('actions-' + id);
+        
+        input.value = "";
+        text.innerText = "Click to upload proof of delivery";
+        label.style.background = "rgba(255,255,255,0.05)";
+        label.style.borderColor = "var(--card-border)";
+        label.style.color = "var(--text-muted)";
+        actions.style.display = "none";
+    }
+</script>
 @endsection

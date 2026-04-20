@@ -109,7 +109,7 @@
                     ];
                     $clr = $isActive ? $stepColors[$stepKey] : '#cbd5e1';
                 @endphp
-                <div class="progress-step">
+                <div class="progress-step" id="progress-step-{{ $stepKey }}" data-index="{{ $i }}">
                     <div class="progress-dot {{ $isActive ? 'active' : '' }}" style="background: {{ $isActive ? $clr . '20' : '#f1f5f9' }};">
                         <i data-lucide="{{ $stepIcons[$stepKey] }}" style="width: 16px; color: {{ $isActive ? $clr : '#94a3b8' }};"></i>
                     </div>
@@ -328,16 +328,17 @@
                 if ($step['is_complete']) $statusClass = 'completed';
                 if ($step['key'] === 'Cancelled') $statusClass = 'cancelled';
                 if ($step['is_active']) $statusClass .= ' active';
+                $stepId = $step['key'] === 'Order Placed' ? 'placed' : $step['key'];
             @endphp
-            <div class="timeline-item {{ $statusClass }}" style="color: {{ $step['color'] }};">
+            <div class="timeline-item {{ $statusClass }}" id="timeline-{{ strtolower($stepId) }}" style="color: {{ $step['color'] }};" data-step="{{ $step['key'] }}">
                 <div class="timeline-icon-wrap" style="{{ $step['key'] === 'Cancelled' ? '' : ($step['is_complete'] ? 'background:' . $step['color'] . ';' : '') }}">
                     <i data-lucide="{{ $step['icon'] }}" style="width: 18px; {{ $step['is_complete'] && $step['key'] !== 'Cancelled' ? 'color:white;' : '' }}"></i>
                 </div>
                 <div class="timeline-content">
                     <div class="timeline-header">{{ $step['title'] }}</div>
-                    <div class="timeline-desc">
+                    <div class="timeline-desc" id="desc-{{ strtolower($stepId) }}">
                         {{ $step['desc'] }}
-                        @if($step['key'] === 'Shipped' && $step['is_complete'])
+                        @if($step['key'] === 'shipped' && $step['is_complete'])
                             @if($order->courier_name)
                                 <br><span style="font-weight:600; color:#111;">Courier:</span> {{ $order->courier_name }}
                             @endif
@@ -351,6 +352,15 @@
                     </div>
                     @if($step['date'])
                         <div class="timeline-time">{{ $step['date']->format('F j, Y \a\t g:i A') }}</div>
+                    @else
+                        <div class="timeline-time" style="display: none;"></div>
+                    @endif
+
+                    @if($step['key'] === 'delivered' && $order->delivery && $order->delivery->proof_of_delivery)
+                        <div id="pod-container" style="margin-top: 15px; max-width: 300px;">
+                            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #999; margin-bottom: 5px;">Proof of Delivery</div>
+                            <img src="{{ asset('storage/' . $order->delivery->proof_of_delivery) }}" alt="Proof of Delivery" style="width: 100%; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.05); cursor: pointer;" onclick="window.open(this.src)">
+                        </div>
                     @endif
                 </div>
             </div>
@@ -408,11 +418,111 @@
 @section('extra_js')
 <script>
     window.refreshShop = function() {
-        // Slow refresh to allow DB to catch up if needed
-        setTimeout(() => {
-            window.location.reload();
-        }, 1500);
+        setTimeout(() => { window.location.reload(); }, 1500);
     };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.Echo !== 'undefined') {
+            window.Echo.private('user.{{ auth()->id() }}')
+                .listen('.App\\Events\\OrderStatusUpdated', (e) => {
+                    console.log('Order update received:', e);
+                    if (e.order.id == {{ $order->id }}) {
+                        updateRealTimeTimeline(e.order);
+                    }
+                });
+        }
+    });
+
+    function updateRealTimeTimeline(order) {
+        const status = order.status.toLowerCase();
+        const steps = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+        const currentIdx = steps.indexOf(status);
+        if (currentIdx === -1) return;
+
+        // 1. Update Progress Bar
+        const fill = document.querySelector('.progress-bar-fill');
+        const percent = (currentIdx / (steps.length - 1)) * 100;
+        fill.style.width = percent + '%';
+
+        const stepColors = {
+            'pending': '#f59e0b',
+            'processing': '#3b82f6',
+            'shipped': '#a855f7',
+            'out_for_delivery': '#06b6d4',
+            'delivered': '#10b981'
+        };
+
+        // 2. Update Progress Steps
+        steps.forEach((stepKey, i) => {
+            const stepEl = document.getElementById('progress-step-' + stepKey);
+            if (!stepEl) return;
+            
+            const dot = stepEl.querySelector('.progress-dot');
+            const label = stepEl.querySelector('.progress-label');
+            const icon = dot.querySelector('i');
+            const isActive = i <= currentIdx;
+            const clr = isActive ? stepColors[stepKey] : '#cbd5e1';
+
+            if (isActive) {
+                dot.classList.add('active');
+                dot.style.background = clr + '20';
+                label.classList.add('active');
+                label.style.color = clr;
+                icon.style.color = clr;
+            } else {
+                dot.classList.remove('active');
+                dot.style.background = '#f1f5f9';
+                label.classList.remove('active');
+                label.style.color = '';
+                icon.style.color = '#94a3b8';
+            }
+        });
+
+        // 3. Update Timeline Items
+        steps.forEach((stepKey, i) => {
+            const itemEl = document.getElementById('timeline-' + stepKey);
+            if (!itemEl) return;
+
+            const isActive = i === currentIdx;
+            const isComplete = i <= currentIdx;
+            const clr = stepColors[stepKey];
+            
+            itemEl.classList.remove('pending', 'completed', 'active');
+            if (isComplete) itemEl.classList.add('completed');
+            else itemEl.classList.add('pending');
+            if (isActive) itemEl.classList.add('active');
+
+            const iconWrap = itemEl.querySelector('.timeline-icon-wrap');
+            const icon = iconWrap.querySelector('i');
+            const timeEl = itemEl.querySelector('.timeline-time');
+
+            if (isComplete) {
+                iconWrap.style.background = clr;
+                icon.style.color = 'white';
+                if (isActive && !timeEl.innerText) {
+                    const now = new Date();
+                    timeEl.innerText = now.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true }).replace(',', '') + ' at ' + now.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+                    // More precise format matching PHP
+                    const options = { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+                    const formattedDate = new Intl.DateTimeFormat('en-US', options).format(now);
+                    timeEl.innerText = formattedDate.replace(' at', ' at'); // Intl puts 'at' sometimes
+                    timeEl.style.display = 'block';
+                }
+            }
+        });
+
+        // 4. Update Header and Table
+        document.querySelectorAll('td').forEach(td => {
+            if (td.innerText.toLowerCase() === '{{ strtolower($order->status) }}') {
+                td.innerText = order.status;
+            }
+        });
+
+        // Optional: Trigger a toast
+        if (window.showToast) {
+            window.showToast('Order status updated to ' + order.status, 'success');
+        }
+    }
 </script>
 @endsection
 @endsection

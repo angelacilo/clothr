@@ -176,6 +176,10 @@
             <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
                 @yield('nav_extra')
             </div>
+
+            <div id="liveClock" style="margin-left: 2rem; font-family: monospace; font-size: 0.9rem; font-weight: 700; color: var(--accent-primary); background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 6px; border: 1px solid var(--card-border);">
+                {{ date('H:i:s') }}
+            </div>
         </div>
         
         <div class="nav-right">
@@ -255,6 +259,21 @@
                 document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
             }
         };
+
+        // Real-time Clock logic
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+            const clockEl = document.getElementById('liveClock');
+            if (clockEl) clockEl.textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
     </script>
 </body>
 </html>

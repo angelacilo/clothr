@@ -12,7 +12,7 @@ class Order extends Model
     protected $fillable = [
         'user_id', 'customer_info', 'items', 'total', 'status',
         'courier_name', 'courier_service', 'tracking_number', 'rider_id',
-        'processing_at', 'shipped_at', 'delivered_at', 'cancelled_at',
+        'processing_at', 'shipped_at', 'picked_up_at', 'out_for_delivery_at', 'delivered_at', 'cancelled_at',
     ];
 
     protected $casts = [
@@ -21,6 +21,8 @@ class Order extends Model
         'total' => 'float',
         'processing_at' => 'datetime',
         'shipped_at' => 'datetime',
+        'picked_up_at' => 'datetime',
+        'out_for_delivery_at' => 'datetime',
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
     ];

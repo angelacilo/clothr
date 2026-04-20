@@ -58,7 +58,17 @@
                     <div class="info-label" style="margin-top: 10px;">Email</div>
                     <div class="info-value">{{ $order->user->email ?? $order->customer_info['email'] ?? 'N/A' }}</div>
                     <div class="info-label" style="margin-top: 10px;">Address</div>
-                    <div class="info-value">{{ $order->customer_info['address'] ?? 'N/A' }}</div>
+                    <div class="info-value">
+                        @php 
+                            $ci = $order->customer_info; 
+                            $address = $ci['address'] ?? ($ci['address_line_1'] ?? 'No address provided');
+                            if (isset($ci['barangay']) && $ci['barangay']) $address .= ', ' . $ci['barangay'];
+                            if ((isset($ci['city_name']) || isset($ci['city'])) && ($ci['city_name'] ?? $ci['city'])) $address .= ', ' . ($ci['city_name'] ?? $ci['city']);
+                            if ((isset($ci['region_name']) || isset($ci['region'])) && ($ci['region_name'] ?? $ci['region'])) $address .= ', ' . ($ci['region_name'] ?? $ci['region']);
+                            if (isset($ci['zip']) || isset($ci['zip_code'])) $address .= ' ' . ($ci['zip'] ?? $ci['zip_code']);
+                        @endphp
+                        {{ $address }}
+                    </div>
                 </div>
             </div>
             <div>
@@ -90,6 +100,15 @@
                         <div class="timeline-time">{{ $order->delivery->assigned_at->format('M d, Y · h:i A') }}</div>
                     </div>
                 </div>
+                @if($order->delivery->released_at)
+                <div class="timeline-item">
+                    <div class="timeline-dot active"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Released to Rider</div>
+                        <div class="timeline-time">{{ $order->delivery->released_at->format('M d, Y · h:i A') }}</div>
+                    </div>
+                </div>
+                @endif
                 @if($order->delivery->picked_up_at)
                 <div class="timeline-item">
                     <div class="timeline-dot active"></div>
@@ -114,6 +133,11 @@
                     <div class="timeline-content">
                         <div class="timeline-title">Delivered</div>
                         <div class="timeline-time">{{ $order->delivery->delivered_at->format('M d, Y · h:i A') }}</div>
+                        @if($order->delivery->proof_of_delivery)
+                            <div style="margin-top: 10px;">
+                                <img src="{{ asset('storage/' . $order->delivery->proof_of_delivery) }}" alt="Proof" style="width: 150px; border-radius: 4px; border: 1px solid var(--card-border); cursor: pointer;" onclick="window.open(this.src)">
+                            </div>
+                        @endif
                     </div>
                 </div>
                 @endif
@@ -162,29 +186,10 @@
                 </div>
             </div>
             
-            @if($order->status !== 'delivered' && $order->status !== 'cancelled')
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 1rem;">
-                    <button onclick="openAssignModal({{ $order->id }})" class="btn btn-outline" style="width: 100%; justify-content: center;">Update Rider</button>
-                    
-                    @if($order->status === 'processing')
-                        <form action="{{ route('courier.update-status', $order->id) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="status" value="shipped">
-                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Mark as Shipped (Picked Up)</button>
-                        </form>
-                    @endif
-
-                    @if($order->status === 'shipped' && $order->rider)
-                        <form action="{{ route('courier.update-status', $order->id) }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="status" value="out_for_delivery">
-                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Mark Out for Delivery</button>
-                        </form>
-                    @endif
-
-                    @if($order->status !== 'lost')
-                        <button onclick="openLostModal()" class="btn btn-red" style="width: 100%; justify-content: center; background: #fee2e2; color: #ef4444; border: 1px solid #fecaca;">Report Lost Package</button>
-                    @endif
+            @if($order->status == 'lost')
+                <div class="info-card" style="margin-top: 1rem; border-color: var(--accent-red); background: rgba(239, 68, 68, 0.05);">
+                    <div style="color: var(--accent-red); font-weight: 700;">⚠ PACKAGE REPORTED LOST</div>
+                    <div style="font-size: 0.8rem; margin-top: 5px;">{{ $order->delivery->lost_reason ?? 'No reason provided.' }}</div>
                 </div>
             @endif
         @endif

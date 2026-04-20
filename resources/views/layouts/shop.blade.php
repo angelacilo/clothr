@@ -118,34 +118,46 @@
         }
         .navbar__links a:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
-        .navbar__actions { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+        .navbar__actions { 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end;
+            gap: 24px; 
+            flex-shrink: 0; 
+            flex-wrap: nowrap;
+        }
+        #auth-nav, #cust-notif-container { display: contents; }
+        
         .navbar__icon-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             color: var(--ink-soft);
             transition: background .2s, color .2s;
             position: relative;
+            flex-shrink: 0;
+            background: transparent;
         }
         .navbar__icon-btn:hover { background: var(--sand); color: var(--ink); }
         .navbar__cart-badge {
             position: absolute;
-            top: -2px;
-            right: -2px;
+            top: 2px;
+            right: 2px;
             background: var(--ink);
             color: var(--white);
-            font-size: 9px;
-            width: 16px;
-            height: 16px;
+            font-size: 8px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            border: 2px solid var(--cream);
+            border: 1.5px solid var(--cream);
+            transform: translate(20%, -20%);
         }
         .navbar__login-link {
             font-size: 13px;
@@ -256,7 +268,7 @@
             background: var(--sand);
             border-radius: var(--radius-md);
             overflow: hidden;
-            margin-bottom: 16px;
+            margin-bottom: 22px;
             box-shadow: var(--shadow-xs);
             transition: box-shadow .35s;
         }
@@ -270,7 +282,7 @@
             inset: 0;
             display: flex;
             align-items: flex-end;
-            padding: 18px;
+            padding: 12px 18px 24px 18px;
             background: linear-gradient(to top, rgba(28,25,23,.55) 0%, transparent 55%);
             opacity: 0;
             transition: opacity .3s;
@@ -314,6 +326,7 @@
         .product-card h3 {
             font-size: 14px;
             font-weight: 600;
+            margin-top: 14px;
             margin-bottom: 6px;
             color: var(--ink);
             line-height: 1.3;
@@ -542,7 +555,7 @@
 
                 <div id="auth-nav">
                     @auth
-                        <div style="display:flex; align-items:center; gap:14px;">
+                        <div style="display:flex; align-items:center; gap:18px; flex-wrap:nowrap;">
                             @if(Auth::user()->is_admin)
                                 <a href="{{ route('admin.dashboard') }}"
                                    style="font-size:12px; font-weight:700; color:var(--accent-warm); border:1.5px solid var(--accent-warm); padding:5px 12px; border-radius:50px; letter-spacing:.06em;">
@@ -587,7 +600,6 @@
                             <div class="cust-notif-empty">Loading...</div>
                         </div>
                     </div>
-                </div>
                 @endauth
 
                 <a href="{{ route('cart') }}" class="navbar__icon-btn" title="Cart">
@@ -655,13 +667,13 @@
                     <p>Your destination for modern women's fashion. Curated collections that celebrate style and individuality.</p>
                     <div class="footer__socials">
                         <a href="https://www.facebook.com/share/14ViXfujQf3/?mibextid=wwXIfr" target="_blank" aria-label="Facebook">
-                            <i data-lucide="facebook" size="15"></i>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                         </a>
                         <a href="https://www.instagram.com/clothr.co_" target="_blank" aria-label="Instagram">
-                            <i data-lucide="instagram" size="15"></i>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                         </a>
                         <a href="#" aria-label="X / Twitter">
-                            <i data-lucide="twitter" size="15"></i>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"/><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"/></svg>
                         </a>
                     </div>
                 </div>
@@ -695,8 +707,14 @@
 
             <hr class="footer__divider">
             <div class="footer__bottom">
-                <span>© 2026 CLOTHR. All rights reserved.</span>
-                <span>Crafted with ♡ in the Philippines</span>
+                <span>© {{ date('Y') }} CLOTHR. All rights reserved.</span>
+                <span style="display: flex; align-items: center; gap: 6px;">
+                    Crafted with 
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                    </svg> 
+                    in the Philippines
+                </span>
             </div>
         </div>
     </footer>

@@ -60,7 +60,15 @@
                     <div class="info-value">{{ $delivery->order->customer_info['phone'] ?? 'N/A' }}</div>
                     <div class="info-label" style="margin-top: 10px;">Address</div>
                     <div class="info-value" style="color: var(--accent-primary); font-weight: 600;">
-                        {{ $delivery->order->customer_info['address'] ?? $delivery->order->customer_info['complete_address'] ?? $delivery->order->customer_info['street'] ?? $delivery->order->customer_info['city'] ?? 'Address Not Provided' }}
+                        @php 
+                            $ci = $delivery->order->customer_info; 
+                            $address = $ci['address'] ?? ($ci['address_line_1'] ?? 'No address provided');
+                            if (isset($ci['barangay']) && $ci['barangay']) $address .= ', ' . $ci['barangay'];
+                            if ((isset($ci['city_name']) || isset($ci['city'])) && ($ci['city_name'] ?? $ci['city'])) $address .= ', ' . ($ci['city_name'] ?? $ci['city']);
+                            if ((isset($ci['region_name']) || isset($ci['region'])) && ($ci['region_name'] ?? $ci['region'])) $address .= ', ' . ($ci['region_name'] ?? $ci['region']);
+                            if (isset($ci['zip']) || isset($ci['zip_code'])) $address .= ' ' . ($ci['zip'] ?? $ci['zip_code']);
+                        @endphp
+                        {{ $address }}
                     </div>
                 </div>
             </div>
@@ -87,19 +95,33 @@
                 <div class="timeline-item">
                     <div class="timeline-dot active"></div>
                     <div class="timeline-content">
+                        <div class="timeline-title">Order Created</div>
+                        <div class="timeline-time">{{ $delivery->order->created_at->format('M d, Y · h:i A') }}</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot active"></div>
+                    <div class="timeline-content">
                         <div class="timeline-title">Assigned to you</div>
                         <div class="timeline-time">{{ $delivery->assigned_at->format('M d, Y · h:i A') }}</div>
                     </div>
                 </div>
-                @if($delivery->picked_up_at)
+                @if($delivery->released_at)
                 <div class="timeline-item">
                     <div class="timeline-dot active"></div>
                     <div class="timeline-content">
-                        <div class="timeline-title">Picked Up from Warehouse</div>
-                        <div class="timeline-time">{{ $delivery->picked_up_at->format('M d, Y · h:i A') }}</div>
+                        <div class="timeline-title">Released by Courier</div>
+                        <div class="timeline-time">{{ $delivery->released_at->format('M d, Y · h:i A') }}</div>
                     </div>
                 </div>
                 @endif
+                <div class="timeline-item">
+                    <div class="timeline-dot {{ $delivery->picked_up_at ? 'active' : '' }}"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Picked Up</div>
+                        <div class="timeline-time">{{ $delivery->picked_up_at ? $delivery->picked_up_at->format('M d, Y · h:i A') : 'Pending' }}</div>
+                    </div>
+                </div>
                 @if($delivery->status == 'out_for_delivery' || $delivery->delivered_at)
                 <div class="timeline-item">
                     <div class="timeline-dot active"></div>
@@ -122,32 +144,30 @@
         </div>
     </div>
 
-    <!-- Sidebar: Actions -->
+    <!-- Sidebar: Info -->
     <div class="card">
-        <h3 class="section-title">Actions</h3>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Update the status of this delivery as you progress.</p>
+        <h3 class="section-title">Delivery Info</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem;">Detailed information regarding your current assignment.</p>
         
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            @if($delivery->order->status === 'out_for_delivery')
-                <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="status" value="delivered">
-                    <button type="submit" class="btn btn-status-green" style="width: 100%; justify-content: center; padding: 12px;">Mark Delivered</button>
-                </form>
-                <form action="{{ route('rider.update-status', $delivery->id) }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="status" value="failed">
-                    <button type="submit" class="btn btn-red" style="width: 100%; justify-content: center; padding: 12px;">Mark Failed</button>
-                </form>
-            @elseif($delivery->order->status === 'shipped' || $delivery->order->status === 'processing')
-                <div class="info-card" style="text-align: center; background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2); padding: 20px;">
-                    <div style="font-size: 1.5rem; margin-bottom: 8px;">🚚</div>
-                    <div style="font-weight: 600; color: var(--accent-blue);">Awaiting Release</div>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 0 0;">The courier will release this to you once ready.</p>
-                </div>
-            @else
-                <div class="info-card" style="text-align: center; color: var(--text-muted);">
-                    No further actions available for this status.
+            <div class="info-card" style="padding: 1.25rem;">
+                <div class="info-label">Tracking Number</div>
+                <div class="info-value" style="font-family: monospace; font-size: 1.1rem; color: var(--accent-primary);">{{ $delivery->order->tracking_number ?? 'N/A' }}</div>
+                
+                <div class="info-label" style="margin-top: 1rem;">Payment to Collect</div>
+                <div class="info-value" style="font-size: 1.25rem; color: var(--accent-green); font-weight: 800;">₱{{ number_format($delivery->order->total, 2) }}</div>
+            </div>
+
+            @if($delivery->status === 'delivered' && $delivery->proof_of_delivery)
+                <div class="info-card" style="text-align: left; border-color: var(--accent-green); background: rgba(34, 197, 94, 0.05); padding: 1rem;">
+                    <div style="color: var(--accent-green); font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Delivered
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <label style="display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px;">Proof of Delivery:</label>
+                        <img src="{{ asset('storage/' . $delivery->proof_of_delivery) }}" alt="Proof" style="width: 100%; border-radius: 8px; border: 1px solid var(--card-border); cursor: pointer;" onclick="window.open(this.src)">
+                    </div>
                 </div>
             @endif
         </div>

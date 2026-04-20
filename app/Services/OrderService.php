@@ -126,11 +126,16 @@ class OrderService
                 ],
                 'processing'       => [
                     'admin'   => ['pending', 'cancelled'],
-                    'courier' => ['shipped'] // Courier marks as "Picked up/Shipped"
+                    'courier' => ['shipped']
                 ],
                 'shipped'          => [
+                    'rider'   => ['picked_up'], // Rider marks as picked up from warehouse
                     'courier' => ['out_for_delivery'],
                     'admin'   => ['cancelled']
+                ],
+                'picked_up'        => [
+                    'rider'   => ['out_for_delivery'],
+                    'courier' => ['shipped'] // Can revert if mistake
                 ],
                 'out_for_delivery' => [
                     'rider'   => ['delivered'],
@@ -250,9 +255,15 @@ class OrderService
                     if (!$order->processing_at) $data['processing_at'] = $now;
                     $data['shipped_at'] = $now;
                     break;
+                case 'picked_up':
+                    if (!$order->processing_at) $data['processing_at'] = $now;
+                    if (!$order->shipped_at) $data['shipped_at'] = $now;
+                    $data['picked_up_at'] = $now;
+                    break;
                 case 'out_for_delivery':
                     if (!$order->processing_at) $data['processing_at'] = $now;
                     if (!$order->shipped_at) $data['shipped_at'] = $now;
+                    $data['out_for_delivery_at'] = $now;
                     break;
                 case 'delivered':
                     if (!$order->processing_at) $data['processing_at'] = $now;
@@ -265,6 +276,7 @@ class OrderService
                 case 'pending':
                     $data['processing_at'] = null;
                     $data['shipped_at']    = null;
+                    $data['out_for_delivery_at'] = null;
                     $data['delivered_at']  = null;
                     $data['cancelled_at']  = null;
                     break;

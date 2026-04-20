@@ -205,9 +205,10 @@
             </div>
 
             {{-- ── ACTIONS ── --}}
-            <div class="action-group">
-                <button class="add-to-cart-btn" id="addToCartBtn" onclick="handleAddToCart()">Add to Bag</button>
-                <button class="wishlist-btn" onclick="toggleWishlist({{ $product->id }}, this)">
+            <div class="action-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 36px;">
+                <button class="add-to-cart-btn" id="addToCartBtn" onclick="handleAddToCart()" style="grid-column: span 2; padding: 18px;">Add to Bag</button>
+                <button class="add-to-cart-btn" id="buyNowBtn" onclick="handleBuyNow()" style="grid-column: span 2; padding: 18px; background: #2563eb; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);">Buy Now</button>
+                <button class="wishlist-btn" onclick="toggleWishlist({{ $product->id }}, this)" style="grid-column: span 2;">
                     <i data-lucide="heart" size="20"></i> Add to Wishlist
                 </button>
             </div>
@@ -560,12 +561,16 @@ function selectSize(btn, size, stock) {
 ══════════════════════════════════════════════════════════ */
 function updateCartButtonState() {
     var btn   = document.getElementById('addToCartBtn');
+    var buyBtn = document.getElementById('buyNowBtn');
     if (!btn) return;
     var hasSizes   = (document.getElementById('sizeGroup') !== null);
     var hasColors  = NORM_VARIANTS.length > 0;
     var sizeOk     = !hasSizes  || selectedSize  !== null;
     var colorOk    = !hasColors || selectedColor !== null;
-    btn.disabled   = !(sizeOk && colorOk);
+    var disabled   = !(sizeOk && colorOk);
+    
+    btn.disabled   = disabled;
+    if (buyBtn) buyBtn.disabled = disabled;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -668,6 +673,12 @@ function handleAddToCart() {
             });
         });
     }
+}
+
+function handleBuyNow() {
+    handleAddToCart();
+    // Redirect to checkout immediately
+    window.location.href = '/checkout';
 }
 
 /* ══════════════════════════════════════════════════════════
