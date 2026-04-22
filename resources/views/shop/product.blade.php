@@ -412,6 +412,7 @@ const NORM_VARIANTS = buildNormalisedVariants();
    INIT — render thumbnails + swatches
 ══════════════════════════════════════════════════════════ */
 (function init() {
+    window.maxStock = {{ $product->stock }};
     renderThumbs();
     renderColorSwatches();
     // Auto-select first color
@@ -545,10 +546,18 @@ function selectSize(btn, size, stock) {
     var lbl = document.getElementById('selectedSizeLabel');
     if (lbl) lbl.textContent = size;
 
+    // Limit quantity
+    window.maxStock = stock;
+    if (quantity > window.maxStock) {
+        quantity = window.maxStock > 0 ? window.maxStock : 1;
+        document.getElementById('qty').textContent = quantity;
+        renderVariantRows();
+    }
+
     // Stock badge
     var badge = document.getElementById('stockBadgeContainer');
     if (badge) {
-        if (stock > 10)      badge.innerHTML = '<span class="stock-badge in">● In Stock</span>';
+        if (stock > 5)       badge.innerHTML = '<span class="stock-badge in">● In Stock</span>';
         else if (stock > 0)  badge.innerHTML = '<span class="stock-badge low">⚠ Only '+ stock +' left</span>';
         else                 badge.innerHTML = '<span class="stock-badge out">✕ Out of Stock</span>';
     }
@@ -577,7 +586,8 @@ function updateCartButtonState() {
    QUANTITY
 ══════════════════════════════════════════════════════════ */
 function updateQty(delta) {
-    quantity = Math.max(1, quantity + delta);
+    var max = window.maxStock !== undefined ? window.maxStock : 999;
+    quantity = Math.max(1, Math.min(max, quantity + delta));
     document.getElementById('qty').textContent = quantity;
     renderVariantRows();
 }

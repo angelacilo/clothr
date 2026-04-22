@@ -22,8 +22,9 @@ class AddRiderIdToOrdersTable extends Migration
     public function down()
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropForeign(['rider_id']);
-            $table->dropColumn('rider_id');
+            if (\Illuminate\Support\Facades\Schema::hasColumn('orders', 'rider_id')) {
+                $table->dropColumn('rider_id');
+            }
         });
     }
 }

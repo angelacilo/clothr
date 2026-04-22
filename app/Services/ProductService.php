@@ -9,6 +9,23 @@ use Illuminate\Support\Facades\Storage;
 class ProductService
 {
     /**
+     * STOCK EXPLANATION
+     * The variants data structure:
+     * [
+     *   {
+     *     "color": "Blue",
+     *     "colorHex": "#0000ff",
+     *     "image": "/storage/...",
+     *     "sizes": { "S": 10, "M": 5 }
+     *   }
+     * ]
+     * Stock is ALWAYS calculated as the sum of all variant sizes if variants exist.
+     * The calcStock() method is the single source of truth for stock calculation.
+     * The buildVariants() method structures the form data.
+     * The deriveFlat() method extracts flat colors and sizes arrays for cart compatibility.
+     */
+
+    /**
      * Safely parse a JSON string or array.
      */
     private function parseVariants($value): array
@@ -89,8 +106,7 @@ class ProductService
                     $total += (int) $qty;
                 }
             }
-            // If total is 0 but variants exist, respect the default stock
-            return $total > 0 ? $total : (int) $defaultStock;
+            return $total;
         }
         return (int) $defaultStock;
     }
@@ -99,12 +115,17 @@ class ProductService
 
     public function create(array $data, $imageFile, array $requestInputs, array $colorImages = [])
     {
+        // 1. Build variants from form
         $variants = $this->buildVariants($requestInputs, $colorImages);
+        
+        // 2. Derive flat colors and sizes
         $flat     = $this->deriveFlat($variants);
 
         $data['variants'] = $variants;
         $data['colors']   = $flat['colors'];
         $data['sizes']    = $flat['sizes'];
+        
+        // 3. Calculate stock from variants
         $data['stock']    = $this->calcStock($variants, $requestInputs['stock'] ?? 0);
 
         $data['isFeatured'] = !empty($requestInputs['isFeatured']);
@@ -122,23 +143,30 @@ class ProductService
             $data['images'] = ['/placeholder.png'];
         }
 
+        // 4. Save product
         return Product::create($data);
     }
 
     public function update(Product $product, array $data, $imageFile, array $requestInputs, array $colorImages = [])
     {
+        // 1. Build new variants from form
         $variants = $this->buildVariants($requestInputs, $colorImages);
 
-        // Preserve existing images per variant if not re-uploaded
+        // 2. If no new variants provided, keep existing
         if (empty($variants) && !empty($product->variants)) {
             $variants = $product->variants;
         }
 
+        // 3. Derive flat colors and sizes
         $flat = $this->deriveFlat($variants);
 
         $data['variants'] = $variants;
         $data['colors']   = $flat['colors'];
         $data['sizes']    = $flat['sizes'];
+        
+        // 4. Calculate stock from variants
+        // IMPORTANT: Because variants loaded in the form are the current live ones (including deductions),
+        // we can safely recalculate stock here without overwriting live deductions.
         $data['stock']    = $this->calcStock($variants, $requestInputs['stock'] ?? $product->stock);
 
         $data['isFeatured'] = !empty($requestInputs['isFeatured']);
@@ -157,6 +185,7 @@ class ProductService
             $data['images'] = [$variants[0]['image']];
         }
 
+        // 5. Save product
         $product->update($data);
         return $product;
     }

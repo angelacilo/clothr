@@ -18,6 +18,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'a
     Route::get('/products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products');
     Route::post('/products', [\App\Http\Controllers\Admin\ProductController::class, 'store'])->name('products.store');
     Route::put('/products/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'update'])->name('products.update');
+    Route::post('/products/{id}/restock', [\App\Http\Controllers\Admin\ProductController::class, 'restock'])->name('products.restock');
     Route::delete('/products/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.delete');
     Route::post('/products/{id}/archive', [\App\Http\Controllers\Admin\ProductController::class, 'archive'])->name('products.archive');
     Route::post('/products/{id}/restore', [\App\Http\Controllers\Admin\ProductController::class, 'restore'])->name('products.restore');

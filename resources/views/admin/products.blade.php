@@ -74,7 +74,7 @@
                                 </span>
                             </td>
                             <td style="padding: 12px 20px; text-align: right;">
-                                <button class="btn btn-outline edit-product-btn" 
+                                <button class="btn btn-outline restock-product-btn" 
                                     style="padding: 4px 10px; font-size: 11px;"
                                     data-product-id="{{ $alert['id'] }}"
                                     data-json="{{ json_encode(App\Models\Product::find($alert['id'])) }}">Restock</button>
@@ -137,7 +137,12 @@
                                     </div>
                                 @endforeach
                             @else
-                                <div style="font-size: 11px; color: var(--text-medium); font-style: italic;">No variants defined</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                    <span title="{{ $product->stock }} left" style="font-size: 10px; padding: 1px 4px; border-radius: 3px; font-weight: 600; 
+                                        {{ $product->stock == 0 ? 'background: #fee2e2; color: #ef4444;' : ($product->stock <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;') }}">
+                                        Stock: {{ $product->stock }}
+                                    </span>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -158,6 +163,14 @@
                             <span style="font-size: 11px; font-weight: 700; color: var(--text-medium);">{{ $product->stock }} TOTAL</span>
                         </div>
                         <div style="display: flex; gap: 8px;">
+                            @if($product->stock <= 5)
+                                <button class="btn btn-outline restock-product-btn"
+                                        style="flex: 1; font-size: 12px; padding: 8px; color: #3b82f6; border-color: #3b82f6; display: flex; align-items: center; justify-content: center; gap: 4px;"
+                                        data-product-id="{{ $product->id }}"
+                                        data-json="{{ json_encode($product) }}">
+                                    <i data-lucide="plus" style="width: 14px;"></i> Restock
+                                </button>
+                            @endif
                             <button class="btn btn-outline edit-product-btn"
                                     style="flex: 1; font-size: 12px; padding: 8px;"
                                     data-product-id="{{ $product->id }}"
@@ -208,6 +221,59 @@
 .preset-size-toggle { padding:5px 12px; border:1.5px solid #e5e7eb; border-radius:6px; font-size:12px; font-weight:700; background:#fff; cursor:pointer; transition:.15s; }
 .preset-size-toggle.on { background:#111; color:#fff; border-color:#111; }
 </style>
+
+<!-- ═══════════════════ RESTOCK MODAL ═══════════════════ -->
+<div id="restockProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
+    <div class="card" style="width:600px; padding:32px; max-height:92vh; overflow-y:auto;">
+        <h2 style="margin-bottom:24px;" id="restockModalTitle">Restock — Product Name</h2>
+        <form id="restockProductForm" action="" method="POST">
+            @csrf
+            
+            <div id="restockVariantsContainer" style="display: none;">
+                <table class="vb-table" style="margin-bottom: 16px;">
+                    <thead>
+                        <tr>
+                            <th>Color</th>
+                            <th>Size</th>
+                            <th>Current Stock</th>
+                            <th style="width: 120px;">Add Units</th>
+                            <th style="text-align: right;">New Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="restockVariantsBody">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="restockNoVariantsContainer" style="display: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fafafa;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 12px; font-weight: 700; color: var(--text-medium); margin-bottom: 4px;">CURRENT STOCK</div>
+                        <span id="restockCurrentStockBadge" style="font-size: 13px; padding: 2px 8px; border-radius: 4px; font-weight: 700;"></span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; font-weight: 700; color: var(--text-medium); margin-bottom: 4px;">ADD UNITS</div>
+                        <input type="number" name="restock[default]" class="restock-input" data-current="0" value="0" min="0" style="width: 80px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; text-align: center; font-weight: 700;">
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px; font-weight: 700; color: var(--text-medium); margin-bottom: 4px;">NEW TOTAL</div>
+                        <span id="restockNoVariantNewTotal" style="font-size: 18px; font-weight: 800; color: var(--text-dark);">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; padding: 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 600;">
+                Total units being added: <span id="restockTotalAdded" style="font-size: 18px; font-weight: 800; margin-left: 4px;">0</span>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" class="btn btn-outline" onclick="closeRestockModal()">Cancel</button>
+                <button type="submit" class="btn btn-dark">Confirm Restock</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- ═══════════════════ ADD MODAL ═══════════════════ -->
 <div id="addProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
@@ -779,6 +845,111 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.edit-product-btn').forEach(function(btn) {
         btn.addEventListener('click', function(){ handleEditClick(this); });
     });
+    document.querySelectorAll('.restock-product-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(){ openRestockModal(this); });
+    });
 });
+
+function openRestockModal(btn) {
+    var product = JSON.parse(btn.getAttribute('data-json'));
+    var form = document.getElementById('restockProductForm');
+    form.action = '/admin/products/' + product.id + '/restock';
+    
+    document.getElementById('restockModalTitle').textContent = 'Restock — ' + product.name;
+    
+    var variants = Array.isArray(product.variants) ? product.variants : (product.variants ? JSON.parse(product.variants) : []);
+    
+    var withVariantsContainer = document.getElementById('restockVariantsContainer');
+    var noVariantsContainer = document.getElementById('restockNoVariantsContainer');
+    var body = document.getElementById('restockVariantsBody');
+    
+    if (variants.length > 0) {
+        withVariantsContainer.style.display = 'block';
+        noVariantsContainer.style.display = 'none';
+        body.innerHTML = '';
+        
+        variants.forEach(function(v) {
+            var sizes = Object.keys(v.sizes || {});
+            sizes.forEach(function(sz) {
+                var qty = parseInt(v.sizes[sz]) || 0;
+                var colorBadgeClass = qty === 0 ? 'background: #fee2e2; color: #ef4444;' : (qty <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;');
+                
+                var tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: ${escHtml(v.colorHex || '#ccc')}; border: 1px solid rgba(0,0,0,0.1);"></span>
+                            <span style="font-weight: 600;">${escHtml(v.color)}</span>
+                        </div>
+                    </td>
+                    <td><span style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">${escHtml(sz)}</span></td>
+                    <td>
+                        <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; ${colorBadgeClass}">
+                            ${qty}
+                        </span>
+                    </td>
+                    <td>
+                        <input type="number" name="restock[${escHtml(v.color)}_${escHtml(sz)}]" class="restock-input" data-current="${qty}" value="0" min="0" style="width: 100%; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; text-align: center; font-weight: 600;">
+                    </td>
+                    <td style="text-align: right; font-weight: 800; font-size: 14px;" class="restock-new-total">${qty}</td>
+                `;
+                body.appendChild(tr);
+            });
+        });
+    } else {
+        withVariantsContainer.style.display = 'none';
+        noVariantsContainer.style.display = 'block';
+        
+        var qty = product.stock || 0;
+        var colorBadgeClass = qty === 0 ? 'background: #fee2e2; color: #ef4444;' : (qty <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;');
+        
+        var badge = document.getElementById('restockCurrentStockBadge');
+        badge.style = `font-size: 13px; padding: 2px 8px; border-radius: 4px; font-weight: 700; ${colorBadgeClass}`;
+        badge.textContent = qty;
+        
+        var input = noVariantsContainer.querySelector('input');
+        input.dataset.current = qty;
+        input.value = 0;
+        document.getElementById('restockNoVariantNewTotal').textContent = qty;
+    }
+    
+    updateRestockTotals();
+    
+    document.querySelectorAll('.restock-input').forEach(function(inp) {
+        inp.addEventListener('input', updateRestockTotals);
+    });
+    
+    document.getElementById('restockProductModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function updateRestockTotals() {
+    var totalAdded = 0;
+    document.querySelectorAll('.restock-input').forEach(function(inp) {
+        var added = parseInt(inp.value) || 0;
+        if (added < 0) {
+            inp.value = 0;
+            added = 0;
+        }
+        totalAdded += added;
+        
+        var current = parseInt(inp.dataset.current) || 0;
+        var newTotal = current + added;
+        
+        var tr = inp.closest('tr');
+        if (tr) {
+            tr.querySelector('.restock-new-total').textContent = newTotal;
+        } else {
+            document.getElementById('restockNoVariantNewTotal').textContent = newTotal;
+        }
+    });
+    
+    document.getElementById('restockTotalAdded').textContent = totalAdded;
+}
+
+function closeRestockModal() {
+    document.getElementById('restockProductModal').style.display = 'none';
+    document.body.style.overflow = '';
+}
 </script>
 @endsection

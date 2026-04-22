@@ -3,25 +3,30 @@
 namespace App\Services;
 
 use App\Models\Order;
-use App\Models\CartItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
     /**
-     * Place a new order using database-verified prices
-     * NEVER trusts the total from the browser/request
+     * HOW STOCK WORKS IN THIS PROJECT:
+     * - The `variants` JSON column is the MASTER source of truth for stock if the product has variants.
+     * - `products.stock` is ALWAYS auto-calculated from the sum of variant sizes.
+     * - When an order is placed, stock is deducted from the specific variant size.
+     * - When an order is cancelled, stock is restored to the specific variant size.
+     * - `DB::transaction()` and `lockForUpdate()` are ALWAYS used to prevent race conditions.
      */
+
     public function placeOrder($userId, array $items, array $customerInfo)
     {
         return DB::transaction(function () use ($userId, $items, $customerInfo) {
+            $productIds = collect($items)->pluck('id')->toArray();
+            
+            // Step 1: Load all products with lockForUpdate
+            $products = Product::whereIn('id', $productIds)->lockForUpdate()->get()->keyBy('id');
+
             $calculatedTotal = 0;
             $processedItems = [];
-
-            // Secure calculation: Load product prices from DB and lock for atomic stock update
-            $productIds = collect($items)->pluck('id')->toArray();
-            $products = Product::whereIn('id', $productIds)->lockForUpdate()->get()->keyBy('id');
 
             foreach ($items as $item) {
                 $productId = $item['id'];
@@ -30,57 +35,31 @@ class OrderService
                 }
 
                 $product = $products->get($productId);
-                $quantity = $item['quantity'] ?? 1;
-                $color = $item['color'] ?? null;
-                $size  = $item['size'] ?? null;
-
-                // --- STOCK VALIDATION & TOTAL DEDUCTION ---
-                if ($product->stock < $quantity) {
-                    throw new \Exception("Not enough stock for {$product->name}. Only {$product->stock} remaining.");
-                }
-                $product->stock -= $quantity;
-
-                // --- VARIANT STOCK DEDUCTION ---
-                if (!empty($product->variants)) {
-                    $variants = $product->variants;
-                    $variantUpdated = false;
-
-                    foreach ($variants as &$v) {
-                        if ($color === null || $v['color'] === $color) {
-                            if ($size !== null && isset($v['sizes'][$size])) {
-                                if ($v['sizes'][$size] < $quantity) {
-                                    throw new \Exception("Not enough stock for {$product->name} variant ({$color} - {$size}).");
-                                }
-                                $v['sizes'][$size] -= $quantity;
-                                $variantUpdated = true;
-                                break;
-                            }
-                        }
-                    }
-                    if ($variantUpdated) {
-                        $product->variants = $variants;
-                    }
-                }
                 
-                $product->save();
+                // Step 2: Validate all items (stock check)
+                $this->validateStock($product, $item);
+
+                // Step 3: Deduct stock for all items
+                $this->deductStock($product, $item);
 
                 $price = $product->price;
-
+                $quantity = $item['quantity'] ?? 1;
                 $calculatedTotal += ($price * $quantity);
 
+                // Step 4: Build processedItems array
                 $processedItems[] = [
                     'id'       => $productId,
                     'name'     => $product->name,
                     'price'    => $price,
                     'quantity' => $quantity,
-                    'size'     => $size,
-                    'color'    => $color,
+                    'size'     => $item['size'] ?? null,
+                    'color'    => $item['color'] ?? null,
                     'category' => $product->category->name ?? 'N/A',
                     'image'    => is_array($product->images) && count($product->images) > 0 ? $product->images[0] : null,
                 ];
             }
 
-            // Create the order
+            // Step 5: Create order
             $order = Order::create([
                 'user_id'       => $userId,
                 'customer_info' => $customerInfo,
@@ -89,10 +68,7 @@ class OrderService
                 'status'        => 'pending'
             ]);
 
-            // Fire real-time event
-            broadcast(new \App\Events\NewOrderPlaced($order))->toOthers();
-
-            // Clear only the checked-out items from the user's cart
+            // Step 6: Clear cart items
             if (class_exists(\App\Models\CartItem::class)) {
                 foreach ($items as $item) {
                     \App\Models\CartItem::where('user_id', $userId)
@@ -103,23 +79,122 @@ class OrderService
                 }
             }
 
+            // Step 7: Fire events
+            broadcast(new \App\Events\NewOrderPlaced($order))->toOthers();
+
             return $order;
         });
     }
 
-    /**
-     * Update order status with validation and timestamps
-     */
-    /**
-     * Update order status with validation and timestamps
-     */
+    private function validateStock($product, $item): void
+    {
+        $quantity = $item['quantity'] ?? 1;
+        $color = $item['color'] ?? null;
+        $size  = $item['size'] ?? null;
+
+        if (!empty($product->variants)) {
+            $hasSufficientStock = false;
+            foreach ($product->variants as $v) {
+                if ($color === null || $v['color'] === $color) {
+                    if ($size !== null && isset($v['sizes'][$size])) {
+                        if ($v['sizes'][$size] >= $quantity) {
+                            $hasSufficientStock = true;
+                        } else {
+                            throw new \Exception("Only {$v['sizes'][$size]} left in {$color} {$size} for {$product->name}.");
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!$hasSufficientStock) {
+                throw new \Exception("The requested variant for {$product->name} is not available.");
+            }
+        } else {
+            if ($product->stock < $quantity) {
+                throw new \Exception("Only {$product->stock} items left for {$product->name}.");
+            }
+        }
+    }
+
+    private function deductStock($product, $item): void
+    {
+        $quantity = $item['quantity'] ?? 1;
+        $color = $item['color'] ?? null;
+        $size  = $item['size'] ?? null;
+
+        if (!empty($product->variants)) {
+            $variants = $product->variants;
+            $variantUpdated = false;
+
+            foreach ($variants as &$v) {
+                if ($color === null || $v['color'] === $color) {
+                    if ($size !== null && isset($v['sizes'][$size])) {
+                        $v['sizes'][$size] -= $quantity;
+                        $variantUpdated = true;
+                        break;
+                    }
+                }
+            }
+            if ($variantUpdated) {
+                $product->variants = $variants;
+                // Recalculate products.stock
+                $totalStock = 0;
+                foreach ($product->variants as $v) {
+                    foreach ($v['sizes'] ?? [] as $qty) {
+                        $totalStock += $qty;
+                    }
+                }
+                $product->stock = $totalStock;
+            }
+        } else {
+            $product->stock -= $quantity;
+        }
+        $product->save();
+    }
+
+    private function restoreStock($product, $item): void
+    {
+        $quantity = $item['quantity'] ?? 1;
+        $color = $item['color'] ?? null;
+        $size  = $item['size'] ?? null;
+
+        if (!empty($product->variants)) {
+            $variants = $product->variants;
+            $variantUpdated = false;
+
+            foreach ($variants as &$v) {
+                if ($color === null || $v['color'] === $color) {
+                    if ($size !== null && isset($v['sizes'][$size])) {
+                        $v['sizes'][$size] += $quantity;
+                        $variantUpdated = true;
+                        break;
+                    }
+                }
+            }
+            if ($variantUpdated) {
+                $product->variants = $variants;
+                // Recalculate products.stock
+                $totalStock = 0;
+                foreach ($product->variants as $v) {
+                    foreach ($v['sizes'] ?? [] as $qty) {
+                        $totalStock += $qty;
+                    }
+                }
+                $product->stock = $totalStock;
+            }
+        } else {
+            $product->stock += $quantity;
+        }
+        $product->save();
+    }
+
     public function updateStatus(Order $order, string $newStatus, string $role = 'admin')
     {
         $newStatus = strtolower($newStatus);
         return DB::transaction(function () use ($order, $newStatus, $role) {
             $currentStatus = $order->status;
 
-            // Valid transitions based on role permissions (The Plan)
+            // Valid transitions based on role permissions
             $validTransitions = [
                 'pending'          => [
                     'admin' => ['processing', 'cancelled']
@@ -153,7 +228,7 @@ class OrderService
             if ($newStatus !== $currentStatus) {
                 $allowedForRole = $validTransitions[$currentStatus][$role] ?? [];
                 
-                // STRICTOR CHECK: Every role (including Admin) MUST stay within their assigned transitions
+                // STRICTER CHECK: Every role (including Admin) MUST stay within their assigned transitions
                 if (!in_array($newStatus, $allowedForRole)) {
                     throw new \Exception("Unauthorized or invalid transition from {$currentStatus} to {$newStatus} for role: {$role}.");
                 }
@@ -169,32 +244,7 @@ class OrderService
 
                     $product = Product::lockForUpdate()->find($productId);
                     if ($product) {
-                        $qty = $item['quantity'] ?? 1;
-                        $color = $item['color'] ?? null;
-                        $size  = $item['size'] ?? null;
-
-                        // Restore total stock
-                        $product->stock += $qty;
-
-                        // Restore variant stock
-                        if (!empty($product->variants)) {
-                            $variants = $product->variants;
-                            $variantUpdated = false;
-
-                            foreach ($variants as &$v) {
-                                if ($color === null || $v['color'] === $color) {
-                                    if ($size !== null && isset($v['sizes'][$size])) {
-                                        $v['sizes'][$size] += $qty;
-                                        $variantUpdated = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if ($variantUpdated) {
-                                $product->variants = $variants;
-                            }
-                        }
-                        $product->save();
+                        $this->restoreStock($product, $item);
                     }
                 }
             }
@@ -207,38 +257,8 @@ class OrderService
 
                     $product = Product::lockForUpdate()->find($productId);
                     if ($product) {
-                        $qty = $item['quantity'] ?? 1;
-                        $color = $item['color'] ?? null;
-                        $size  = $item['size'] ?? null;
-
-                        // Validate enough stock exists before restoring the order
-                        if ($product->stock < $qty) {
-                            throw new \Exception("Cannot restore order. Not enough stock for {$product->name}.");
-                        }
-                        $product->stock -= $qty;
-
-                        // Deduct variant stock
-                        if (!empty($product->variants)) {
-                            $variants = $product->variants;
-                            $variantUpdated = false;
-
-                            foreach ($variants as &$v) {
-                                if ($color === null || $v['color'] === $color) {
-                                    if ($size !== null && isset($v['sizes'][$size])) {
-                                        if ($v['sizes'][$size] < $qty) {
-                                            throw new \Exception("Cannot restore order. Not enough stock for {$product->name} ({$color} - {$size}).");
-                                        }
-                                        $v['sizes'][$size] -= $qty;
-                                        $variantUpdated = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if ($variantUpdated) {
-                                $product->variants = $variants;
-                            }
-                        }
-                        $product->save();
+                        $this->validateStock($product, $item);
+                        $this->deductStock($product, $item);
                     }
                 }
             }

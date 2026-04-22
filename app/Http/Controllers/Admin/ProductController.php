@@ -142,6 +142,66 @@ class ProductController extends Controller
         return back()->with('success', 'Product deleted!');
     }
 
+    public function restock(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'restock' => 'required|array',
+        ]);
+
+        $addedTotal = 0;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id, $validated, &$addedTotal) {
+            $product = Product::lockForUpdate()->findOrFail($id);
+            $variants = is_string($product->variants) ? json_decode($product->variants, true) : $product->variants;
+
+            if (!empty($variants)) {
+                $variantUpdated = false;
+                foreach ($validated['restock'] as $key => $addQty) {
+                    $addQty = (int) $addQty;
+                    if ($addQty <= 0) continue;
+
+                    $lastUnderscore = strrpos($key, '_');
+                    if ($lastUnderscore === false) continue;
+                    
+                    $color = substr($key, 0, $lastUnderscore);
+                    $size = substr($key, $lastUnderscore + 1);
+
+                    foreach ($variants as &$v) {
+                        if ($v['color'] === $color && isset($v['sizes'][$size])) {
+                            $v['sizes'][$size] += $addQty;
+                            $variantUpdated = true;
+                            $addedTotal += $addQty;
+                            break;
+                        }
+                    }
+                }
+
+                if ($variantUpdated) {
+                    $product->variants = $variants;
+                    
+                    $totalStock = 0;
+                    foreach ($variants as $v) {
+                        foreach ($v['sizes'] ?? [] as $qty) {
+                            $totalStock += (int) $qty;
+                        }
+                    }
+                    $product->stock = $totalStock;
+                    $product->save();
+                }
+
+            } else {
+                $addQty = (int) ($validated['restock']['default'] ?? 0);
+                if ($addQty > 0) {
+                    $product->stock += $addQty;
+                    $addedTotal += $addQty;
+                    $product->save();
+                }
+            }
+        });
+
+        return back()->with('success', "Restock successful! Added {$addedTotal} total units to {$product->name}.");
+    }
+
     public function archive($id)
     {
         $product = Product::findOrFail($id);
