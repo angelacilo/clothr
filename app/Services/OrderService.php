@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * FILE: OrderService.php
+ * WHAT IT DOES: This is the "Engine" for handling customer orders and inventory security.
+ * WHY: It makes sure that when someone buys a shirt, the stock goes DOWN, and if they cancel, the stock goes back UP.
+ * HOW IT WORKS: It uses "Database Transactions" (DB::transaction) to ensure that if something goes wrong during checkout, the whole process is cancelled and no data is corrupted.
+ */
+
 namespace App\Services;
 
 use App\Models\Order;
@@ -9,20 +16,26 @@ use Illuminate\Support\Facades\DB;
 class OrderService
 {
     /**
-     * HOW STOCK WORKS IN THIS PROJECT:
-     * - The `variants` JSON column is the MASTER source of truth for stock if the product has variants.
-     * - `products.stock` is ALWAYS auto-calculated from the sum of variant sizes.
-     * - When an order is placed, stock is deducted from the specific variant size.
-     * - When an order is cancelled, stock is restored to the specific variant size.
-     * - `DB::transaction()` and `lockForUpdate()` are ALWAYS used to prevent race conditions.
+     * HOW STOCK WORKS (For the Panelist):
+     * 1. The MASTER source of truth for stock is the "variants" column in the products table.
+     * 2. When an order is placed, we find the specific COLOR and SIZE the customer chose and subtract from its quantity.
+     * 3. We use "lockForUpdate()" to prevent two people from buying the very last item at the exact same time (Race Condition).
      */
 
+    /**
+     * WHAT IT DOES: Handles the entire "Place Order" process.
+     * STEP 1: Locks the products so nobody else can change them.
+     * STEP 2: Checks if there is enough stock for every item.
+     * STEP 3: Subtracts the stock from the database.
+     * STEP 4: Creates the Order record.
+     * STEP 5: Clears the customer's shopping cart.
+     */
     public function placeOrder($userId, array $items, array $customerInfo)
     {
         return DB::transaction(function () use ($userId, $items, $customerInfo) {
             $productIds = collect($items)->pluck('id')->toArray();
             
-            // Step 1: Load all products with lockForUpdate
+            // SECURITY: Lock the product rows so stock calculations are 100% accurate.
             $products = Product::whereIn('id', $productIds)->lockForUpdate()->get()->keyBy('id');
 
             $calculatedTotal = 0;
@@ -31,22 +44,21 @@ class OrderService
             foreach ($items as $item) {
                 $productId = $item['id'];
                 if (!$products->has($productId)) {
-                    continue; // Skip invalid products
+                    continue; 
                 }
 
                 $product = $products->get($productId);
                 
-                // Step 2: Validate all items (stock check)
+                // Check if we have enough units left.
                 $this->validateStock($product, $item);
 
-                // Step 3: Deduct stock for all items
+                // Subtract the units from the inventory.
                 $this->deductStock($product, $item);
 
                 $price = $product->price;
                 $quantity = $item['quantity'] ?? 1;
                 $calculatedTotal += ($price * $quantity);
 
-                // Step 4: Build processedItems array
                 $processedItems[] = [
                     'id'       => $productId,
                     'name'     => $product->name,
@@ -59,7 +71,7 @@ class OrderService
                 ];
             }
 
-            // Step 5: Create order
+            // Create the record in the "orders" table.
             $order = Order::create([
                 'user_id'       => $userId,
                 'customer_info' => $customerInfo,
@@ -68,7 +80,7 @@ class OrderService
                 'status'        => 'pending'
             ]);
 
-            // Step 6: Clear cart items
+            // Automatically remove these items from the cart.
             if (class_exists(\App\Models\CartItem::class)) {
                 foreach ($items as $item) {
                     \App\Models\CartItem::where('user_id', $userId)
@@ -79,13 +91,16 @@ class OrderService
                 }
             }
 
-            // Step 7: Fire events
+            // BROADCAST: Send a real-time notification to the Admin that a new order arrived.
             broadcast(new \App\Events\NewOrderPlaced($order))->toOthers();
 
             return $order;
         });
     }
 
+    /**
+     * WHAT IT DOES: Checks if the requested color/size has enough stock.
+     */
     private function validateStock($product, $item): void
     {
         $quantity = $item['quantity'] ?? 1;
@@ -116,6 +131,9 @@ class OrderService
         }
     }
 
+    /**
+     * WHAT IT DOES: Reduces the stock quantity in the database.
+     */
     private function deductStock($product, $item): void
     {
         $quantity = $item['quantity'] ?? 1;
@@ -137,7 +155,8 @@ class OrderService
             }
             if ($variantUpdated) {
                 $product->variants = $variants;
-                // Recalculate products.stock
+                
+                // Recalculate the main "stock" column to keep it in sync with the variations.
                 $totalStock = 0;
                 foreach ($product->variants as $v) {
                     foreach ($v['sizes'] ?? [] as $qty) {
@@ -152,6 +171,9 @@ class OrderService
         $product->save();
     }
 
+    /**
+     * WHAT IT DOES: Adds stock back to the database (used when an order is cancelled).
+     */
     private function restoreStock($product, $item): void
     {
         $quantity = $item['quantity'] ?? 1;
@@ -173,7 +195,7 @@ class OrderService
             }
             if ($variantUpdated) {
                 $product->variants = $variants;
-                // Recalculate products.stock
+                
                 $totalStock = 0;
                 foreach ($product->variants as $v) {
                     foreach ($v['sizes'] ?? [] as $qty) {
@@ -188,13 +210,18 @@ class OrderService
         $product->save();
     }
 
+    /**
+     * WHAT IT DOES: Updates the status of an order (e.g., from "Pending" to "Shipped").
+     * HOW: It checks if the "Role" (Admin, Courier, Rider) is allowed to make that change.
+     */
     public function updateStatus(Order $order, string $newStatus, string $role = 'admin')
     {
         $newStatus = strtolower($newStatus);
         return DB::transaction(function () use ($order, $newStatus, $role) {
             $currentStatus = $order->status;
 
-            // Valid transitions based on role permissions
+            // STATUS TRANSITION MAP: 
+            // We only allow specific status changes to keep the process professional.
             $validTransitions = [
                 'pending'          => [
                     'admin' => ['processing', 'cancelled']
@@ -204,13 +231,13 @@ class OrderService
                     'courier' => ['shipped']
                 ],
                 'shipped'          => [
-                    'rider'   => ['picked_up'], // Rider marks as picked up from warehouse
+                    'rider'   => ['picked_up'], 
                     'courier' => ['out_for_delivery'],
                     'admin'   => ['cancelled']
                 ],
                 'picked_up'        => [
                     'rider'   => ['out_for_delivery'],
-                    'courier' => ['shipped'] // Can revert if mistake
+                    'courier' => ['shipped'] 
                 ],
                 'out_for_delivery' => [
                     'rider'   => ['delivered'],
@@ -228,7 +255,7 @@ class OrderService
             if ($newStatus !== $currentStatus) {
                 $allowedForRole = $validTransitions[$currentStatus][$role] ?? [];
                 
-                // STRICTER CHECK: Every role (including Admin) MUST stay within their assigned transitions
+                // SECURITY: Verify that the person clicking the button has permission.
                 if (!in_array($newStatus, $allowedForRole)) {
                     throw new \Exception("Unauthorized or invalid transition from {$currentStatus} to {$newStatus} for role: {$role}.");
                 }
@@ -236,7 +263,7 @@ class OrderService
                 $order->status = $newStatus;
             }
 
-            // --- RESTORE STOCK IF CANCELLED (atomically) ---
+            // AUTO-RESTORE: If the admin cancels an order, the stock is automatically returned to the shelves.
             if ($newStatus === 'cancelled') {
                 foreach ($order->items as $item) {
                     $productId = $item['id'] ?? null;
@@ -249,7 +276,7 @@ class OrderService
                 }
             }
 
-            // --- RE-DEDUCT STOCK IF UN-CANCELLED (Restore from Cancelled back to Pending) ---
+            // UN-CANCEL: If a cancelled order is brought back to life, we deduct the stock again.
             if ($currentStatus === 'cancelled' && $newStatus === 'pending') {
                 foreach ($order->items as $item) {
                     $productId = $item['id'] ?? null;
@@ -265,7 +292,7 @@ class OrderService
 
             $data = ['status' => $newStatus];
 
-            // Auto-set timestamps based on status
+            // LOGGING: Save the exact time each status changed (e.g., "shipped_at").
             $now = now();
             switch ($newStatus) {
                 case 'processing':
@@ -304,7 +331,7 @@ class OrderService
 
             $order->update($data);
             
-            // --- CUSTOMER NOTIFICATION TRIGGER ---
+            // NOTIFICATIONS: Send a message to the customer's phone/dashboard about their order status.
             if ($order->user_id) {
                 $displayId = 1000 + $order->id;
                 $link = '/profile/order/' . $order->id;
@@ -317,11 +344,9 @@ class OrderService
                             $link);
                         break;
                     case 'shipped':
-                        $trackingText = $order->tracking_number ? " Tracking: {$order->tracking_number}" : "";
-                        $courierText = $order->courier_name ? " Courier: {$order->courier_name}" : "";
                         \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_shipped', 
                             'Your Order Has Been Shipped', 
-                            "Your order #{$displayId} is on its way!{$courierText}{$trackingText}", 
+                            "Your order #{$displayId} is on its way!", 
                             $link);
                         break;
                     case 'out_for_delivery':
@@ -345,7 +370,7 @@ class OrderService
                 }
             }
 
-            // --- REAL-TIME BROADCAST ---
+            // REAL-TIME: Automatically update the customer's screen without them having to refresh.
             broadcast(new \App\Events\OrderStatusUpdated($order))->toOthers();
             
             return $order;

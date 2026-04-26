@@ -231,7 +231,7 @@
             fetch('/api/cart/remove', {
                 method: 'POST',
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: item.id, size: item.size })
+                body: JSON.stringify({ id: item.id, size: item.size, color: item.color })
             });
         }
         cart.splice(index, 1);

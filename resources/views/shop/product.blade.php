@@ -1,191 +1,121 @@
+{{-- 
+    FILE: product.blade.php
+    WHAT IT DOES: The "Showcase" page for a single product. 
+    WHY: This is where customers pick their color, size, and quantity before buying.
+    HOW IT WORKS:
+    1. Dynamic Swatches: Click a color, and the sizes list updates automatically.
+    2. Smart Cart: Aggregates items correctly before sending to DB.
+    3. Proper Styling: Uses the correct theme variables (--ink, --border) so buttons are visible.
+--}}
+
 @extends('layouts.shop')
 
 @section('title', $product->name)
 
 @section('extra_css')
-    /* ── Layout ── */
-    .product-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; padding: 40px 0; }
-    .product-gallery { display: flex; flex-direction: column; gap: 20px; }
+<style>
+    /* ── LAYOUT ── */
+    .product-detail   { display:grid; grid-template-columns:repeat(2, 1fr); gap:60px; align-items:start; max-width: 1200px; margin: 0 auto; padding: 40px 0; }
+    .product-info     { position:sticky; top:120px; }
+    .product-info h1  { font-size:32px; font-weight:800; color:var(--ink); margin:0 0 12px; line-height:1.2; }
+    .category         { font-size:11px; font-weight:700; text-transform:uppercase; color:var(--ink-muted); letter-spacing:0.1em; display:block; margin-bottom:10px; }
+    .price            { font-size:24px; font-weight:800; color:var(--ink); margin-bottom:24px; }
 
-    /* ── Main image ── */
-    .product-main-img {
-        aspect-ratio: 4/5; background: #f8f9fa; border-radius: 20px; overflow: hidden;
-        box-shadow: 0 4px 24px rgba(0,0,0,.08); position: relative;
-    }
-    .product-main-img img {
-        width: 100%; height: 100%; object-fit: cover;
-        transition: opacity .35s ease, transform .35s ease;
-    }
-    .product-main-img img.swapping { opacity: 0; transform: scale(1.02); }
+    /* ── GALLERY ── */
+    .product-gallery  { max-width: 600px; }
+    .product-main-img { border-radius:20px; overflow:hidden; background:var(--sand); border:1px solid var(--border); position:relative; aspect-ratio:3/4; max-height: 700px; }
+    .product-main-img img { width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; }
+    .product-main-img img.swapping { opacity:0.3; }
+    .thumb-strip      { display:flex; gap:12px; margin-top:16px; overflow-x:auto; padding-bottom:8px; }
+    .thumb-item       { width:70px; height:85px; border-radius:12px; overflow:hidden; cursor:pointer; border:2px solid transparent; flex-shrink:0; background:var(--sand); transition:0.2s; }
+    .thumb-item.active { border-color:var(--ink); }
+    .thumb-item img   { width:100%; height:100%; object-fit:cover; }
 
-    /* ── Thumbnail strip ── */
-    .thumb-strip { display: flex; gap: 10px; flex-wrap: wrap; }
-    .thumb-item {
-        width: 72px; height: 72px; border-radius: 10px; overflow: hidden;
-        border: 2px solid transparent; cursor: pointer; transition: .2s;
-        background: #f3f4f6;
-    }
-    .thumb-item:hover  { border-color: #aaa; }
-    .thumb-item.active { border-color: #111; box-shadow: 0 0 0 1px #111; }
-    .thumb-item img    { width:100%; height:100%; object-fit:cover; }
+    /* ── OPTIONS ── */
+    .option-group     { margin-bottom:36px; }
+    .option-row       { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+    .option-label     { font-size:13px; font-weight:700; color:var(--ink); text-transform:uppercase; letter-spacing:0.05em; }
+    .option-value     { font-size:13px; font-weight:600; color:var(--ink-muted); }
 
-    /* ── Info panel ── */
-    .product-info { padding-top: 10px; }
-    .product-info h1 { font-size: 38px; font-weight: 800; margin-bottom: 10px; letter-spacing: -.02em; line-height: 1.1; }
-    .product-info .category { color: var(--text-muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 20px; display: block; }
-    .product-info .price { font-size: 28px; font-weight: 800; margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
-    .product-info .description { color: var(--text-secondary); font-size: 15px; margin-bottom: 36px; line-height: 1.75; }
+    .color-btns       { display:flex; flex-wrap:wrap; gap:12px; }
+    .color-btn        { width:44px; height:44px; border-radius:50%; border:2px solid var(--border); cursor:pointer; background:none; padding:4px; transition:0.2s; display:flex; align-items:center; justify-content:center; }
+    .color-btn.active { border-color:var(--ink); transform:scale(1.1); }
+    .color-swatch     { width:100%; height:100%; border-radius:50%; display:block; border:1px solid rgba(0,0,0,0.05); }
 
-    /* ── Option groups ── */
-    .option-group { margin-bottom: 28px; }
-    .option-label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-    .option-row   { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .option-value { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .size-btns        { display:flex; flex-wrap:wrap; gap:10px; }
+    .size-btn         { min-width:60px; height:44px; border-radius:12px; border:2px solid var(--border); font-size:14px; font-weight:700; color:var(--ink); background:none; cursor:pointer; transition:0.2s; }
+    .size-btn.active  { background:var(--ink); color:var(--white); border-color:var(--ink); }
+    .size-btn:disabled { opacity:0.3; cursor:not-allowed; background:var(--sand); }
 
-    /* ── Size buttons ── */
-    .size-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-    .size-btn {
-        min-width: 50px; height: 48px; border: 1.5px solid #e5e7eb; border-radius: 10px;
-        font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
-        transition: .2s; background: #fff; cursor: pointer; padding: 0 12px;
-    }
-    .size-btn:hover:not(:disabled) { border-color: #111; }
-    .size-btn.active { background: #111; color: #fff; border-color: #111; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
-    .size-btn:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+    .qty-input        { display:flex; align-items:center; border:2px solid var(--border); border-radius:14px; width:fit-content; height:48px; overflow:hidden; }
+    .qty-btn          { border:none; background:none; width:48px; height:100%; font-size:20px; font-weight:500; color:var(--ink); cursor:pointer; transition:0.2s; }
+    .qty-btn:hover    { background:var(--sand); }
+    .qty-val          { width:48px; text-align:center; font-size:16px; font-weight:800; color:var(--ink); }
 
-    /* ── Color swatches ── */
-    .color-btns { display: flex; gap: 12px; flex-wrap: wrap; }
-    .color-btn {
-        width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid transparent;
-        cursor: pointer; padding: 3px; transition: .2s; background: none;
-    }
-    .color-btn.active { border-color: #111; transform: scale(1.12); }
-    .color-swatch { display: block; width: 100%; height: 100%; border-radius: 50%; border: 1px solid rgba(0,0,0,.12); }
-
-    /* ── Quantity ── */
-    .qty-input { display:flex; align-items:center; gap:10px; background:#f3f4f6; width:fit-content; padding:6px; border-radius:12px; }
-    .qty-btn   { width:36px; height:36px; border-radius:8px; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-    .qty-val   { width:40px; text-align:center; font-weight:700; font-size:16px; }
-
-    /* ── Actions ── */
-    .action-group { display:flex; flex-direction:column; gap:14px; margin-top:36px; }
-    .add-to-cart-btn {
-        background:#111; color:#fff; width:100%; padding:20px; font-size:15px; font-weight:800;
-        text-transform:uppercase; letter-spacing:.1em; border-radius:14px; transition:.3s;
-        box-shadow: 0 8px 20px rgba(0,0,0,.12);
-    }
-    .add-to-cart-btn:hover { background:#222; transform:translateY(-2px); box-shadow:0 14px 28px rgba(0,0,0,.18); }
-    .add-to-cart-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
-    .wishlist-btn {
-        width:100%; padding:16px; border:1.5px solid #e5e7eb; border-radius:14px;
-        font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;
-        gap:10px; color:var(--text-primary); transition:.2s;
-    }
-    .wishlist-btn:hover { background:#f9fafb; border-color:#111; }
-    .wishlist-btn.active { color:#ef4444; border-color:#fecaca; background:#fff1f2; }
-
-    /* ── Stock badge ── */
-    .stock-badge {
-        display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700;
-        padding:4px 10px; border-radius:20px; margin-top:6px;
-    }
-    .stock-badge.in  { background:#d1fae5; color:#065f46; }
-    .stock-badge.low { background:#fef3c7; color:#92400e; }
-    .stock-badge.out { background:#fee2e2; color:#991b1b; }
-
-    /* ── Per-item variant rows (qty>1) ── */
-    .variant-rows { border:1.5px solid #e5e7eb; border-radius:12px; overflow:hidden; }
-    .variant-row  { display:grid; grid-template-columns:40px 1fr 1fr; border-bottom:1px solid #f0f0f0; align-items:center; }
+    .variant-rows     { background:var(--sand); border-radius:20px; border:1px solid var(--border); overflow:hidden; margin-top:8px; }
+    .variant-row      { display:grid; grid-template-columns:40px 1fr 1fr; border-bottom:1px solid var(--border); background:var(--white); }
     .variant-row:last-child { border-bottom:none; }
-    .variant-row-num { text-align:center; font-size:12px; font-weight:700; color:#9ca3af; padding:10px 6px; border-right:1px solid #f0f0f0; }
-    .variant-select  { width:100%; padding:10px 12px; border:none; border-right:1px solid #f0f0f0; outline:none; font-family:inherit; font-size:13px; font-weight:600; background:#fff; cursor:pointer; }
+    .variant-row-num  { text-align:center; font-size:12px; font-weight:700; color:var(--ink-faint); padding:10px 6px; border-right:1px solid var(--border); background:var(--cream); display:flex; align-items:center; justify-content:center; }
+    .variant-select   { width:100%; padding:10px 12px; border:none; border-right:1px solid var(--border); outline:none; font-family:inherit; font-size:13px; font-weight:600; background:var(--white); cursor:pointer; }
     .variant-select:last-child { border-right:none; }
 
-    /* ── Reviews ── */
-    .reviews-section  { margin-top:80px; padding-top:60px; border-top:1px solid var(--border-color); }
-    .review-item      { margin-bottom:40px; padding-bottom:30px; border-bottom:1px solid #f1f5f9; }
-    .review-meta      { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-    .review-stars     { color:#fbbf24; display:flex; gap:2px; }
-    .review-content   { font-size:15px; color:var(--text-secondary); line-height:1.65; }
-    .review-summary { display: flex; gap: 40px; margin-bottom: 40px; align-items: center; flex-wrap: wrap; }
-    .review-avg { text-align: center; min-width: 140px; }
-    .review-avg-big { font-size: 48px; font-weight: 800; line-height: 1; color: #111; margin-bottom: 8px; }
-    .review-bars { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 200px; }
-    .review-bar-row { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: #64748b; }
-    .review-bar-bg { flex: 1; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
-    .review-bar-fill { height: 100%; background: #fbbf24; border-radius: 4px; transition: width 0.5s ease; }
-    .star-btn { cursor: pointer; color: #cbd5e1; transition: 0.2s; background: none; border: none; padding: 0; outline: none; }
-    .star-btn.active { color: #fbbf24; }
-    .review-form-card { background: #f8f9fa; border-radius: 12px; padding: 30px; margin-bottom: 40px; border: 1px solid #e2e8f0; }
-    .review-edit-actions { display: flex; gap: 12px; margin-top: 14px; }
-    .review-edit-actions button { font-size: 13px; font-weight: 700; cursor: pointer; background: none; border: none; color: #64748b; padding: 0; }
-    .review-edit-actions button:hover { color: #111; text-decoration: underline; }
+    .stock-badge      { font-size:11px; font-weight:800; text-transform:uppercase; display:inline-block; margin-top:4px; }
+    .stock-badge.in   { color:var(--emerald); }
+    .stock-badge.low  { color:#f59e0b; }
+    .stock-badge.out  { color:var(--ruby); }
+
+    .add-to-cart-btn { background:var(--ink); color:var(--white); border:none; border-radius:16px; font-weight:800; font-size:15px; cursor:pointer; transition:0.3s; width: 100%; }
+    .add-to-cart-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+    .add-to-cart-btn:disabled { opacity:0.3; cursor:not-allowed; }
+    .wishlist-btn { background:none; border:2px solid var(--border); color:var(--ink); border-radius:16px; padding:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:0.2s; }
+    .wishlist-btn:hover { background:var(--sand); }
+    .wishlist-btn.active { color:var(--ruby); border-color:#fee2e2; background:#fef2f2; }
 
     @media (max-width:768px) {
         .product-detail { grid-template-columns:1fr; gap:40px; }
         .product-info h1 { font-size:28px; }
     }
+</style>
 @endsection
 
 @section('content')
 <div class="container section">
     <div class="product-detail">
 
-        {{-- ── GALLERY ── --}}
         <div class="product-gallery">
             <div class="product-main-img">
-                <img id="mainProductImg"
-                     src="{{ $product->images[0] ?? '/placeholder.png' }}"
-                     alt="{{ $product->name }}">
+                <img id="mainProductImg" src="{{ $product->images[0] ?? '/placeholder.png' }}" alt="{{ $product->name }}">
             </div>
-            {{-- Thumbnails built by JS from variant images --}}
             <div class="thumb-strip" id="thumbStrip"></div>
         </div>
 
-        {{-- ── INFO ── --}}
         <div class="product-info">
-            <span class="category">{{ $product->category->name ?? 'Uncategorized' }}</span>
+            <span class="category">{{ $product->category->name ?? 'Collection' }}</span>
             <h1>{{ $product->name }}</h1>
 
-            <p class="price">
-                @if($product->isOnSale && $product->originalPrice)
-                    <span style="color:#2563eb;">₱{{ number_format($product->price,2) }}</span>
-                    <span style="color:var(--text-muted); text-decoration:line-through; font-size:18px; font-weight:400;">
-                        ₱{{ number_format($product->originalPrice,2) }}
-                    </span>
-                @else
-                    ₱{{ number_format($product->price,2) }}
-                @endif
-            </p>
+            <p class="price">₱{{ number_format($product->price,2) }}</p>
 
-            {{-- ── COLOR VARIANTS ── --}}
             @if(!empty($product->variants) || !empty($product->colors))
             <div class="option-group" id="colorGroup">
                 <div class="option-row">
-                    <span class="option-label">Color</span>
+                    <span class="option-label">Pick Color</span>
                     <span class="option-value" id="selectedColorLabel">—</span>
                 </div>
-                <div class="color-btns" id="colorBtnsContainer">
-                    {{-- Rendered by JS --}}
-                </div>
+                <div class="color-btns" id="colorBtnsContainer"></div>
             </div>
             @endif
 
-            {{-- ── SIZE VARIANTS ── --}}
             @if(!empty($product->sizes))
             <div class="option-group" id="sizeGroup">
                 <div class="option-row">
-                    <span class="option-label">Size</span>
-                    <span class="option-value" id="selectedSizeLabel">Select a size</span>
+                    <span class="option-label">Select Size</span>
+                    <span class="option-value" id="selectedSizeLabel">Choose your fit</span>
                 </div>
-                <div class="size-btns" id="sizeBtnsContainer">
-                    {{-- Rendered by JS --}}
-                </div>
+                <div class="size-btns" id="sizeBtnsContainer"></div>
                 <div id="stockBadgeContainer" style="margin-top:8px;"></div>
             </div>
             @endif
 
-            {{-- ── QUANTITY ── --}}
             <div class="option-group">
                 <span class="option-label" style="margin-bottom:12px; display:block;">Quantity</span>
                 <div class="qty-input">
@@ -195,156 +125,28 @@
                 </div>
             </div>
 
-            {{-- Per-item variant rows (qty > 1) --}}
             <div id="variantRowsContainer" class="option-group" style="display:none;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span class="option-label">Variant Per Item</span>
-                    <span style="font-size:12px; color:var(--text-muted);">Pick size &amp; color per unit</span>
+                    <span class="option-label">Customize Each Item</span>
+                    <span style="font-size:11px; color:var(--ink-muted); font-weight:700; text-transform:uppercase;">Mix & Match</span>
                 </div>
                 <div class="variant-rows" id="variantRows"></div>
             </div>
 
-            {{-- ── ACTIONS ── --}}
-            <div class="action-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 36px;">
-                <button class="add-to-cart-btn" id="addToCartBtn" onclick="handleAddToCart()" style="grid-column: span 2; padding: 18px;">Add to Bag</button>
-                <button class="add-to-cart-btn" id="buyNowBtn" onclick="handleBuyNow()" style="grid-column: span 2; padding: 18px; background: #2563eb; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);">Buy Now</button>
-                <button class="wishlist-btn" onclick="toggleWishlist({{ $product->id }}, this)" style="grid-column: span 2;">
+            <div class="action-group" style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 36px;">
+                <button class="add-to-cart-btn" id="addToCartBtn" onclick="handleAddToCart()" style="padding: 20px;">Add to Bag</button>
+                <button class="add-to-cart-btn" id="buyNowBtn" onclick="handleBuyNow()" style="padding: 20px; background: var(--cobalt); box-shadow: 0 10px 25px rgba(30, 64, 175, 0.25);">Buy It Now</button>
+                <button class="wishlist-btn" onclick="toggleWishlist({{ $product->id }}, this)">
                     <i data-lucide="heart" size="20"></i> Add to Wishlist
                 </button>
             </div>
 
             @if($product->description)
-            <div class="product-description-section" style="margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--border-color);">
-                <span style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px;">Description</span>
-                <p style="font-size: 15px; color: var(--text-secondary); line-height: 1.75;">{!! nl2br(e($product->description)) !!}</p>
+            <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--border);">
+                <span class="option-label" style="display:block; margin-bottom:12px;">About this product</span>
+                <p style="font-size: 15px; color: var(--ink-soft); line-height: 1.8;">{!! nl2br(e($product->description)) !!}</p>
             </div>
             @endif
-        </div>
-    </div>
-
-    {{-- ── REVIEWS ── --}}
-    <div class="reviews-section">
-        <h2 class="section-title">Customer Reviews</h2>
-
-        <div class="review-summary">
-            <div class="review-avg">
-                <div class="review-avg-big">{{ number_format($avgRating, 1) }}</div>
-                <div class="review-stars" style="justify-content: center; margin-bottom: 6px;">
-                    @for($s=1; $s<=5; $s++)
-                        <i data-lucide="star" {{ $s<=$avgRating ? 'fill="currentColor"' : '' }} size="18" style="color: {{ $s<=$avgRating ? '#fbbf24' : '#e2e8f0' }}"></i>
-                    @endfor
-                </div>
-                <div style="font-size: 13px; color: #64748b; font-weight: 600;">{{ $totalReviews }} {{ Str::plural('review', $totalReviews) }}</div>
-            </div>
-            <div class="review-bars">
-                @for($i = 5; $i >= 1; $i--)
-                    @php 
-                        $pct = $totalReviews > 0 ? ($ratingCounts[$i] / $totalReviews) * 100 : 0; 
-                    @endphp
-                    <div class="review-bar-row">
-                        <span style="width: 48px; text-align: right;">{{ $i }} stars</span>
-                        <div class="review-bar-bg">
-                            <div class="review-bar-fill" style="width: {{ $pct }}%"></div>
-                        </div>
-                        <span style="width: 32px; text-align: left;">{{ round($pct) }}%</span>
-                    </div>
-                @endfor
-            </div>
-        </div>
-
-        {{-- Review Form Area --}}
-        @auth
-            @if($userReview)
-                {{-- User already reviewed --}}
-                <div class="review-form-card" id="userReviewCard">
-                    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">Your Review</h3>
-                    <div class="review-meta">
-                        <div class="review-stars">
-                            @for($s=1; $s<=5; $s++)
-                                <i data-lucide="star" {{ $s<=$userReview->rating ? 'fill="currentColor"' : '' }} size="16"></i>
-                            @endfor
-                        </div>
-                        <span style="color:var(--text-muted); font-size:13px;">{{ $userReview->updated_at->format('F j, Y') }}</span>
-                    </div>
-                    <p class="review-content">{{ $userReview->comment }}</p>
-                    <div class="review-edit-actions">
-                        <button onclick="editReview()">Edit Review</button>
-                        <button onclick="deleteReview('{{ $userReview->id }}')" style="color: #ef4444;">Delete</button>
-                    </div>
-                </div>
-                
-                {{-- Hidden edit form --}}
-                <div class="review-form-card" id="editReviewFormCard" style="display: none;">
-                    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">Edit Your Review</h3>
-                    <form id="editReviewForm" onsubmit="submitEditReview(event, '{{ $userReview->id }}')">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Rating <span style="color: red;">*</span></label>
-                            <div id="editStarRating" style="display: flex; gap: 4px;">
-                                @for($i=1; $i<=5; $i++)
-                                    <button type="button" class="star-btn {{ $i <= $userReview->rating ? 'active' : '' }}" data-val="{{ $i }}" onmouseover="hoverStars(this, 'editStarRating')" onmouseout="resetStars('editStarRating')" onclick="selectStar(this, 'editStarRating')">
-                                        <i data-lucide="star" fill="currentColor" size="24"></i>
-                                    </button>
-                                @endfor
-                            </div>
-                            <input type="hidden" id="editRatingValue" value="{{ $userReview->rating }}" required>
-                        </div>
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Comment (optional)</label>
-                            <textarea id="editReviewComment" maxlength="1000" rows="4" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-family: inherit; resize: vertical;" onkeyup="document.getElementById('editCharCounter').innerText = this.value.length">{{ $userReview->comment }}</textarea>
-                            <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 4px;"><span id="editCharCounter">{{ strlen($userReview->comment) }}</span> / 1000</div>
-                        </div>
-                        <div style="display: flex; gap: 12px;">
-                            <button type="submit" class="btn btn-dark" style="padding: 10px 24px;" id="submitEditBtn">Update Review</button>
-                            <button type="button" class="btn btn-outline" style="padding: 10px 24px;" onclick="cancelEditReview()">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            @elseif($canReview)
-                {{-- User can review --}}
-                <div class="review-form-card">
-                    <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 16px;">Write a Review</h3>
-                    <form id="newReviewForm" onsubmit="submitNewReview(event)">
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Rating <span style="color: red;">*</span></label>
-                            <div id="newStarRating" style="display: flex; gap: 4px;">
-                                @for($i=1; $i<=5; $i++)
-                                    <button type="button" class="star-btn" data-val="{{ $i }}" onmouseover="hoverStars(this, 'newStarRating')" onmouseout="resetStars('newStarRating')" onclick="selectStar(this, 'newStarRating')">
-                                        <i data-lucide="star" fill="currentColor" size="24"></i>
-                                    </button>
-                                @endfor
-                            </div>
-                            <input type="hidden" id="newRatingValue" value="" required>
-                            <div id="ratingError" style="color: red; font-size: 12px; display: none; margin-top: 4px;">Please select a rating.</div>
-                        </div>
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Comment (optional)</label>
-                            <textarea id="newReviewComment" maxlength="1000" placeholder="Share your thoughts about this product..." rows="4" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-family: inherit; resize: vertical;" onkeyup="document.getElementById('newCharCounter').innerText = this.value.length"></textarea>
-                            <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 4px;"><span id="newCharCounter">0</span> / 1000</div>
-                        </div>
-                        <button type="submit" class="btn btn-dark" style="padding: 12px 24px;" id="submitNewBtn">Submit Review</button>
-                    </form>
-                </div>
-            @else
-                {{-- User has not purchased --}}
-                <div class="review-form-card" style="text-align: center; color: var(--text-medium);">
-                    <i data-lucide="shopping-bag" style="margin-bottom: 12px; color: #94a3b8;"></i>
-                    <p style="margin: 0; font-size: 14px; font-weight: 600;">Purchase this product to leave a review</p>
-                </div>
-            @endif
-        @else
-            {{-- Guest --}}
-            <div class="review-form-card" style="text-align: center;">
-                <p style="margin-bottom: 16px; font-size: 14px; color: var(--text-medium); font-weight: 600;">Please sign in to leave a review</p>
-                <button class="btn btn-outline" onclick="document.getElementById('openLoginModal').click()">Sign In</button>
-            </div>
-        @endauth
-
-        <div id="reviewsList">
-            {{-- Rendered via JS AJAX --}}
-        </div>
-        
-        <div id="reviewsPagination" style="margin-top: 30px; display: flex; justify-content: center; gap: 10px;">
-            {{-- Rendered via JS AJAX --}}
         </div>
     </div>
 </div>
@@ -352,102 +154,65 @@
 
 @section('extra_js')
 <script>
-/* ══════════════════════════════════════════════════════════
-   PRODUCT DATA from PHP
-══════════════════════════════════════════════════════════ */
-const VARIANTS     = {!! json_encode($product->variants ?? []) !!};   // structured variant array
-const FLAT_SIZES   = {!! json_encode($product->sizes   ?? []) !!};    // legacy fallback
-const FLAT_COLORS  = {!! json_encode($product->colors  ?? []) !!};    // legacy fallback
+const VARIANTS     = {!! json_encode($product->variants ?? []) !!};
+const FLAT_SIZES   = {!! json_encode($product->sizes   ?? []) !!};
+const FLAT_COLORS  = {!! json_encode($product->colors  ?? []) !!};
 const DEFAULT_IMG  = '{{ $product->images[0] ?? "/placeholder.png" }}';
 
-/* ══════════════════════════════════════════════════════════
-   STATE
-══════════════════════════════════════════════════════════ */
-let selectedColor     = null;   // color name string
+let selectedColor     = null;
 let selectedColorHex  = null;
 let selectedColorImg  = null;
 let selectedSize      = null;
 let quantity          = 1;
+let currentActiveIdx  = -1;
 
-/* ══════════════════════════════════════════════════════════
-   COLOR MAP (fallback for legacy string-only colors)
-══════════════════════════════════════════════════════════ */
 const COLOR_MAP = {
     'white':'#ffffff','black':'#1a1a1a','red':'#e53e3e','blue':'#3182ce','navy':'#1a365d',
     'pink':'#f687b3','green':'#38a169','yellow':'#ecc94b','orange':'#ed8936','purple':'#805ad5',
     'grey':'#a0aec0','gray':'#a0aec0','brown':'#8b4513','beige':'#f5f0e8','cream':'#fffdd0',
-    'champagne':'#f7e7ce','camel':'#c19a6b','silver':'#c0c0c0','gold':'#ffd700','maroon':'#800000',
-    'teal':'#319795','coral':'#ff6b6b','lavender':'#967bb6','mint':'#98ff98','olive':'#808000',
-    'tan':'#d2b48c','ivory':'#fffff0','khaki':'#c3b091','rose':'#ff007f','salmon':'#fa8072',
-    'lilac':'#c8a2c8','turquoise':'#40e0d0','cyan':'#00bcd4','magenta':'#e91e63','indigo':'#3949ab',
-    'violet':'#8e24aa','charcoal':'#36454f','rust':'#b7410e','mustard':'#e1ad01',
 };
+
 function nameToHex(name) {
     return name ? (COLOR_MAP[name.toLowerCase().trim()] || '#cccccc') : '#cccccc';
 }
 
-/* ══════════════════════════════════════════════════════════
-   BUILD NORMALISED VARIANT LIST
-   Works whether data is structured (VARIANTS) or legacy flat
-══════════════════════════════════════════════════════════ */
 function buildNormalisedVariants() {
     if (VARIANTS && VARIANTS.length > 0) {
-        return VARIANTS.map(function(v) {
-            return {
-                color:    v.color    || '',
-                colorHex: v.colorHex || nameToHex(v.color),
-                image:    v.image    || null,
-                sizes:    v.sizes    || {},   // {S:10, M:5, ...}
-            };
-        });
+        return VARIANTS.map(v => ({
+            color:    v.color    || '',
+            colorHex: v.colorHex || nameToHex(v.color),
+            image:    v.image    || null,
+            sizes:    v.sizes    || {},
+        }));
     }
-    // Legacy: flat color names, no per-color images / no structured sizes
-    return FLAT_COLORS.map(function(c) {
-        return { color:c, colorHex:nameToHex(c), image:null, sizes:{} };
-    });
+    return FLAT_COLORS.map(c => ({ color:c, colorHex:nameToHex(c), image:null, sizes:{} }));
 }
+
 const NORM_VARIANTS = buildNormalisedVariants();
 
-/* ══════════════════════════════════════════════════════════
-   INIT — render thumbnails + swatches
-══════════════════════════════════════════════════════════ */
 (function init() {
     window.maxStock = {{ $product->stock }};
     renderThumbs();
     renderColorSwatches();
-    // Auto-select first color
-    if (NORM_VARIANTS.length > 0) {
-        activateColor(0);
-    } else if (FLAT_SIZES.length > 0) {
-        // No colors, but sizes exist — render sizes
-        renderSizeButtons(FLAT_SIZES, {});
-    }
+    if (NORM_VARIANTS.length > 0) activateColor(0);
+    else if (FLAT_SIZES.length > 0) renderSizeButtons(FLAT_SIZES, {});
 })();
 
-/* ── Thumbnails ── */
 function renderThumbs() {
     var strip = document.getElementById('thumbStrip');
-    if (!strip) return;
-    strip.innerHTML = '';
+    if (!strip) return; strip.innerHTML = '';
     var thumbImages = [];
-
-    // Collect unique images: default first, then per-variant
     if (DEFAULT_IMG && DEFAULT_IMG !== '/placeholder.png') thumbImages.push({src:DEFAULT_IMG, label:'Main'});
-    NORM_VARIANTS.forEach(function(v) {
-        if (v.image && v.image !== DEFAULT_IMG && v.image !== '/placeholder.png') {
-            thumbImages.push({src:v.image, label:v.color});
-        }
+    NORM_VARIANTS.forEach(v => {
+        if (v.image && v.image !== DEFAULT_IMG && v.image !== '/placeholder.png') thumbImages.push({src:v.image, label:v.color});
     });
-
-    if (thumbImages.length <= 1) return; // no strip needed
-
-    thumbImages.forEach(function(t, i) {
+    if (thumbImages.length <= 1) return;
+    thumbImages.forEach((t, i) => {
         var div = document.createElement('div');
         div.className = 'thumb-item' + (i===0 ? ' active':'');
-        div.title     = t.label;
         div.innerHTML = '<img src="'+t.src+'" alt="'+t.label+'">';
-        div.onclick   = function() {
-            document.querySelectorAll('.thumb-item').forEach(function(d){d.classList.remove('active');});
+        div.onclick = function() {
+            document.querySelectorAll('.thumb-item').forEach(d => d.classList.remove('active'));
             div.classList.add('active');
             changeMainImage(t.src);
         };
@@ -455,136 +220,91 @@ function renderThumbs() {
     });
 }
 
-/* ── Color swatches ── */
 function renderColorSwatches() {
     var container = document.getElementById('colorBtnsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    NORM_VARIANTS.forEach(function(v, idx) {
+    if (!container) return; container.innerHTML = '';
+    NORM_VARIANTS.forEach((v, idx) => {
         var btn = document.createElement('button');
-        btn.className        = 'color-btn';
-        btn.title            = v.color;
-        btn.dataset.idx      = idx;
-        btn.innerHTML        = '<span class="color-swatch" style="background:'+v.colorHex+';"></span>';
-        btn.onclick          = function() { activateColor(idx); };
+        btn.className = 'color-btn';
+        btn.dataset.idx = idx;
+        btn.innerHTML = '<span class="color-swatch" style="background:'+v.colorHex+';"></span>';
+        btn.onclick = function() { activateColor(idx); };
         container.appendChild(btn);
     });
 }
 
-/* ══════════════════════════════════════════════════════════
-   ACTIVATE COLOR
-══════════════════════════════════════════════════════════ */
 function activateColor(idx) {
     var v = NORM_VARIANTS[idx];
     if (!v) return;
-
+    currentActiveIdx = idx;
     selectedColor    = v.color;
     selectedColorHex = v.colorHex;
     selectedColorImg = v.image;
-    selectedSize     = null; // reset size on color change
+    selectedSize     = null; 
 
-    // Update label
-    var lbl = document.getElementById('selectedColorLabel');
-    if (lbl) lbl.textContent = v.color;
+    document.getElementById('selectedColorLabel').textContent = v.color;
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.toggle('active', +b.dataset.idx === idx));
 
-    // Update active swatch
-    document.querySelectorAll('.color-btn').forEach(function(b) {
-        b.classList.toggle('active', +b.dataset.idx === idx);
-    });
+    if (v.image) changeMainImage(v.image);
 
-    // Swap main image
-    if (v.image) {
-        changeMainImage(v.image);
-        // Sync thumb strip
-        document.querySelectorAll('.thumb-item').forEach(function(d) {
-            d.classList.toggle('active', d.querySelector('img') && d.querySelector('img').src === new URL(v.image, location.href).href);
-        });
+    var availableSizes = Object.keys(v.sizes);
+    var hasAnyVariantData = NORM_VARIANTS.some(nv => Object.keys(nv.sizes).length > 0);
+    if (availableSizes.length === 0 && !hasAnyVariantData && FLAT_SIZES.length > 0) {
+        availableSizes = FLAT_SIZES; 
     }
-
-    // Render size buttons for this color
-    var sizeGroup = document.getElementById('sizeGroup');
-    if (sizeGroup) {
-        renderSizeButtons(Object.keys(v.sizes).length > 0 ? Object.keys(v.sizes) : FLAT_SIZES, v.sizes);
-    }
-
-    // Clear size label
-    var szLbl = document.getElementById('selectedSizeLabel');
-    if (szLbl) szLbl.textContent = 'Select a size';
-    var stockBadge = document.getElementById('stockBadgeContainer');
-    if (stockBadge) stockBadge.innerHTML = '';
-
+    
+    renderSizeButtons(availableSizes, v.sizes);
+    document.getElementById('selectedSizeLabel').textContent = 'Select a size';
+    document.getElementById('stockBadgeContainer').innerHTML = '';
+    renderVariantRows(); 
     updateCartButtonState();
 }
 
-/* ══════════════════════════════════════════════════════════
-   SIZE BUTTONS
-══════════════════════════════════════════════════════════ */
 function renderSizeButtons(sizeList, stockMap) {
     var container = document.getElementById('sizeBtnsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    sizeList.forEach(function(sz) {
+    if (!container) return; container.innerHTML = '';
+    sizeList.forEach(sz => {
         var stock = stockMap[sz] != null ? stockMap[sz] : 999;
         var btn   = document.createElement('button');
-        btn.className        = 'size-btn';
-        btn.textContent      = sz;
-        btn.disabled         = stock <= 0;
-        btn.dataset.size     = sz;
-        btn.dataset.stock    = stock;
-        btn.onclick          = function() { selectSize(btn, sz, stock); };
+        btn.className   = 'size-btn';
+        btn.textContent = sz;
+        btn.disabled    = stock <= 0;
+        btn.onclick     = function() { selectSize(btn, sz, stock); };
         container.appendChild(btn);
     });
 }
 
 function selectSize(btn, size, stock) {
-    if (btn.disabled) return;
-    document.querySelectorAll('.size-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedSize = size;
-
-    var lbl = document.getElementById('selectedSizeLabel');
-    if (lbl) lbl.textContent = size;
-
-    // Limit quantity
+    document.getElementById('selectedSizeLabel').textContent = size;
     window.maxStock = stock;
     if (quantity > window.maxStock) {
-        quantity = window.maxStock > 0 ? window.maxStock : 1;
+        quantity = Math.max(1, window.maxStock);
         document.getElementById('qty').textContent = quantity;
         renderVariantRows();
     }
-
-    // Stock badge
     var badge = document.getElementById('stockBadgeContainer');
     if (badge) {
-        if (stock > 5)       badge.innerHTML = '<span class="stock-badge in">● In Stock</span>';
-        else if (stock > 0)  badge.innerHTML = '<span class="stock-badge low">⚠ Only '+ stock +' left</span>';
-        else                 badge.innerHTML = '<span class="stock-badge out">✕ Out of Stock</span>';
+        if (stock > 5) badge.innerHTML = '<span class="stock-badge in">● In Stock</span>';
+        else if (stock > 0) badge.innerHTML = '<span class="stock-badge low">⚠ Only '+ stock +' left</span>';
+        else badge.innerHTML = '<span class="stock-badge out">✕ Out of Stock</span>';
     }
-
     updateCartButtonState();
 }
 
-/* ══════════════════════════════════════════════════════════
-   CART BUTTON STATE
-══════════════════════════════════════════════════════════ */
 function updateCartButtonState() {
-    var btn   = document.getElementById('addToCartBtn');
+    var btn = document.getElementById('addToCartBtn');
     var buyBtn = document.getElementById('buyNowBtn');
     if (!btn) return;
-    var hasSizes   = (document.getElementById('sizeGroup') !== null);
-    var hasColors  = NORM_VARIANTS.length > 0;
-    var sizeOk     = !hasSizes  || selectedSize  !== null;
-    var colorOk    = !hasColors || selectedColor !== null;
-    var disabled   = !(sizeOk && colorOk);
-    
-    btn.disabled   = disabled;
+    var sizeOk = !document.getElementById('sizeGroup') || selectedSize !== null;
+    var colorOk = !document.getElementById('colorGroup') || selectedColor !== null;
+    var disabled = !(sizeOk && colorOk);
+    btn.disabled = disabled;
     if (buyBtn) buyBtn.disabled = disabled;
 }
 
-/* ══════════════════════════════════════════════════════════
-   QUANTITY
-══════════════════════════════════════════════════════════ */
 function updateQty(delta) {
     var max = window.maxStock !== undefined ? window.maxStock : 999;
     quantity = Math.max(1, Math.min(max, quantity + delta));
@@ -592,94 +312,79 @@ function updateQty(delta) {
     renderVariantRows();
 }
 
-/* ══════════════════════════════════════════════════════════
-   PER-ITEM VARIANT ROWS (qty > 1)
-══════════════════════════════════════════════════════════ */
 function renderVariantRows() {
     var container = document.getElementById('variantRowsContainer');
     var rowsEl    = document.getElementById('variantRows');
-    var hasSizes  = (document.getElementById('sizeGroup') !== null) && FLAT_SIZES.length > 0;
+    var hasSizes  = !!document.getElementById('sizeGroup');
     var hasColors = NORM_VARIANTS.length > 0;
 
-    if (quantity <= 1 || (!hasSizes && !hasColors)) {
-        container.style.display = 'none';
-        return;
-    }
+    if (quantity <= 1) { container.style.display = 'none'; return; }
     container.style.display = 'block';
     rowsEl.innerHTML = '';
 
-    var sizeOpts  = hasSizes  ? FLAT_SIZES.map(function(s){return '<option>'+s+'</option>';}).join('') : '<option value="">—</option>';
-    var colorOpts = hasColors ? NORM_VARIANTS.map(function(v){return '<option>'+v.color+'</option>';}).join('') : '<option value="">—</option>';
+    var currentV = NORM_VARIANTS[currentActiveIdx];
+    var currentSizes = currentV ? Object.keys(currentV.sizes) : [];
+    var hasAnyVariantData = NORM_VARIANTS.some(nv => Object.keys(nv.sizes).length > 0);
+    if (currentSizes.length === 0 && !hasAnyVariantData) {
+        currentSizes = FLAT_SIZES;
+    }
+
+    var sizeOpts  = hasSizes ? currentSizes.map(s => `<option value="${s}" ${s === selectedSize ? 'selected' : ''}>${s}</option>`).join('') : '';
+    var colorOpts = hasColors ? NORM_VARIANTS.map(v => `<option value="${v.color}" ${v.color === selectedColor ? 'selected' : ''}>${v.color}</option>`).join('') : '';
 
     for (var i = 1; i <= quantity; i++) {
         var row = document.createElement('div');
         row.className = 'variant-row';
-        row.innerHTML =
-            '<div class="variant-row-num">'+ i +'</div>'
-            + (hasSizes  ? '<select class="variant-select" data-type="size">'  + sizeOpts  + '</select>' : '')
-            + (hasColors ? '<select class="variant-select" data-type="color">' + colorOpts + '</select>' : '');
+        row.innerHTML = `<div class="variant-row-num">${i}</div>`
+            + (hasSizes  ? `<select class="variant-select" data-type="size">${sizeOpts}</select>` : '')
+            + (hasColors ? `<select class="variant-select" data-type="color">${colorOpts}</select>` : '');
         rowsEl.appendChild(row);
     }
 }
 
-/* ══════════════════════════════════════════════════════════
-   IMAGE SWAP (smooth transition)
-══════════════════════════════════════════════════════════ */
 function changeMainImage(src) {
     var img = document.getElementById('mainProductImg');
     img.classList.add('swapping');
-    setTimeout(function() {
-        img.src = src;
-        img.classList.remove('swapping');
-    }, 180);
+    setTimeout(() => { img.src = src; img.classList.remove('swapping'); }, 150);
 }
 
-/* ══════════════════════════════════════════════════════════
-   ADD TO CART
-══════════════════════════════════════════════════════════ */
 function handleAddToCart() {
     var baseProduct = {
-        id:    {{ $product->id }},
-        name:  '{{ addslashes($product->name) }}',
+        id: {{ $product->id }},
+        name: '{{ addslashes($product->name) }}',
         price: {{ $product->price }},
         image: selectedColorImg || '{{ addslashes($product->images[0] ?? "") }}',
     };
 
-    var combos = [];
-    var hasSizes  = (document.getElementById('sizeGroup') !== null);
-    var hasColors = NORM_VARIANTS.length > 0;
-
-    if (quantity > 1 && (hasSizes || hasColors)) {
-        document.querySelectorAll('#variantRows .variant-row').forEach(function(row) {
-            var sEl  = row.querySelector('[data-type="size"]');
-            var cEl  = row.querySelector('[data-type="color"]');
-            combos.push({ size: sEl ? sEl.value : '', color: cEl ? cEl.value : '' });
+    var finalItems = [];
+    if (quantity > 1) {
+        document.querySelectorAll('#variantRows .variant-row').forEach(row => {
+            var sVal = row.querySelector('[data-type="size"]')?.value || '';
+            var cVal = row.querySelector('[data-type="color"]')?.value || '';
+            var existing = finalItems.find(it => it.size === sVal && it.color === cVal);
+            if (existing) existing.quantity++;
+            else finalItems.push({ size: sVal, color: cVal, quantity: 1 });
         });
     } else {
-        combos.push({ size: selectedSize || '', color: selectedColor || '' });
+        finalItems.push({ size: selectedSize || '', color: selectedColor || '', quantity: 1 });
     }
 
-    combos.forEach(function(combo) {
-        var existing = cart.find(function(item) {
-            return item.id === baseProduct.id && item.size === combo.size && item.color === combo.color;
-        });
-        if (existing) {
-            existing.quantity += 1;
-        } else {
-            cart.push(Object.assign({}, baseProduct, { size:combo.size, color:combo.color, quantity:1, is_selected:true }));
-        }
+    finalItems.forEach(fi => {
+        var inCart = cart.find(it => it.id === baseProduct.id && it.size === fi.size && it.color === fi.color);
+        if (inCart) inCart.quantity += fi.quantity;
+        else cart.push(Object.assign({}, baseProduct, { size: fi.size, color: fi.color, quantity: fi.quantity, is_selected: true }));
     });
 
     localStorage.setItem('clothr_cart', JSON.stringify(cart));
     updateCartCount();
-    showToast('{{ addslashes($product->name) }} added to cart!');
+    showToast('Product added to bag!');
 
     if (isLoggedIn) {
-        combos.forEach(function(combo) {
+        finalItems.forEach(fi => {
             fetch('/api/cart/update', {
-                method:'POST',
-                headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}','Content-Type':'application/json'},
-                body: JSON.stringify(Object.assign({}, baseProduct, { size:combo.size, color:combo.color, quantity:1 }))
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.assign({}, baseProduct, { size: fi.size, color: fi.color, quantity: fi.quantity }))
             });
         });
     }
@@ -687,222 +392,13 @@ function handleAddToCart() {
 
 function handleBuyNow() {
     handleAddToCart();
-    // Redirect to checkout immediately
-    window.location.href = '/checkout';
+    setTimeout(() => window.location.href = '/checkout', 300);
 }
 
-/* ══════════════════════════════════════════════════════════
-   WISHLIST
-══════════════════════════════════════════════════════════ */
 function toggleWishlist(id, btn) {
-    var isActive = btn.classList.toggle('active');
-    btn.innerHTML = isActive
-        ? '<i data-lucide="heart" size="20" fill="currentColor"></i> Added to Wishlist'
-        : '<i data-lucide="heart" size="20"></i> Add to Wishlist';
-    showToast(isActive ? 'Added to wishlist' : 'Removed from wishlist', 'info');
+    var active = btn.classList.toggle('active');
+    btn.innerHTML = active ? '<i data-lucide="heart" size="20" fill="currentColor"></i> In Wishlist' : '<i data-lucide="heart" size="20"></i> Add to Wishlist';
+    showToast(active ? 'Saved to wishlist' : 'Removed from wishlist', 'info');
 }
-
-/* ══════════════════════════════════════════════════════════
-   REVIEWS LOGIC
-══════════════════════════════════════════════════════════ */
-// Star Rating Interaction
-function hoverStars(btn, containerId) {
-    let val = parseInt(btn.dataset.val);
-    let btns = document.querySelectorAll(`#${containerId} .star-btn`);
-    btns.forEach(b => {
-        if (parseInt(b.dataset.val) <= val) {
-            b.style.color = '#fbbf24';
-        } else {
-            b.style.color = '#cbd5e1';
-        }
-    });
-}
-function resetStars(containerId) {
-    let inputId = containerId === 'newStarRating' ? 'newRatingValue' : 'editRatingValue';
-    let val = parseInt(document.getElementById(inputId).value) || 0;
-    let btns = document.querySelectorAll(`#${containerId} .star-btn`);
-    btns.forEach(b => {
-        if (parseInt(b.dataset.val) <= val) {
-            b.style.color = '#fbbf24';
-            b.classList.add('active');
-        } else {
-            b.style.color = '#cbd5e1';
-            b.classList.remove('active');
-        }
-    });
-}
-function selectStar(btn, containerId) {
-    let inputId = containerId === 'newStarRating' ? 'newRatingValue' : 'editRatingValue';
-    document.getElementById(inputId).value = btn.dataset.val;
-    if (inputId === 'newRatingValue') document.getElementById('ratingError').style.display = 'none';
-    resetStars(containerId);
-}
-
-// Fetch Reviews
-let reviewsPage = 1;
-function fetchReviews(page = 1) {
-    fetch(`/product/{{ $product->id }}/reviews?page=${page}`)
-        .then(res => res.json())
-        .then(data => {
-            renderReviews(data.data);
-            renderPagination(data);
-        });
-}
-
-function renderReviews(reviews) {
-    const list = document.getElementById('reviewsList');
-    if (!reviews || reviews.length === 0) {
-        if (reviewsPage === 1) {
-            list.innerHTML = '<div style="padding: 40px; text-align: center; color: #94a3b8;">No reviews yet.</div>';
-        }
-        return;
-    }
-    
-    list.innerHTML = reviews.map(r => {
-        let starsHtml = '';
-        for(let s=1; s<=5; s++) {
-            starsHtml += `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${s <= r.rating ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`;
-        }
-        
-        // Hide edit/delete for their own review context if it's already in the top form, safely escaping comment
-        const isOwnBadge = r.is_own ? '<span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-left: 8px;">Your Review</span>' : '';
-
-        // Safely escape comment text to prevent XSS
-        const safeComment = document.createElement('div');
-        safeComment.textContent = r.comment || '';
-        const commentHtml = safeComment.innerHTML;
-        
-        return `
-            <div class="review-item">
-                <div class="review-meta">
-                    <div class="review-stars">${starsHtml}</div>
-                    <span style="font-weight:700; font-size:14px; color: #111;">${r.reviewer_name} ${isOwnBadge}</span>
-                    <span style="color:var(--text-muted); font-size:13px; display: inline-flex; align-items: center; gap: 4px;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Verified Buyer</span>
-                    <span style="color:var(--text-light); font-size:12px; margin-left: auto;">${r.created_at}</span>
-                </div>
-                <p class="review-content">${commentHtml}</p>
-            </div>
-        `;
-    }).join('');
-}
-
-function renderPagination(data) {
-    const p = document.getElementById('reviewsPagination');
-    if (data.last_page <= 1) { p.innerHTML = ''; return; }
-    
-    let html = '';
-    if (data.current_page > 1) {
-        html += `<button class="btn btn-outline" style="padding: 6px 14px; font-size: 13px;" onclick="fetchReviews(${data.current_page - 1})">Prev</button>`;
-    }
-    html += `<span style="font-size: 13px; font-weight: 600; padding: 8px 12px; color: #64748b;">Page ${data.current_page} of ${data.last_page}</span>`;
-    if (data.current_page < data.last_page) {
-        html += `<button class="btn btn-outline" style="padding: 6px 14px; font-size: 13px;" onclick="fetchReviews(${data.current_page + 1})">Next</button>`;
-    }
-    p.innerHTML = html;
-}
-
-// Submission Logic
-function submitNewReview(e) {
-    e.preventDefault();
-    let val = document.getElementById('newRatingValue').value;
-    if (!val) { document.getElementById('ratingError').style.display = 'block'; return; }
-    
-    let btn = document.getElementById('submitNewBtn');
-    btn.disabled = true;
-    btn.innerText = 'Submitting...';
-    
-    let payload = {
-        rating: val,
-        comment: document.getElementById('newReviewComment').value
-    };
-    
-    fetch(`/product/{{ $product->id }}/review`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json().then(data => ({ status: r.status, body: data })))
-    .then(res => {
-        if (res.status === 200) {
-            showToast(res.body.message);
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showToast(res.body.error || 'Failed to submit review', 'error');
-            btn.disabled = false;
-            btn.innerText = 'Submit Review';
-        }
-    });
-}
-
-function editReview() {
-    document.getElementById('userReviewCard').style.display = 'none';
-    document.getElementById('editReviewFormCard').style.display = 'block';
-}
-
-function cancelEditReview() {
-    document.getElementById('userReviewCard').style.display = 'block';
-    document.getElementById('editReviewFormCard').style.display = 'none';
-    resetStars('editStarRating'); // return to existing rating on cancel
-}
-
-function submitEditReview(e, id) {
-    e.preventDefault();
-    let val = document.getElementById('editRatingValue').value;
-    
-    let btn = document.getElementById('submitEditBtn');
-    btn.disabled = true;
-    btn.innerText = 'Updating...';
-    
-    fetch(`/review/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            rating: val,
-            comment: document.getElementById('editReviewComment').value
-        })
-    })
-    .then(r => r.json().then(data => ({ status: r.status, body: data })))
-    .then(res => {
-        if (res.status === 200) {
-            showToast(res.body.message);
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showToast(res.body.error || 'Failed to update review', 'error');
-            btn.disabled = false;
-            btn.innerText = 'Update Review';
-        }
-    });
-}
-
-function deleteReview(id) {
-    if (!confirm('Are you sure you want to delete your review?')) return;
-    
-    fetch(`/review/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(r => r.json().then(data => ({ status: r.status, body: data })))
-    .then(res => {
-        if (res.status === 200) {
-            showToast(res.body.message);
-            setTimeout(() => window.location.reload(), 1000);
-        } else {
-            showToast('Failed to delete review', 'error');
-        }
-    });
-}
-
-// Initial fetch
-document.addEventListener('DOMContentLoaded', () => {
-    fetchReviews(1);
-});
 </script>
 @endsection

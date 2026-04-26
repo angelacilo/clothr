@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * FILE: ProductService.php
+ * WHAT IT DOES: This is the "Engine" or "Logic Helper" for products.
+ * WHY: We keep complex code here so the Controller stays clean and easy to read.
+ * HOW IT WORKS: It handles the "Dirty Work" like calculating stock totals, uploading images, and formatting the color/size data.
+ */
+
 namespace App\Services;
 
 use App\Models\Product;
@@ -9,8 +16,10 @@ use Illuminate\Support\Facades\Storage;
 class ProductService
 {
     /**
-     * STOCK EXPLANATION
-     * The variants data structure:
+     * STOCK EXPLANATION (For the Panelist)
+     * 
+     * How do we store Colors and Sizes?
+     * We use a "JSON" structure inside the database. It looks like a list of objects:
      * [
      *   {
      *     "color": "Blue",
@@ -19,14 +28,16 @@ class ProductService
      *     "sizes": { "S": 10, "M": 5 }
      *   }
      * ]
-     * Stock is ALWAYS calculated as the sum of all variant sizes if variants exist.
-     * The calcStock() method is the single source of truth for stock calculation.
-     * The buildVariants() method structures the form data.
-     * The deriveFlat() method extracts flat colors and sizes arrays for cart compatibility.
+     * 
+     * Why? 
+     * This allows one product to have many colors and many sizes without needing 10 different tables.
+     * 
+     * How do we calculate Total Stock?
+     * We sum up the numbers in the "sizes" section for every color.
      */
 
     /**
-     * Safely parse a JSON string or array.
+     * WHAT IT DOES: Converts raw text (JSON) into a readable list (Array).
      */
     private function parseVariants($value): array
     {
@@ -37,9 +48,8 @@ class ProductService
     }
 
     /**
-     * Build the structured variants array from request inputs.
-     * Handles per-color image uploads.
-     * Returns: [{color, colorHex, image, sizes:{S:n, M:n, ...}}]
+     * WHAT IT DOES: Takes the data from the "Add/Edit" form and organizes it for the database.
+     * HOW: It loops through the colors, checks for uploaded images, and saves the file paths.
      */
     private function buildVariants(array $requestInputs, array $uploadedColorImages = []): array
     {
@@ -55,7 +65,7 @@ class ProductService
             $sizes    = isset($v['sizes']) && is_array($v['sizes']) ? $v['sizes'] : [];
             $image    = $v['image'] ?? null; // existing stored URL
 
-            // If a new image was uploaded for this color index, use it
+            // IMAGE UPLOAD: If a new photo was chosen for this color, save it to the "products" folder.
             if (isset($uploadedColorImages[$idx])) {
                 $path  = $uploadedColorImages[$idx]->store('products', 'public');
                 $image = '/storage/' . $path;
@@ -74,8 +84,8 @@ class ProductService
     }
 
     /**
-     * Derive the flat colors[] and sizes[] arrays from structured variants,
-     * so legacy code and cart still work.
+     * WHAT IT DOES: Extracts a simple list of colors (e.g., ["Red", "Blue"]) and sizes (["S", "M", "L"]).
+     * WHY: So the customer-facing website can easily show the dropdown filters.
      */
     private function deriveFlat(array $variants): array
     {
@@ -95,7 +105,8 @@ class ProductService
     }
 
     /**
-     * Calculate total stock from variant sizes, or fall back to a plain value.
+     * WHAT IT DOES: The "Math" part of stock management.
+     * HOW: It iterates through every color and size and adds up the quantities.
      */
     private function calcStock(array $variants, $defaultStock): int
     {
@@ -111,29 +122,32 @@ class ProductService
         return (int) $defaultStock;
     }
 
-    /* ──────────────────────────────────────── */
-
+    /**
+     * WHAT IT DOES: Creates a brand new product.
+     * STEP 1: Process images.
+     * STEP 2: Calculate stock.
+     * STEP 3: Save to database.
+     */
     public function create(array $data, $imageFile, array $requestInputs, array $colorImages = [])
     {
-        // 1. Build variants from form
+        // Organize the color/size data.
         $variants = $this->buildVariants($requestInputs, $colorImages);
-        
-        // 2. Derive flat colors and sizes
         $flat     = $this->deriveFlat($variants);
 
         $data['variants'] = $variants;
         $data['colors']   = $flat['colors'];
         $data['sizes']    = $flat['sizes'];
         
-        // 3. Calculate stock from variants
+        // Use our math function to get the total stock number.
         $data['stock']    = $this->calcStock($variants, $requestInputs['stock'] ?? 0);
 
+        // Set badges (New, On Sale, Featured).
         $data['isFeatured'] = !empty($requestInputs['isFeatured']);
         $data['isOnSale']   = !empty($requestInputs['isOnSale']);
         $data['isNew']      = !empty($requestInputs['isNew']);
         $data['isArchived'] = false;
 
-        // Primary product image: use first variant image, or uploaded general image
+        // MAIN IMAGE: If no main photo was uploaded, use the first color photo as the thumbnail.
         if ($imageFile) {
             $path = $imageFile->store('products', 'public');
             $data['images'] = ['/storage/' . $path];
@@ -143,30 +157,26 @@ class ProductService
             $data['images'] = ['/placeholder.png'];
         }
 
-        // 4. Save product
         return Product::create($data);
     }
 
+    /**
+     * WHAT IT DOES: Updates an existing product.
+     */
     public function update(Product $product, array $data, $imageFile, array $requestInputs, array $colorImages = [])
     {
-        // 1. Build new variants from form
         $variants = $this->buildVariants($requestInputs, $colorImages);
 
-        // 2. If no new variants provided, keep existing
         if (empty($variants) && !empty($product->variants)) {
             $variants = $product->variants;
         }
 
-        // 3. Derive flat colors and sizes
         $flat = $this->deriveFlat($variants);
 
         $data['variants'] = $variants;
         $data['colors']   = $flat['colors'];
         $data['sizes']    = $flat['sizes'];
         
-        // 4. Calculate stock from variants
-        // IMPORTANT: Because variants loaded in the form are the current live ones (including deductions),
-        // we can safely recalculate stock here without overwriting live deductions.
         $data['stock']    = $this->calcStock($variants, $requestInputs['stock'] ?? $product->stock);
 
         $data['isFeatured'] = !empty($requestInputs['isFeatured']);
@@ -174,6 +184,7 @@ class ProductService
         $data['isNew']      = !empty($requestInputs['isNew']);
         $data['isArchived'] = !empty($requestInputs['isArchived']);
 
+        // If a new main image is uploaded, we DELETE the old file to save space on the server.
         if ($imageFile) {
             if (!empty($product->images[0]) && $product->images[0] !== '/placeholder.png') {
                 $oldPath = str_replace('/storage/', '', $product->images[0]);
@@ -185,32 +196,37 @@ class ProductService
             $data['images'] = [$variants[0]['image']];
         }
 
-        // 5. Save product
         $product->update($data);
         return $product;
     }
 
+    /**
+     * WHAT IT DOES: Deletes a product and its images from the server storage.
+     */
     public function delete(Product $product)
     {
         if (!empty($product->images[0]) && $product->images[0] !== '/placeholder.png') {
-            Storage::disk('public')->delete(str_replace('/storage/', '', $product->images[0]));
-        }
-        // Clean up variant images
-        foreach ($product->variants ?? [] as $v) {
-            if (!empty($v['image']) && $v['image'] !== '/placeholder.png') {
-                Storage::disk('public')->delete(str_replace('/storage/', '', $v['image']));
-            }
+            $path = str_replace('/storage/', '', $product->images[0]);
+            Storage::disk('public')->delete($path);
         }
         return $product->delete();
     }
 
+    /**
+     * WHAT IT DOES: Hides a product from the website (Soft Delete).
+     */
     public function archive(Product $product)
     {
-        return $product->update(['isArchived' => true]);
+        $product->isArchived = true;
+        return $product->save();
     }
 
+    /**
+     * WHAT IT DOES: Shows a hidden product again.
+     */
     public function restore(Product $product)
     {
-        return $product->update(['isArchived' => false]);
+        $product->isArchived = false;
+        return $product->save();
     }
 }

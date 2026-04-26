@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * FILE: Order.php
+ * WHAT IT DOES: This is the "Blueprint" for a Customer Order.
+ * WHY: To save details about what people bought, how much they paid, and where they live.
+ * HOW IT WORKS: It stores the order items, customer info, and status (Pending, Shipped, etc.) in the database.
+ */
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,12 +16,19 @@ class Order extends Model
 {
     use HasFactory;
 
+    /**
+     * FILLABLE: Columns that we are allowed to save data into.
+     */
     protected $fillable = [
         'user_id', 'customer_info', 'items', 'total', 'status',
         'courier_name', 'courier_service', 'tracking_number', 'rider_id',
         'processing_at', 'shipped_at', 'picked_up_at', 'out_for_delivery_at', 'delivered_at', 'cancelled_at',
     ];
 
+    /**
+     * CASTS: Tells Laravel to treat "items" as an array (list) and "total" as a decimal number.
+     * It also converts date strings into actual "Carbon" date objects.
+     */
     protected $casts = [
         'customer_info' => 'array',
         'items' => 'array',
@@ -27,13 +41,17 @@ class Order extends Model
         'cancelled_at' => 'datetime',
     ];
 
+    /**
+     * RELATIONSHIP: An order belongs to a specific User (Customer).
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
     /**
-     * Get the tracking URL for the assigned courier.
+     * WHAT IT DOES: Automatically creates a link to the courier's website (like J&T or LBC).
+     * WHY: So the customer can click it to see exactly where their package is.
      */
     public function getTrackingUrlAttribute()
     {
@@ -55,10 +73,16 @@ class Order extends Model
         return $urls[$this->courier_name] ?? null;
     }
 
+    /**
+     * RELATIONSHIP: If a local rider is assigned, this order belongs to that Rider.
+     */
     public function rider() { 
         return $this->belongsTo(Rider::class); 
     }
 
+    /**
+     * RELATIONSHIP: Connects the order to the Delivery details.
+     */
     public function delivery() { 
         return $this->hasOne(Delivery::class); 
     }

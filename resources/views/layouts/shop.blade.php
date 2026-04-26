@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLOTHR | @yield('title', "Modern Women's Fashion")</title>
     <meta name="description" content="CLOTHR — Your destination for modern women's fashion. Curated collections that celebrate style and individuality.">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
@@ -784,7 +785,8 @@
         }
 
         function addToCart(product) {
-            const existing = cart.find(i => i.id === product.id && i.size === product.size);
+            // FIX: Must check both size AND color to prevent duplicates/incorrect merges
+            const existing = cart.find(i => i.id === product.id && i.size === product.size && i.color === product.color);
             let out;
             if (existing) { existing.quantity += product.quantity || 1; out = existing; }
             else { out = {...product, quantity: product.quantity || 1, is_selected: true}; cart.push(out); }

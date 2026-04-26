@@ -1,83 +1,73 @@
+{{-- 
+    FILE: products.blade.php
+    WHAT IT DOES: A high-performance, wide-screen dashboard with "Bulletproof" scrolling.
+    WHY: To ensure the admin can always navigate the page, even when modals are active.
+    HOW IT WORKS: 
+    1. Smart Scroll: Background locks only when needed and unlocks instantly on close.
+    2. Wide Management: 1000px wide interface for maximum visibility.
+    3. Self-Cleaning: One-click removal of unnecessary variations.
+--}}
+
 @extends('layouts.admin')
 
-@section('title', 'Products')
-@section('subtitle', 'Manage your product catalog')
+@section('title', 'Product Manager')
 
 @section('content')
-<div class="products-container">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; gap: 20px; flex-wrap: wrap;">
-        <div>
-            <h1 style="font-size: 24px; font-weight: 800; color: var(--text-dark); margin-bottom: 4px;">Product Catalog</h1>
-            <span style="font-size: 14px; color: var(--text-medium); font-style: italic;">Manage your product inventory, variants, and pricing</span>
+<div class="pro-dashboard">
+    
+    <!-- ═══ TOP HEADER ═══ -->
+    <div class="pro-header">
+        <div class="pro-header-left">
+            <h1>Product Inventory</h1>
+            <p>Monitor stock levels and manage your premium catalog.</p>
         </div>
-        <div style="display: flex; gap: 12px; align-items: center;">
-            <div style="display: flex; background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 4px; gap: 4px;">
-                <a href="{{ route('admin.products') }}" class="btn {{ !request('status') ? 'btn-dark' : 'btn-outline' }}" style="padding: 6px 12px; font-size: 12px; border: none;">All</a>
-                <a href="{{ route('admin.products', ['status' => 'low']) }}" class="btn {{ request('status') === 'low' ? 'btn-dark' : 'btn-outline' }}" style="padding: 6px 12px; font-size: 12px; border: none;">Low Stock</a>
-                <a href="{{ route('admin.products', ['status' => 'out']) }}" class="btn {{ request('status') === 'out' ? 'btn-dark' : 'btn-outline' }}" style="padding: 6px 12px; font-size: 12px; border: none;">Out of Stock</a>
-            </div>
-            <button class="btn btn-dark" onclick="openAddProductModal()">+ Add Product</button>
-        </div>
+        <button class="pro-btn-add" onclick="openProductModal()">
+            <i data-lucide="plus"></i>
+            <span>Add New Product</span>
+        </button>
     </div>
 
-    @if(session('success'))
-        <div style="background:#d1fae5; border:1px solid #6ee7b7; color:#065f46; padding:14px 18px; border-radius:8px; margin-bottom:20px; font-weight:600;">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-            <ul style="margin: 0; padding-left: 20px;">
-                @foreach($errors->all() as $error)
-                    <li style="font-size: 14px; font-weight: 500;">{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
+    <!-- ═══ STOCK STATUS BAR ═══ -->
     @if($totalAlerts > 0)
-    <div class="card" style="margin-bottom: 32px; border-left: 4px solid #ef4444; background: #fff;">
-        <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i data-lucide="alert-circle" style="color: #ef4444; width: 20px;"></i>
-                <h3 style="font-size: 15px; font-weight: 800; color: #b91c1c;">Inventory Alerts ({{ $totalAlerts }} critical items)</h3>
+    <div class="pro-alert-banner">
+        <div class="banner-summary" onclick="toggleAlerts()">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="alert-icon-box"><i data-lucide="alert-octagon"></i></div>
+                <div>
+                    <span class="banner-title">Inventory Alerts</span>
+                    <p class="banner-desc"><strong>{{ $totalAlerts }}</strong> items are low or out of stock.</p>
+                </div>
             </div>
-            <span style="font-size: 12px; color: var(--text-medium); font-weight: 600;">Showing top 10 bottlenecks</span>
+            <button class="banner-toggle">
+                <span id="alertToggleTxt">View Details</span>
+                <i data-lucide="chevron-down" id="alertToggleIcon"></i>
+            </button>
         </div>
-        <div style="padding: 0;">
-            <div class="table-responsive">
-                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                    <thead style="background: #fdf2f2;">
-                        <tr style="text-align: left;">
-                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Product</th>
-                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Variant (Color)</th>
-                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Size</th>
-                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700;">Stock</th>
-                            <th style="padding: 12px 20px; color: #991b1b; font-weight: 700; text-align: right;">Action</th>
+        
+        <div id="alertDetails" class="banner-details hidden">
+            <div class="banner-table-wrapper">
+                <table class="pro-table">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Variation</th>
+                            <th>Stock</th>
+                            <th style="text-align: right;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($limitedAlerts as $alert)
-                        <tr style="border-bottom: 1px solid #fee2e2;">
-                            <td style="padding: 12px 20px; font-weight: 600; color: var(--text-dark);">{{ $alert['name'] }}</td>
-                            <td style="padding: 12px 20px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="width: 12px; height: 12px; border-radius: 50%; background: {{ $alert['colorHex'] ?? '#ccc' }}; border: 1px solid rgba(0,0,0,0.1);"></span>
-                                    <span>{{ $alert['color'] }}</span>
+                        <tr id="alert-row-{{ $alert['id'] }}-{{ str_replace(' ', '_', $alert['color']) }}-{{ $alert['size'] }}">
+                            <td style="font-weight: 800; color: #111827;">{{ $alert['name'] }}</td>
+                            <td><span class="pro-pill">{{ $alert['color'] }} / {{ $alert['size'] }}</span></td>
+                            <td><span class="stock-badge {{ $alert['stock'] == 0 ? 'out' : 'low' }}">{{ $alert['stock'] }} units</span></td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                                    <button class="pro-btn-action-mini restock" onclick="openRestockModal({{ $alert['id'] }}, '{{ addslashes($alert['name']) }}')">Restock</button>
+                                    <button class="pro-btn-action-mini remove" onclick="removeSizePermanently({{ $alert['id'] }}, '{{ addslashes($alert['color']) }}', '{{ addslashes($alert['size']) }}', true)" title="Delete size permanently">
+                                        <i data-lucide="trash-2" style="width: 14px;"></i>
+                                    </button>
                                 </div>
-                            </td>
-                            <td style="padding: 12px 20px;"><span style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">{{ $alert['size'] }}</span></td>
-                            <td style="padding: 12px 20px;">
-                                <span style="font-weight: 800; color: {{ $alert['stock'] == 0 ? '#ef4444' : '#f59e0b' }}">
-                                    {{ $alert['stock'] }} {{ Str::plural('unit', $alert['stock']) }}
-                                </span>
-                            </td>
-                            <td style="padding: 12px 20px; text-align: right;">
-                                <button class="btn btn-outline restock-product-btn" 
-                                    style="padding: 4px 10px; font-size: 11px;"
-                                    data-product-id="{{ $alert['id'] }}"
-                                    data-json="{{ json_encode(App\Models\Product::find($alert['id'])) }}">Restock</button>
                             </td>
                         </tr>
                         @endforeach
@@ -88,868 +78,478 @@
     </div>
     @endif
 
-    <!-- Product Grid -->
-    <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 24px;">
+    <!-- ═══ CATALOG GRID ═══ -->
+    <div class="pro-grid">
         @foreach($products as $product)
-            <div class="card" style="padding: 0; overflow: hidden; position: relative; display: flex; flex-direction: column;">
-                @if($product->isNew)
-                    <span style="position: absolute; top: 12px; left: 12px; background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; z-index: 2;">NEW</span>
-                @endif
-                @if($product->isOnSale)
-                    <span style="position: absolute; top: 12px; right: 12px; background-color: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; z-index: 2;">SALE</span>
-                @endif
-                <div style="width: 100%; height: 260px; background: #f4f4f4; overflow: hidden; position: relative;">
-                    <img src="{{ $product->images[0] ?? '/placeholder.png' }}" style="width: 100%; height: 100%; object-fit: cover;">
-                    <div style="position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
-                        @if($product->stock <= 0)
-                            <span style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800;">OUT OF ORDER</span>
-                        @elseif($product->stock <= 10)
-                            <span style="background: #f59e0b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800;">LOW STOCK</span>
-                        @endif
-                    </div>
+        <div class="pro-card">
+            <div class="pro-card-img">
+                <img src="{{ $product->images[0] ?? '/placeholder.png' }}" alt="{{ $product->name }}">
+                <div class="pro-card-category">{{ $product->category->name ?? 'Tops' }}</div>
+                @if($product->isNew) <div class="pro-new-badge">NEW</div> @endif
+            </div>
+            <div class="pro-card-body">
+                <h4 class="pro-card-title">{{ $product->name }}</h4>
+                <div class="pro-card-stats">
+                    <span class="pro-price">₱{{ number_format($product->price, 2) }}</span>
+                    <span class="pro-stock">{{ $product->stock }} in stock</span>
                 </div>
-                <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                        <h4 style="font-size: 14px; font-weight: 800; color: var(--text-dark);">{{ $product->name }}</h4>
-                        <span style="font-size: 10px; font-weight: 700; color: var(--text-medium); text-transform: uppercase;">{{ $product->category->name ?? 'Uncategorized' }}</span>
-                    </div>
-                    
-                    <!-- Variant Breakdown -->
-                    <div style="margin: 12px 0; border: 1px solid #f1f5f9; border-radius: 8px; padding: 8px; background: #f8fafc;">
-                        <div style="font-size: 10px; font-weight: 800; color: var(--text-medium); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em;">Variant Status</div>
-                        <div style="display: flex; flex-direction: column; gap: 4px; max-height: 80px; overflow-y: auto;">
-                            @php $variants = $product->variants; @endphp
-                            @if(!empty($variants))
-                                @foreach($variants as $v)
-                                    <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;">
-                                        <div style="display: flex; align-items: center; gap: 6px;">
-                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ $v['colorHex'] ?? '#ccc' }}; border: 1px solid rgba(0,0,0,0.1);"></span>
-                                            <span style="font-size: 11px; font-weight: 700; color: var(--text-dark);">{{ $v['color'] }}:</span>
-                                        </div>
-                                        <div style="display: flex; flex-wrap: wrap; gap: 4px; padding-left: 14px;">
-                                            @foreach($v['sizes'] ?? [] as $sz => $qty)
-                                                <span title="{{ $qty }} left" style="font-size: 10px; padding: 1px 4px; border-radius: 3px; font-weight: 600; 
-                                                    {{ $qty == 0 ? 'background: #fee2e2; color: #ef4444;' : ($qty <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;') }}">
-                                                    {{ $sz }}:{{ $qty }}
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                                    <span title="{{ $product->stock }} left" style="font-size: 10px; padding: 1px 4px; border-radius: 3px; font-weight: 600; 
-                                        {{ $product->stock == 0 ? 'background: #fee2e2; color: #ef4444;' : ($product->stock <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;') }}">
-                                        Stock: {{ $product->stock }}
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 12px;">
-                        <div style="display: flex; color: #fbbf24;">
-                            <i data-lucide="star" fill="currentColor" style="width: 12px;"></i>
-                        </div>
-                        <span style="font-size: 11px; font-weight: 700; color: var(--text-dark);">
-                            {{ number_format($product->averageRating(), 1) }}
-                        </span>
-                        <span style="font-size: 11px; color: var(--text-light);">({{ $product->reviews_count }} reviews)</span>
-                    </div>
-
-                    <div style="margin-top: auto;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
-                            <span style="font-size: 16px; font-weight: 800; color: var(--primary);">₱{{ number_format($product->price, 2) }}</span>
-                            <span style="font-size: 11px; font-weight: 700; color: var(--text-medium);">{{ $product->stock }} TOTAL</span>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            @if($product->stock <= 5)
-                                <button class="btn btn-outline restock-product-btn"
-                                        style="flex: 1; font-size: 12px; padding: 8px; color: #3b82f6; border-color: #3b82f6; display: flex; align-items: center; justify-content: center; gap: 4px;"
-                                        data-product-id="{{ $product->id }}"
-                                        data-json="{{ json_encode($product) }}">
-                                    <i data-lucide="plus" style="width: 14px;"></i> Restock
-                                </button>
-                            @endif
-                            <button class="btn btn-outline edit-product-btn"
-                                    style="flex: 1; font-size: 12px; padding: 8px;"
-                                    data-product-id="{{ $product->id }}"
-                                    data-json="{{ json_encode($product) }}">Edit</button>
-                            <form action="{{ route('admin.products.archive', $product->id) }}" method="POST" style="flex: 1;">
-                                @csrf
-                                <button class="btn btn-outline" style="width: 100%; font-size: 12px; padding: 8px; color: #f59e0b; border-color: #f59e0b;">Archive</button>
-                            </form>
-                            <form action="{{ route('admin.products.delete', $product->id) }}" method="POST" onsubmit="return confirm('Really delete?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn" style="background-color: #fee2e2; color: #ef4444; padding: 8px; display: flex; align-items: center; justify-content: center;">
-                                    <i data-lucide="trash-2" style="width: 16px;"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                <div class="pro-card-actions">
+                    <button class="pro-btn-main edit" onclick="openProductModal({{ json_encode($product) }})">
+                        <i data-lucide="edit-3"></i> Edit
+                    </button>
+                    <button class="pro-btn-main stock" onclick="openRestockModal({{ $product->id }}, '{{ addslashes($product->name) }}')">
+                        <i data-lucide="package-plus"></i> Stock
+                    </button>
+                    <form action="{{ route('admin.products.delete', $product->id) }}" method="POST" onsubmit="return confirm('Delete permanently?')" style="display: contents;">
+                        @csrf @method('DELETE')
+                        <button class="pro-btn-trash"><i data-lucide="trash-2"></i></button>
+                    </form>
                 </div>
             </div>
+        </div>
         @endforeach
     </div>
 
-    <div style="margin-top: 24px;">
-        {{ $products->withQueryString()->links() }}
-    </div>
+    <div class="pro-pagination">{{ $products->links() }}</div>
 </div>
 
-<!-- ═══ SHARED MODAL STYLES ═══ -->
-<style>
-.vb-table { width:100%; border-collapse:collapse; font-size:13px; }
-.vb-table th { background:#f9fafb; padding:8px 12px; text-align:left; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#555; border-bottom:1px solid #e5e7eb; }
-.vb-table td { padding:8px 12px; border-bottom:1px solid #f0f0f0; vertical-align:middle; }
-.vb-table tr:last-child td { border-bottom:none; }
-.vb-row-img { width:52px; height:52px; object-fit:cover; border-radius:8px; border:1px solid #e5e7eb; }
-.vb-size-chip { display:inline-flex; align-items:center; gap:6px; background:#f3f4f6; border:1px solid #e5e7eb; border-radius:6px; padding:3px 8px; font-size:12px; font-weight:600; }
-.vb-size-chip input { width:50px; padding:2px 4px; border:1px solid #d1d5db; border-radius:4px; font-size:12px; text-align:center; }
-.color-hex-preview { width:28px; height:28px; border-radius:50%; border:2px solid #e5e7eb; display:inline-block; vertical-align:middle; margin-left:6px; }
-.add-variant-row-btn { background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:10px; width:100%; padding:10px; font-size:13px; font-weight:600; color:#64748b; cursor:pointer; transition:.2s; margin-top:10px; }
-.add-variant-row-btn:hover { background:#f1f5f9; border-color:#94a3b8; color:#334155; }
-.variant-block { border:1px solid #e5e7eb; border-radius:12px; padding:16px; margin-bottom:12px; position:relative; background:#fafafa; }
-.variant-block-header { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
-.variant-remove-btn { position:absolute; top:12px; right:12px; background:none; border:none; font-size:18px; cursor:pointer; color:#9ca3af; line-height:1; }
-.variant-remove-btn:hover { color:#ef4444; }
-.size-grid { display:flex; gap:8px; flex-wrap:wrap; }
-.size-stock-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
-.size-stock-item label { font-size:11px; font-weight:700; color:#374151; }
-.size-stock-item input { width:56px; padding:5px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; text-align:center; }
-.preset-size-toggle { padding:5px 12px; border:1.5px solid #e5e7eb; border-radius:6px; font-size:12px; font-weight:700; background:#fff; cursor:pointer; transition:.15s; }
-.preset-size-toggle.on { background:#111; color:#fff; border-color:#111; }
-</style>
-
-<!-- ═══════════════════ RESTOCK MODAL ═══════════════════ -->
-<div id="restockProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
-    <div class="card" style="width:600px; padding:32px; max-height:92vh; overflow-y:auto;">
-        <h2 style="margin-bottom:24px;" id="restockModalTitle">Restock — Product Name</h2>
-        <form id="restockProductForm" action="" method="POST">
-            @csrf
+<!-- ══════════════════════════════════════════════════════
+   WIDE PRODUCT MODAL (Bulletproof Scrolling)
+══════════════════════════════════════════════════════ -->
+<div id="productModal" class="pro-modal-overlay" onclick="handleOutsideClick(event, 'productModal')">
+    <div class="pro-modal-container">
+        <div class="pro-modal-header">
+            <h2 id="modal_header">Product Management</h2>
+            <button onclick="closeProductModal()" class="pro-modal-close-btn">&times;</button>
+        </div>
+        <form id="productForm" method="POST" enctype="multipart/form-data" class="pro-modal-form-logic">
+            @csrf <div id="modal_method"></div>
             
-            <div id="restockVariantsContainer" style="display: none;">
-                <table class="vb-table" style="margin-bottom: 16px;">
-                    <thead>
-                        <tr>
-                            <th>Color</th>
-                            <th>Size</th>
-                            <th>Current Stock</th>
-                            <th style="width: 120px;">Add Units</th>
-                            <th style="text-align: right;">New Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="restockVariantsBody">
-                        <!-- Populated via JS -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="restockNoVariantsContainer" style="display: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fafafa;">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div>
-                        <div style="font-size: 12px; font-weight: 700; color: var(--text-medium); margin-bottom: 4px;">CURRENT STOCK</div>
-                        <span id="restockCurrentStockBadge" style="font-size: 13px; padding: 2px 8px; border-radius: 4px; font-weight: 700;"></span>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 12px; font-weight: 700; color: var(--text-medium); margin-bottom: 4px;">ADD UNITS</div>
-                        <input type="number" name="restock[default]" class="restock-input" data-current="0" value="0" min="0" style="width: 80px; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; text-align: center; font-weight: 700;">
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 12px; font-weight: 700; color: var(--text-medium); margin-bottom: 4px;">NEW TOTAL</div>
-                        <span id="restockNoVariantNewTotal" style="font-size: 18px; font-weight: 800; color: var(--text-dark);">0</span>
+            <div class="pro-modal-scroller">
+                
+                <!-- Section 1: General -->
+                <div class="pro-form-section">
+                    <p class="pro-section-title">Item Details</p>
+                    <div class="pro-form-row">
+                        <div style="flex: 2;">
+                            <label class="pro-input-label">Product Name</label>
+                            <input type="text" name="name" id="p_name" class="pro-form-input" placeholder="e.g. Linen Blouse" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="pro-input-label">Price (₱)</label>
+                            <input type="number" step="0.01" name="price" id="p_price" class="pro-form-input" placeholder="0.00" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="pro-input-label">Category</label>
+                            <select name="category_id" id="p_category" class="pro-form-input" required>
+                                @foreach($categories as $cat) <option value="{{ $cat->id }}">{{ $cat->name }}</option> @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Section 2: Description & Photo -->
+                <div class="pro-form-section">
+                    <p class="pro-section-title">Visuals & Description</p>
+                    <div class="pro-form-row">
+                        <div style="flex: 1;">
+                            <label class="pro-input-label">Short Description</label>
+                            <textarea name="description" id="p_desc" class="pro-form-input" style="height: 120px; resize: none;" placeholder="Details about fabric and fit..."></textarea>
+                        </div>
+                        <div style="width: 250px;">
+                            <label class="pro-input-label">Primary Photo</label>
+                            <div class="pro-img-dropzone" onclick="document.getElementById('main_photo_input').click()">
+                                <input type="file" name="image" id="main_photo_input" style="display: none;" onchange="previewMainImg(this)">
+                                <div id="drop_hint_box"><i data-lucide="image-plus" style="width: 32px;"></i><p>Upload</p></div>
+                                <img id="drop_img_preview" src="" style="display: none; width: 100%; border-radius: 12px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 25px; display: flex; gap: 25px;">
+                        <label class="pro-input-checkbox"><input type="checkbox" name="isNew" id="p_new"> Mark as New Arrival</label>
+                        <label class="pro-input-checkbox"><input type="checkbox" name="isOnSale" id="p_sale"> Mark as On Sale</label>
+                    </div>
+                </div>
+
+                <!-- Section 3: Colors & Inventory -->
+                <div class="pro-form-section" style="border: none; margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <p class="pro-section-title" style="margin: 0;">Stock Sizing (Colors & Sizes)</p>
+                        <button type="button" class="pro-btn-add-variant" onclick="addNewColorGroup()">+ Add Color Group</button>
+                    </div>
+                    <div id="v_list_container"></div>
+                    <div id="v_empty_msg" class="pro-empty-state">
+                        <p>No colors added. Default Stock: <input type="number" name="stock" id="p_stock" value="0" class="pro-form-input" style="width: 80px; text-align: center; margin-left: 10px;"></p>
+                    </div>
+                </div>
+
             </div>
 
-            <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; padding: 16px; border-radius: 8px; margin-bottom: 24px; font-weight: 600;">
-                Total units being added: <span id="restockTotalAdded" style="font-size: 18px; font-weight: 800; margin-left: 4px;">0</span>
+            <!-- Footer (Pinned) -->
+            <div class="pro-modal-footer">
+                <button type="button" onclick="closeProductModal()" class="pro-btn-ghost">Discard</button>
+                <button type="submit" class="pro-btn-solid">Save Product</button>
             </div>
-
-            <div style="display:flex; justify-content:flex-end; gap:12px;">
-                <button type="button" class="btn btn-outline" onclick="closeRestockModal()">Cancel</button>
-                <button type="submit" class="btn btn-dark">Confirm Restock</button>
-            </div>
+            <input type="hidden" name="variants_data" id="v_payload_json">
         </form>
     </div>
 </div>
 
-<!-- ═══════════════════ ADD MODAL ═══════════════════ -->
-<div id="addProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
-    <div class="card" style="width:640px; padding:32px; max-height:92vh; overflow-y:auto;">
-        <h2 style="margin-bottom:24px;">Add New Product</h2>
-        <form id="addProductForm" action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-
-            <!-- Basic Info -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-                <div style="grid-column:1/-1;">
-                    <label class="form-lbl">NAME</label>
-                    <input type="text" name="name" class="form-inp" required>
-                </div>
-                <div>
-                    <label class="form-lbl">CATEGORY</label>
-                    <select name="category_id" class="form-inp" required>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="form-lbl">PRICE (₱)</label>
-                    <input type="number" step="0.01" name="price" class="form-inp" required>
-                </div>
+<!-- ══════════════════════════════════════════════════════
+   WIDE RESTOCK MODAL (Consistent & Simple)
+══════════════════════════════════════════════════════ -->
+<div id="restockModal" class="pro-modal-overlay" onclick="handleOutsideClick(event, 'restockModal')">
+    <div class="pro-modal-container" style="width: 800px; height: auto; max-height: 85vh;">
+        <div class="pro-modal-header">
+            <h2>Inventory Restock</h2>
+            <button onclick="closeRestockModal()" class="pro-modal-close-btn">&times;</button>
+        </div>
+        <div class="pro-modal-scroller" style="padding: 0;">
+            <div id="restock_table_area"></div>
+        </div>
+        <div class="pro-modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-weight: 800; color: #64748b;">New Units: <span id="r_sum_display" style="font-size: 26px; color: #111827; margin-left: 15px;">0</span></div>
+            <div style="display: flex; gap: 15px;">
+                <button onclick="closeRestockModal()" class="pro-btn-ghost">Cancel</button>
+                <button onclick="submitRestockNow()" class="pro-btn-solid">Update Stock</button>
             </div>
-
-            <!-- General / fallback product image -->
-            <div style="margin-bottom:16px;">
-                <label class="form-lbl">PRODUCT IMAGE (fallback / no-variant)</label>
-                <input type="file" name="image" accept="image/*" class="form-inp">
-            </div>
-
-            <div style="margin-bottom:16px;">
-                <label class="form-lbl">DESCRIPTION</label>
-                <textarea name="description" rows="2" class="form-inp"></textarea>
-            </div>
-
-            <!-- ── VARIANT BUILDER ── -->
-            <div style="margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <label style="font-size:12px; font-weight:700; letter-spacing:.06em;">COLOR VARIANTS</label>
-                    <span style="font-size:11px; color:#9ca3af;">Each variant can have its own image & stock per size</span>
-                </div>
-
-                <!-- Global sizes selector -->
-                <div style="background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; padding:14px; margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:10px;">Available Sizes</label>
-                    <div id="addGlobalSizes" style="display:flex; flex-wrap:wrap; gap:7px;">
-                        @foreach(['XS','S','M','L','XL','XXL'] as $sz)
-                            <button type="button" class="preset-size-toggle" data-size="{{ $sz }}" onclick="addToggleGlobalSize(this)">{{ $sz }}</button>
-                        @endforeach
-                    </div>
-                    <input type="text" id="addCustomSizeInput" placeholder="Custom size (e.g. 28x30)…" class="form-inp" style="margin-top:10px; font-size:13px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addPushCustomSize();}">
-                </div>
-
-                <div id="addVariantBlocks"></div>
-                <button type="button" class="add-variant-row-btn" onclick="addVariantBlock()">+ Add Color Variant</button>
-            </div>
-
-            <!-- Stock fallback (shown only when no variants) -->
-            <div id="addStockFallback" style="margin-bottom:16px;">
-                <label class="form-lbl">STOCK (when no variants)</label>
-                <input type="number" name="stock" id="addStockInput" class="form-inp" value="0">
-            </div>
-
-            <!-- Flags -->
-            <div style="display:flex; gap:20px; margin-bottom:24px; flex-wrap:wrap;">
-                <label style="display:flex; align-items:center; gap:8px; font-size:14px;"><input type="checkbox" name="isFeatured"> Featured</label>
-                <label style="display:flex; align-items:center; gap:8px; font-size:14px;"><input type="checkbox" name="isOnSale"> On Sale</label>
-                <label style="display:flex; align-items:center; gap:8px; font-size:14px;"><input type="checkbox" name="isNew"> New Arrival</label>
-            </div>
-
-            <!-- Hidden payload -->
-            <input type="hidden" name="variants_data" id="addVariantsDataHidden" value="[]">
-            <input type="hidden" name="variant_colors" id="addColorsHidden" value="[]">
-            <input type="hidden" name="variant_sizes"  id="addSizesHidden"  value="[]">
-
-            <div style="display:flex; justify-content:flex-end; gap:12px;">
-                <button type="button" class="btn btn-outline" onclick="closeAddProductModal()">Cancel</button>
-                <button type="submit" class="btn btn-dark" onclick="serializeAddForm()">Save Product</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- ═══════════════════ EDIT MODAL ═══════════════════ -->
-<div id="editProductModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center; overflow-y:auto; padding:20px;">
-    <div class="card" style="width:640px; padding:32px; max-height:92vh; overflow-y:auto;">
-        <h2 style="margin-bottom:24px;">Edit Product</h2>
-        <form id="editProductForm" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
-                <div style="grid-column:1/-1;">
-                    <label class="form-lbl">NAME</label>
-                    <input type="text" name="name" id="editProdName" class="form-inp" required>
-                </div>
-                <div>
-                    <label class="form-lbl">CATEGORY</label>
-                    <select name="category_id" id="editProdCat" class="form-inp">
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="form-lbl">PRICE (₱)</label>
-                    <input type="number" step="0.01" name="price" id="editProdPrice" class="form-inp" required>
-                </div>
-            </div>
-
-            <div style="margin-bottom:16px;">
-                <label class="form-lbl">PRODUCT IMAGE (fallback / no-variant)</label>
-                <div id="editProdImgPreview" style="margin-bottom:8px; display:none;"><img style="height:60px; border-radius:6px; object-fit:cover;"></div>
-                <input type="file" name="image" accept="image/*" class="form-inp">
-            </div>
-
-            <div style="margin-bottom:16px;">
-                <label class="form-lbl">DESCRIPTION</label>
-                <textarea name="description" id="editProdDesc" rows="2" class="form-inp"></textarea>
-            </div>
-
-            <!-- ── VARIANT BUILDER ── -->
-            <div style="margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <label style="font-size:12px; font-weight:700; letter-spacing:.06em;">COLOR VARIANTS</label>
-                    <span style="font-size:11px; color:#9ca3af;">Upload a new image to replace an existing one</span>
-                </div>
-                <div style="background:#f8fafc; border:1px solid #e5e7eb; border-radius:10px; padding:14px; margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:10px;">Available Sizes</label>
-                    <div id="editGlobalSizes" style="display:flex; flex-wrap:wrap; gap:7px;">
-                        @foreach(['XS','S','M','L','XL','XXL'] as $sz)
-                            <button type="button" class="preset-size-toggle" data-size="{{ $sz }}" onclick="editToggleGlobalSize(this)">{{ $sz }}</button>
-                        @endforeach
-                    </div>
-                    <input type="text" id="editCustomSizeInput" placeholder="Custom size…" class="form-inp" style="margin-top:10px; font-size:13px;" onkeydown="if(event.key==='Enter'){event.preventDefault();editPushCustomSize();}">
-                </div>
-                <div id="editVariantBlocks"></div>
-                <button type="button" class="add-variant-row-btn" onclick="editVariantBlock()">+ Add Color Variant</button>
-            </div>
-
-            <!-- Stock fallback -->
-            <div id="editStockFallback" style="margin-bottom:16px; display:none;">
-                <label class="form-lbl">STOCK (when no variants)</label>
-                <input type="number" name="stock" id="editProdStock" class="form-inp">
-            </div>
-
-            <div style="margin-bottom:24px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; flex-wrap:wrap;">
-                <label style="display:flex; align-items:center; gap:8px; font-size:14px;"><input type="checkbox" name="isFeatured" id="editProdFeatured"> Featured</label>
-                <label style="display:flex; align-items:center; gap:8px; font-size:14px;"><input type="checkbox" name="isOnSale"   id="editProdSale">     On Sale</label>
-                <label style="display:flex; align-items:center; gap:8px; font-size:14px;"><input type="checkbox" name="isNew"      id="editProdNew">      New Arrival</label>
-            </div>
-
-            <input type="hidden" name="variants_data" id="editVariantsDataHidden" value="[]">
-            <input type="hidden" name="variant_colors" id="editColorsHidden" value="[]">
-            <input type="hidden" name="variant_sizes"  id="editSizesHidden"  value="[]">
-
-            <div style="display:flex; justify-content:flex-end; gap:12px;">
-                <button type="button" class="btn btn-outline" onclick="closeEditProductModal()">Cancel</button>
-                <button type="submit" class="btn btn-dark" onclick="serializeEditForm()">Update Product</button>
-            </div>
-        </form>
+        </div>
+        <form id="restockForm" method="POST">@csrf<div id="r_inputs_hidden"></div></form>
     </div>
 </div>
 
 <style>
-.form-lbl { display:block; font-size:12px; font-weight:700; letter-spacing:.05em; margin-bottom:7px; color:#374151; }
-.form-inp  { width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box; background:#fff; }
-.form-inp:focus { outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.12); }
-select.form-inp { appearance:none; }
+/* --- PRO DESIGN SYSTEM --- */
+:root { --p-dark: #0f172a; --p-blue: #2563eb; --p-red: #ef4444; --p-bg: #f8fafc; --p-border: #e2e8f0; }
+
+.pro-dashboard { padding: 30px 0; max-width: 1400px; margin: 0 auto; }
+
+/* Header */
+.pro-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+.pro-header h1 { font-size: 38px; font-weight: 900; color: var(--p-dark); margin: 0; }
+.pro-header p { font-size: 16px; color: #64748b; margin-top: 6px; }
+.pro-btn-add { background: var(--p-dark); color: #fff; border: none; padding: 15px 30px; border-radius: 14px; font-weight: 800; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.pro-btn-add:hover { transform: translateY(-4px); box-shadow: 0 20px 30px rgba(0,0,0,0.15); }
+
+/* Alert Banner */
+.pro-alert-banner { background: #fff; border: 1.5px solid var(--p-border); border-left: 6px solid var(--p-red); border-radius: 20px; margin-bottom: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); overflow: hidden; }
+.banner-summary { padding: 22px 30px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.alert-icon-box { width: 44px; height: 44px; background: #fff1f2; color: var(--p-red); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.banner-title { font-size: 16px; font-weight: 800; }
+.banner-toggle { background: #f8fafc; border: 1px solid var(--p-border); padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.pro-table { width: 100%; border-collapse: collapse; }
+.pro-table th { text-align: left; padding: 15px 30px; font-size: 11px; text-transform: uppercase; color: #94a3b8; border-bottom: 1.5px solid #f1f5f9; }
+.pro-table td { padding: 18px 30px; border-bottom: 1px solid #f8fafc; font-size: 14px; }
+.pro-pill { background: #f1f5f9; padding: 3px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; }
+.stock-badge { padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 900; }
+.stock-badge.out { background: #fef2f2; color: var(--p-red); }
+.stock-badge.low { background: #fffbeb; color: #d97706; }
+.pro-btn-action-mini { border: none; padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; }
+.pro-btn-action-mini.restock { background: var(--p-dark); color: #fff; }
+.pro-btn-action-mini.remove { background: #fff; border: 1px solid #fee2e2; color: var(--p-red); }
+
+/* Grid */
+.pro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+.pro-card { background: #fff; border: 1.5px solid var(--p-border); border-radius: 28px; overflow: hidden; transition: 0.3s; }
+.pro-card:hover { transform: translateY(-8px); box-shadow: 0 40px 60px -20px rgba(0,0,0,0.12); border-color: var(--p-dark); }
+.pro-card-img { height: 260px; position: relative; background: #f1f5f9; }
+.pro-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.pro-card-category { position: absolute; bottom: 15px; right: 15px; background: rgba(255,255,255,0.9); padding: 4px 12px; border-radius: 100px; font-size: 10px; font-weight: 900; color: #94a3b8; border: 1px solid var(--p-border); }
+.pro-new-badge { position: absolute; top: 15px; left: 15px; background: var(--p-blue); color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 9px; font-weight: 900; }
+.pro-card-body { padding: 25px; }
+.pro-card-title { font-size: 18px; font-weight: 800; color: var(--p-dark); margin: 0 0 10px; }
+.pro-card-stats { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 25px; }
+.pro-price { font-size: 24px; font-weight: 900; color: var(--p-dark); }
+.pro-stock { font-size: 12px; font-weight: 700; color: #94a3b8; }
+.pro-card-actions { display: flex; gap: 8px; padding-top: 20px; border-top: 1.5px solid #f8fafc; }
+.pro-btn-main { flex: 2; border: 2px solid var(--p-border); background: #fff; border-radius: 14px; padding: 10px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.pro-btn-main.edit { background: var(--p-dark); color: #fff; border: none; }
+.pro-btn-main.stock { background: #eff6ff; color: var(--p-blue); border-color: #dbeafe; }
+.pro-btn-trash { flex: 1; border: 2px solid var(--p-border); background: #fff; color: #94a3b8; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.pro-btn-trash:hover { background: #fef2f2; border-color: #fecaca; color: var(--p-red); }
+
+/* MODALS */
+.pro-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.pro-modal-container { background: #fff; width: 1000px; height: 90vh; border-radius: 36px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 60px 120px -30px rgba(0,0,0,0.5); }
+.pro-modal-header { padding: 30px 45px; border-bottom: 2.5px solid #f1f5f9; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+.pro-modal-header h2 { margin: 0; font-size: 26px; font-weight: 900; }
+.pro-modal-close-btn { background: #f1f5f9; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 32px; color: #94a3b8; cursor: pointer; line-height: 1; }
+.pro-modal-scroller { flex: 1; overflow-y: auto; padding: 45px; }
+.pro-modal-footer { padding: 30px 45px; border-top: 2.5px solid #f1f5f9; background: #fafafa; flex-shrink: 0; text-align: right; }
+
+.pro-form-section { border-bottom: 2px solid #f1f5f9; margin-bottom: 45px; padding-bottom: 45px; }
+.pro-section-title { font-size: 11px; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.12em; margin-bottom: 25px; }
+.pro-form-row { display: flex; gap: 25px; }
+.pro-input-label { display: block; font-size: 14px; font-weight: 800; color: var(--p-dark); margin-bottom: 10px; }
+.pro-form-input { width: 100%; padding: 15px 20px; border: 2.5px solid #f1f5f9; background: #f8fafc; border-radius: 16px; font-size: 15px; font-weight: 700; outline: none; transition: 0.2s; box-sizing: border-box; }
+.pro-form-input:focus { border-color: var(--p-dark); background: #fff; }
+.pro-input-checkbox { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 800; cursor: pointer; }
+.pro-img-dropzone { border: 3px dashed #e2e8f0; border-radius: 24px; background: #f8fafc; padding: 30px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; min-height: 120px; }
+
+.pro-btn-solid { background: var(--p-dark); color: #fff; border: none; padding: 16px 36px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; }
+.pro-btn-ghost { background: #fff; border: 2.5px solid var(--p-border); color: #64748b; padding: 16px 36px; border-radius: 16px; font-weight: 800; margin-right: 15px; cursor: pointer; }
+
+/* Restock Table */
+.r-table { width: 100%; border-collapse: collapse; }
+.r-table th { text-align: left; padding: 20px 35px; font-size: 11px; text-transform: uppercase; color: #94a3b8; border-bottom: 2px solid #f1f5f9; }
+.r-table td { padding: 20px 35px; border-bottom: 1px solid #f8fafc; font-size: 15px; vertical-align: middle; }
+.r-color-label { font-weight: 900; color: var(--p-dark); vertical-align: top !important; padding-top: 25px !important; width: 120px; }
+.r-input-pill { background: #eff6ff; border: 2.5px solid #dbeafe; border-radius: 14px; padding: 10px 18px; display: inline-flex; align-items: center; gap: 10px; }
+.r-input-pill span { font-weight: 900; color: var(--p-blue); font-size: 16px; }
+.r-qty-field { border: none; background: none; width: 45px; text-align: center; font-size: 18px; font-weight: 900; color: var(--p-blue); outline: none; }
+.r-trash-btn { background: #fff; border: 1.5px solid #fee2e2; color: var(--p-red); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+.r-trash-btn:hover { background: #fef2f2; }
+
+/* Variants */
+.pro-v-card { background: #fff; border: 2.5px solid #f1f5f9; border-radius: 28px; padding: 25px; margin-bottom: 25px; position: relative; }
+.pro-s-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1.5px solid #f1f5f9; }
+.pro-s-box { display: flex; flex-direction: column; align-items: center; background: #f8fafc; border: 1.5px solid #f1f5f9; border-radius: 14px; padding: 8px 14px; position: relative; }
+.pro-s-box span { font-size: 10px; font-weight: 900; color: #94a3b8; margin-bottom: 4px; }
+.pro-s-box input { border: none; background: none; width: 45px; text-align: center; font-size: 16px; font-weight: 900; outline: none; }
+.pro-s-del { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: var(--p-red); color: #fff; border: none; border-radius: 50%; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.pro-btn-add-variant { background: #f1f5f9; color: var(--p-dark); border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; }
+
+.hidden { display: none; }
+body.modal-open { overflow: hidden !important; padding-right: 0 !important; }
 </style>
 
 <script>
-/* ══════════════════════════════════════════════════════
-   SHARED STATE
-══════════════════════════════════════════════════════ */
-var addGlobalSizes  = [];   // e.g. ['S','M','L']
-var addVariants     = [];   // [{color,colorHex,image,sizes:{S:0,M:0},_newImg:File|null}]
+/**
+ * CLOTHR PREMIUM DASHBOARD ENGINE
+ */
 
-var editGlobalSizes = [];
-var editVariants    = [];
+var variantsStore = [];
 
-/* ══════════════════════════════════════════════════════
-   MODAL OPEN / CLOSE
-══════════════════════════════════════════════════════ */
-function openAddProductModal() {
-    addGlobalSizes = []; addVariants = [];
-    document.querySelectorAll('#addGlobalSizes .preset-size-toggle').forEach(function(b){ b.classList.remove('on'); });
-    document.getElementById('addVariantBlocks').innerHTML = '';
-    document.getElementById('addStockFallback').style.display = 'block';
-    document.getElementById('addProductModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-function closeAddProductModal() {
-    document.getElementById('addProductModal').style.display = 'none';
-    document.body.style.overflow = '';
-}
-function closeEditProductModal() {
-    document.getElementById('editProductModal').style.display = 'none';
-    document.body.style.overflow = '';
-}
+// 1. MODAL MANAGEMENT
+function openProductModal(p = null) {
+    const modal = document.getElementById('productModal');
+    const form = document.getElementById('productForm');
+    document.getElementById('drop_img_preview').style.display = 'none';
+    document.getElementById('drop_hint_box').style.display = 'block';
+    
+    // Safety: Always remove the class before adding it
+    document.body.classList.remove('modal-open');
+    document.body.classList.add('modal-open');
 
-/* ══════════════════════════════════════════════════════
-   GLOBAL SIZE TOGGLES
-══════════════════════════════════════════════════════ */
-function addToggleGlobalSize(btn) {
-    var sz = btn.dataset.size;
-    if (btn.classList.contains('on')) {
-        btn.classList.remove('on');
-        addGlobalSizes = addGlobalSizes.filter(function(s){return s!==sz;});
+    if (p) {
+        document.getElementById('modal_header').innerText = 'Edit Collection Item';
+        form.action = "/admin/products/" + p.id;
+        document.getElementById('modal_method').innerHTML = '@method("PUT")';
+        document.getElementById('p_name').value = p.name;
+        document.getElementById('p_price').value = p.price;
+        document.getElementById('p_category').value = p.category_id;
+        document.getElementById('p_desc').value = p.description;
+        document.getElementById('p_stock').value = p.stock;
+        document.getElementById('p_new').checked = !!p.isNew;
+        document.getElementById('p_sale').checked = !!p.isOnSale;
+        if (p.images && p.images[0]) {
+            document.getElementById('drop_img_preview').src = p.images[0];
+            document.getElementById('drop_img_preview').style.display = 'block';
+            document.getElementById('drop_hint_box').style.display = 'none';
+        }
+        variantsStore = p.variants || [];
     } else {
-        btn.classList.add('on');
-        addGlobalSizes.push(sz);
+        document.getElementById('modal_header').innerText = 'Add New Collection Item';
+        form.action = "{{ route('admin.products.store') }}";
+        document.getElementById('modal_method').innerHTML = '';
+        form.reset();
+        variantsStore = [];
     }
-    refreshAllAddSizeGrids();
-}
-function addPushCustomSize() {
-    var inp = document.getElementById('addCustomSizeInput'), v = inp.value.trim();
-    if(!v || addGlobalSizes.indexOf(v)!==-1) { inp.value=''; return; }
-    addGlobalSizes.push(v); inp.value='';
-    refreshAllAddSizeGrids();
-}
-function refreshAllAddSizeGrids() {
-    document.querySelectorAll('#addVariantBlocks .size-grid').forEach(function(grid) {
-        var idx = +grid.dataset.variantIdx;
-        renderSizeGrid(grid, addGlobalSizes, addVariants[idx] ? addVariants[idx].sizes : {});
-    });
-    document.getElementById('addStockFallback').style.display = (addVariants.length===0) ? 'block' : 'none';
+    renderVariantList();
+    modal.style.display = 'flex';
 }
 
-function editToggleGlobalSize(btn) {
-    var sz = btn.dataset.size;
-    if (btn.classList.contains('on')) {
-        btn.classList.remove('on');
-        editGlobalSizes = editGlobalSizes.filter(function(s){return s!==sz;});
-    } else {
-        btn.classList.add('on');
-        editGlobalSizes.push(sz);
-    }
-    refreshAllEditSizeGrids();
-}
-function editPushCustomSize() {
-    var inp = document.getElementById('editCustomSizeInput'), v = inp.value.trim();
-    if(!v || editGlobalSizes.indexOf(v)!==-1) { inp.value=''; return; }
-    editGlobalSizes.push(v); inp.value='';
-    refreshAllEditSizeGrids();
-}
-function refreshAllEditSizeGrids() {
-    document.querySelectorAll('#editVariantBlocks .size-grid').forEach(function(grid) {
-        var idx = +grid.dataset.variantIdx;
-        renderSizeGrid(grid, editGlobalSizes, editVariants[idx] ? editVariants[idx].sizes : {});
-    });
-    document.getElementById('editStockFallback').style.display = (editVariants.length===0) ? 'block' : 'none';
+function closeProductModal() { 
+    document.getElementById('productModal').style.display = 'none'; 
+    document.body.classList.remove('modal-open');
 }
 
-/* ══════════════════════════════════════════════════════
-   SIZE GRID RENDERER
-══════════════════════════════════════════════════════ */
-function renderSizeGrid(gridEl, sizes, existingSizes) {
-    gridEl.innerHTML = '';
-    if (sizes.length === 0) {
-        gridEl.innerHTML = '<span style="font-size:12px;color:#9ca3af;">Select sizes above first.</span>';
-        return;
-    }
-    sizes.forEach(function(sz) {
-        var stock = (existingSizes && existingSizes[sz] != null) ? existingSizes[sz] : 0;
-        var item = document.createElement('div');
-        item.className = 'size-stock-item';
-        item.innerHTML = '<label>' + sz + '</label><input type="number" min="0" value="' + stock + '" data-size="' + sz + '" onchange="updateStock(this)">';
-        gridEl.appendChild(item);
-    });
+// 2. VARIANT SYSTEM
+function addNewColorGroup() {
+    variantsStore.push({ color: '', colorHex: '#000000', image: null, sizes: {} });
+    renderVariantList();
 }
 
-function updateStock(inp) {
-    var grid = inp.closest('.size-grid');
-    var idx  = +grid.dataset.variantIdx;
-    var mode = grid.dataset.mode; // 'add' or 'edit'
-    var arr  = mode === 'edit' ? editVariants : addVariants;
-    if (arr[idx]) {
-        arr[idx].sizes[inp.dataset.size] = parseInt(inp.value) || 0;
-    }
+function removeColorGroup(idx) {
+    if(confirm('Delete this color and all its sizes?')) { variantsStore.splice(idx, 1); renderVariantList(); }
 }
 
-/* ══════════════════════════════════════════════════════
-   VARIANT BLOCK BUILDER — ADD FORM
-══════════════════════════════════════════════════════ */
-function addVariantBlock(preset) {
-    var idx = addVariants.length;
-    var v = preset || { color:'', colorHex:'#cccccc', image: null, sizes:{} };
-    addVariants.push(v);
-
-    var block = document.createElement('div');
-    block.className = 'variant-block';
-    block.id = 'add-vblock-' + idx;
-
-    var imgPreviewHtml = v.image
-        ? '<img id="add-img-prev-'+idx+'" src="'+v.image+'" style="height:56px;border-radius:8px;margin-top:8px;object-fit:cover;" onerror="this.style.display=\'none\'">'
-        : '<img id="add-img-prev-'+idx+'" src="" style="height:56px;border-radius:8px;margin-top:8px;object-fit:cover;display:none;">';
-
-    block.innerHTML = `
-        <button type="button" class="variant-remove-btn" onclick="removeAddVariant(${idx})" title="Remove">×</button>
-        <div class="variant-block-header">
-            <div style="display:flex;flex-direction:column;gap:6px;">
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;">Color Name</label>
-                <input type="text" value="${v.color}" placeholder="e.g. Midnight Blue"
-                    style="padding:7px 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;width:170px;"
-                    oninput="addVariants[${idx}].color=this.value">
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px;">
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;">Hex Color</label>
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <input type="color" value="${v.colorHex}" style="width:40px;height:36px;padding:2px;border:1px solid #e5e7eb;border-radius:7px;cursor:pointer;"
-                        oninput="addVariants[${idx}].colorHex=this.value">
-                    <span style="font-size:12px;color:#6b7280;">Pick swatch color</span>
+function renderVariantList() {
+    const list = document.getElementById('v_list_container');
+    const empty = document.getElementById('v_empty_msg');
+    list.innerHTML = '';
+    
+    if (variantsStore.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    
+    variantsStore.forEach((v, idx) => {
+        let card = document.createElement('div');
+        card.className = 'pro-v-card';
+        card.innerHTML = `
+            <button type="button" onclick="removeColorGroup(${idx})" style="position:absolute; top:20px; right:20px; border:none; background:none; color:#94a3b8; font-size:28px; cursor:pointer;">&times;</button>
+            <div class="pro-form-row">
+                <div style="flex:2;">
+                    <label class="pro-input-label">Color Name</label>
+                    <input type="text" placeholder="e.g. Ivory White" class="pro-form-input" value="${v.color}" oninput="variantsStore[${idx}].color=this.value">
+                </div>
+                <div style="width:65px;">
+                    <label class="pro-input-label">Hex</label>
+                    <div style="height:55px; border-radius:14px; border:2.5px solid #f1f5f9; overflow:hidden;">
+                        <input type="color" value="${v.colorHex}" oninput="variantsStore[${idx}].colorHex=this.value" style="width:150%; height:150%; border:none; cursor:pointer; transform:translate(-15%, -15%);">
+                    </div>
+                </div>
+                <div style="flex:1.5;">
+                    <label class="pro-input-label">Color Photo</label>
+                    <input type="file" name="color_images[${idx}]" class="pro-form-input" style="font-size:11px; padding:13px;">
                 </div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:6px;">
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;">Variant Image</label>
-                <input type="file" name="color_images[${idx}]" accept="image/*"
-                    style="font-size:12px;padding:4px;"
-                    onchange="previewAddVariantImg(this,${idx})">
-                ${imgPreviewHtml}
+            <div class="pro-s-grid">
+                ${Object.keys(v.sizes).map(sz => `
+                    <div class="pro-s-box">
+                        <span>${sz}</span>
+                        <input type="number" min="0" value="${v.sizes[sz]}" oninput="variantsStore[${idx}].sizes['${sz}']=this.value">
+                        <button type="button" class="pro-s-del" onclick="deleteSizeFromStore(${idx}, '${sz}')">&times;</button>
+                    </div>
+                `).join('')}
+                <button type="button" class="pro-btn-add-variant" style="height:54px; margin-left:auto;" onclick="addSizeToStore(${idx})">+ Add Size</button>
             </div>
-        </div>
-        <div>
-            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:8px;">Stock Per Size</label>
-            <div class="size-grid" data-variant-idx="${idx}" data-mode="add"></div>
-        </div>
-    `;
-
-    document.getElementById('addVariantBlocks').appendChild(block);
-    var grid = block.querySelector('.size-grid');
-    renderSizeGrid(grid, addGlobalSizes, v.sizes);
-    document.getElementById('addStockFallback').style.display = 'none';
+        `;
+        list.appendChild(card);
+    });
 }
 
-function previewAddVariantImg(input, idx) {
+function addSizeToStore(idx) {
+    let s = prompt("Enter Size Name:");
+    if(s) { variantsStore[idx].sizes[s] = 0; renderVariantList(); }
+}
+
+function deleteSizeFromStore(idx, size) {
+    delete variantsStore[idx].sizes[size];
+    renderVariantList();
+}
+
+document.getElementById('productForm').onsubmit = function() {
+    document.getElementById('v_payload_json').value = JSON.stringify(variantsStore);
+};
+
+// 3. RESTOCK & CLEANUP
+function openRestockModal(id, name) {
+    const modal = document.getElementById('restockModal');
+    const area = document.getElementById('restock_table_area');
+    area.innerHTML = '<div style="padding:50px; text-align:center; color:#94a3b8;">Processing Catalog Data...</div>';
+    
+    document.body.classList.remove('modal-open');
+    document.body.classList.add('modal-open');
+
+    fetch('/admin/products/' + id + '/stock-data').then(res => res.json()).then(data => {
+        let h = '<table class="r-table"><thead><tr><th>Color</th><th>Size</th><th>Stock</th><th style="text-align:right;">+ Add Units</th><th style="width:50px;"></th></tr></thead><tbody>';
+        if (data.hasVariants) {
+            data.variants.forEach(v => {
+                let sizes = Object.keys(v.sizes);
+                if (sizes.length === 0) return;
+                sizes.forEach((sz, i) => {
+                    let k = v.color + '_' + sz;
+                    h += `<tr id="r-row-${id}-${v.color.replace(' ','_')}-${sz}">
+                        ${i===0?`<td rowspan="${sizes.length}" class="r-color-label">${v.color}</td>`:''}
+                        <td><span class="pro-pill">${sz}</span></td>
+                        <td style="font-weight:700; color:#64748b;">${v.sizes[sz]}</td>
+                        <td style="text-align:right;"><div class="r-input-pill"><span>+</span><input type="number" min="0" value="0" class="r-qty-field r-fld" data-key="${k}" oninput="recalcRestock()"></div></td>
+                        <td><button type="button" class="r-trash-btn" onclick="removeSizePermanently(${id}, '${v.color}', '${sz}', false)"><i data-lucide="trash-2" style="width:14px;"></i></button></td>
+                    </tr>`;
+                });
+            });
+        } else {
+            h += `<tr><td class="r-color-label">Global</td><td>-</td><td>${data.stock}</td><td style="text-align:right;"><div class="r-input-pill"><span>+</span><input type="number" min="0" value="0" class="r-qty-field r-fld" data-key="default" oninput="recalcRestock()"></div></td><td></td></tr>`;
+        }
+        area.innerHTML = h + '</tbody></table>';
+        lucide.createIcons();
+    });
+    
+    document.getElementById('restockForm').action = '/admin/products/' + id + '/restock';
+    document.getElementById('r_sum_display').innerText = '0';
+    modal.style.display = 'flex';
+}
+
+function closeRestockModal() { 
+    document.getElementById('restockModal').style.display = 'none'; 
+    document.body.classList.remove('modal-open');
+}
+
+function removeSizePermanently(id, color, size, fromBanner) {
+    if (!confirm(`Delete "${size}" forever?`)) return;
+    const fd = new FormData();
+    fd.append('_token', '{{ csrf_token() }}');
+    fd.append('color', color);
+    fd.append('size', size);
+    fetch(`/admin/products/${id}/remove-size`, { method: 'POST', body: fd }).then(res => res.json()).then(res => {
+        if (res.success) {
+            const rowId = `r-row-${id}-${color.replace(' ','_')}-${size}`;
+            const bannerId = `alert-row-${id}-${color.replace(' ','_')}-${size}`;
+            if (document.getElementById(rowId)) document.getElementById(rowId).style.display = 'none';
+            if (document.getElementById(bannerId)) document.getElementById(bannerId).style.display = 'none';
+        }
+    });
+}
+
+function recalcRestock() {
+    let t = 0; let ins = '';
+    document.querySelectorAll('.r-fld').forEach(f => {
+        let v = parseInt(f.value) || 0; t += v;
+        ins += `<input type="hidden" name="restock[${f.dataset.key}]" value="${v}">`;
+    });
+    document.getElementById('r_sum_display').innerText = t;
+    document.getElementById('r_inputs_hidden').innerHTML = ins;
+}
+
+function submitRestockNow() { if(confirm('Update stock?')) document.getElementById('restockForm').submit(); }
+
+// 4. UTILS
+function toggleAlerts() {
+    const div = document.getElementById('alertDetails');
+    const label = document.getElementById('alertToggleTxt');
+    const icon = document.getElementById('alertToggleIcon');
+    div.classList.toggle('hidden');
+    if (div.classList.contains('hidden')) {
+        label.innerText = 'View Details';
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        label.innerText = 'Hide Details';
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+
+function previewMainImg(input) {
     if (input.files && input.files[0]) {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = function(e) {
-            var prev = document.getElementById('add-img-prev-'+idx);
-            if (prev) { prev.src=e.target.result; prev.style.display='block'; }
-        };
+            document.getElementById('drop_img_preview').src = e.target.result;
+            document.getElementById('drop_img_preview').style.display = 'block';
+            document.getElementById('drop_hint_box').style.display = 'none';
+        }
         reader.readAsDataURL(input.files[0]);
     }
 }
 
-function removeAddVariant(idx) {
-    // Mark as removed (don't splice to keep indices stable)
-    addVariants[idx] = null;
-    var block = document.getElementById('add-vblock-' + idx);
-    if (block) block.remove();
-    var active = addVariants.filter(function(v){return v!==null;});
-    document.getElementById('addStockFallback').style.display = (active.length===0) ? 'block' : 'none';
-}
-
-/* ══════════════════════════════════════════════════════
-   VARIANT BLOCK BUILDER — EDIT FORM
-══════════════════════════════════════════════════════ */
-function editVariantBlock(preset) {
-    var idx = editVariants.length;
-    var v = preset || { color:'', colorHex:'#cccccc', image: null, sizes:{} };
-    editVariants.push(v);
-
-    var block = document.createElement('div');
-    block.className = 'variant-block';
-    block.id = 'edit-vblock-' + idx;
-
-    var imgPreviewHtml = v.image
-        ? '<img id="edit-img-prev-'+idx+'" src="'+v.image+'" style="height:56px;border-radius:8px;margin-top:8px;object-fit:cover;" onerror="this.style.display=\'none\'">'
-        : '<img id="edit-img-prev-'+idx+'" src="" style="height:56px;border-radius:8px;margin-top:8px;object-fit:cover;display:none;">';
-
-    block.innerHTML = `
-        <button type="button" class="variant-remove-btn" onclick="removeEditVariant(${idx})" title="Remove">×</button>
-        <div class="variant-block-header">
-            <div style="display:flex;flex-direction:column;gap:6px;">
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;">Color Name</label>
-                <input type="text" value="${escHtml(v.color || '')}" placeholder="e.g. Midnight Blue"
-                    style="padding:7px 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;width:170px;"
-                    oninput="editVariants[${idx}].color=this.value">
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px;">
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;">Hex Color</label>
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <input type="color" value="${escHtml(v.colorHex || '#cccccc')}" style="width:40px;height:36px;padding:2px;border:1px solid #e5e7eb;border-radius:7px;cursor:pointer;"
-                        oninput="editVariants[${idx}].colorHex=this.value">
-                    <span style="font-size:12px;color:#6b7280;">Pick swatch color</span>
-                </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:6px;">
-                <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;">Variant Image</label>
-                <input type="file" name="color_images[${idx}]" accept="image/*"
-                    style="font-size:12px;padding:4px;"
-                    onchange="previewEditVariantImg(this,${idx})">
-                ${imgPreviewHtml}
-            </div>
-        </div>
-        <div>
-            <label style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:8px;">Stock Per Size</label>
-            <div class="size-grid" data-variant-idx="${idx}" data-mode="edit"></div>
-        </div>
-    `;
-
-    document.getElementById('editVariantBlocks').appendChild(block);
-    var grid = block.querySelector('.size-grid');
-    renderSizeGrid(grid, editGlobalSizes, v.sizes || {});
-    document.getElementById('editStockFallback').style.display = 'none';
-}
-
-function previewEditVariantImg(input, idx) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var prev = document.getElementById('edit-img-prev-'+idx);
-            if (prev) { prev.src=e.target.result; prev.style.display='block'; }
-        };
-        reader.readAsDataURL(input.files[0]);
+// Safety: Handle Escape Key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeProductModal();
+        closeRestockModal();
     }
-}
-
-function removeEditVariant(idx) {
-    editVariants[idx] = null;
-    var block = document.getElementById('edit-vblock-' + idx);
-    if (block) block.remove();
-    var active = editVariants.filter(function(v){return v!==null;});
-    document.getElementById('editStockFallback').style.display = (active.length===0) ? 'block' : 'none';
-}
-
-/* ══════════════════════════════════════════════════════
-   OPEN EDIT MODAL (from product card)
-══════════════════════════════════════════════════════ */
-function handleEditClick(btn) {
-    try {
-        openEditProductModal(JSON.parse(btn.getAttribute('data-json')));
-    } catch(e) { console.error('Parse error', e); }
-}
-
-function openEditProductModal(product) {
-    // Reset
-    editVariants    = [];
-    editGlobalSizes = [];
-    document.getElementById('editVariantBlocks').innerHTML = '';
-    document.querySelectorAll('#editGlobalSizes .preset-size-toggle').forEach(function(b){ b.classList.remove('on'); });
-    document.getElementById('editCustomSizeInput').value = '';
-
-    // Populate basic fields
-    document.getElementById('editProductForm').action = '/admin/products/' + product.id;
-    document.getElementById('editProdName').value   = product.name;
-    document.getElementById('editProdCat').value    = product.category_id;
-    document.getElementById('editProdPrice').value  = product.price;
-    document.getElementById('editProdStock').value  = product.stock;
-    document.getElementById('editProdDesc').value   = product.description || '';
-    document.getElementById('editProdFeatured').checked = !!product.isFeatured;
-    document.getElementById('editProdSale').checked     = !!product.isOnSale;
-    document.getElementById('editProdNew').checked      = !!product.isNew;
-
-    // Existing image preview
-    var imgWrap = document.getElementById('editProdImgPreview');
-    if (product.images && product.images[0] && product.images[0] !== '/placeholder.png') {
-        imgWrap.querySelector('img').src = product.images[0];
-        imgWrap.style.display = 'block';
-    } else {
-        imgWrap.style.display = 'none';
-    }
-
-    // Load existing variants
-    var variants = Array.isArray(product.variants) ? product.variants : [];
-
-    // Collect all sizes from variants
-    var allSizes = [];
-    variants.forEach(function(v) {
-        Object.keys(v.sizes || {}).forEach(function(sz) {
-            if (allSizes.indexOf(sz) === -1) allSizes.push(sz);
-        });
-    });
-
-    // Also pick up legacy flat sizes
-    if (Array.isArray(product.sizes)) {
-        product.sizes.forEach(function(sz){
-            if(allSizes.indexOf(sz)===-1) allSizes.push(sz);
-        });
-    }
-
-    editGlobalSizes = allSizes;
-
-    // Highlight preset size buttons
-    document.querySelectorAll('#editGlobalSizes .preset-size-toggle').forEach(function(b) {
-        if (editGlobalSizes.indexOf(b.dataset.size) !== -1) b.classList.add('on');
-    });
-
-    // Build variant blocks
-    if (variants.length > 0) {
-        variants.forEach(function(v) { editVariantBlock(v); });
-    } else if (Array.isArray(product.colors) && product.colors.length > 0) {
-        // Upgrade legacy flat colors
-        product.colors.forEach(function(c) { editVariantBlock({color:c,colorHex:'#cccccc',image:null,sizes:{}}); });
-    }
-
-    document.getElementById('editStockFallback').style.display = (editVariants.filter(Boolean).length===0) ? 'block' : 'none';
-
-    document.getElementById('editProductModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-/* ══════════════════════════════════════════════════════
-   SERIALISE BEFORE SUBMIT
-══════════════════════════════════════════════════════ */
-function collectSizeStocks(idx, mode) {
-    var grid = document.querySelector((mode==='edit'?'#editVariantBlocks':'#addVariantBlocks') + ' [data-variant-idx="'+idx+'"]');
-    var sizes = {};
-    if (grid) {
-        grid.querySelectorAll('input[data-size]').forEach(function(inp) {
-            sizes[inp.dataset.size] = parseInt(inp.value) || 0;
-        });
-    }
-    return sizes;
-}
-
-function serializeAddForm() {
-    var out = [];
-    addVariants.forEach(function(v, idx) {
-        if (!v) return;
-        out.push({
-            color:    v.color,
-            colorHex: v.colorHex,
-            image:    v.image,
-            sizes:    collectSizeStocks(idx, 'add'),
-        });
-    });
-    var colors = out.map(function(v){return v.color;});
-    var sizes  = addGlobalSizes;
-    document.getElementById('addVariantsDataHidden').value = JSON.stringify(out);
-    document.getElementById('addColorsHidden').value       = JSON.stringify(colors);
-    document.getElementById('addSizesHidden').value        = JSON.stringify(sizes);
-}
-
-function serializeEditForm() {
-    var out = [];
-    editVariants.forEach(function(v, idx) {
-        if (!v) return;
-        out.push({
-            color:    v.color,
-            colorHex: v.colorHex,
-            image:    v.image,
-            sizes:    collectSizeStocks(idx, 'edit'),
-        });
-    });
-    var colors = out.map(function(v){return v.color;});
-    var sizes  = editGlobalSizes;
-    document.getElementById('editVariantsDataHidden').value = JSON.stringify(out);
-    document.getElementById('editColorsHidden').value       = JSON.stringify(colors);
-    document.getElementById('editSizesHidden').value        = JSON.stringify(sizes);
-}
-
-/* ══════════════════════════════════════════════════════
-   HELPERS
-══════════════════════════════════════════════════════ */
-function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-/* ══════════════════════════════════════════════════════
-   BOOTSTRAP
-══════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.edit-product-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(){ handleEditClick(this); });
-    });
-    document.querySelectorAll('.restock-product-btn').forEach(function(btn) {
-        btn.addEventListener('click', function(){ openRestockModal(this); });
-    });
 });
 
-function openRestockModal(btn) {
-    var product = JSON.parse(btn.getAttribute('data-json'));
-    var form = document.getElementById('restockProductForm');
-    form.action = '/admin/products/' + product.id + '/restock';
-    
-    document.getElementById('restockModalTitle').textContent = 'Restock — ' + product.name;
-    
-    var variants = Array.isArray(product.variants) ? product.variants : (product.variants ? JSON.parse(product.variants) : []);
-    
-    var withVariantsContainer = document.getElementById('restockVariantsContainer');
-    var noVariantsContainer = document.getElementById('restockNoVariantsContainer');
-    var body = document.getElementById('restockVariantsBody');
-    
-    if (variants.length > 0) {
-        withVariantsContainer.style.display = 'block';
-        noVariantsContainer.style.display = 'none';
-        body.innerHTML = '';
-        
-        variants.forEach(function(v) {
-            var sizes = Object.keys(v.sizes || {});
-            sizes.forEach(function(sz) {
-                var qty = parseInt(v.sizes[sz]) || 0;
-                var colorBadgeClass = qty === 0 ? 'background: #fee2e2; color: #ef4444;' : (qty <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;');
-                
-                var tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="width: 10px; height: 10px; border-radius: 50%; background: ${escHtml(v.colorHex || '#ccc')}; border: 1px solid rgba(0,0,0,0.1);"></span>
-                            <span style="font-weight: 600;">${escHtml(v.color)}</span>
-                        </div>
-                    </td>
-                    <td><span style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 11px;">${escHtml(sz)}</span></td>
-                    <td>
-                        <span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; ${colorBadgeClass}">
-                            ${qty}
-                        </span>
-                    </td>
-                    <td>
-                        <input type="number" name="restock[${escHtml(v.color)}_${escHtml(sz)}]" class="restock-input" data-current="${qty}" value="0" min="0" style="width: 100%; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 4px; text-align: center; font-weight: 600;">
-                    </td>
-                    <td style="text-align: right; font-weight: 800; font-size: 14px;" class="restock-new-total">${qty}</td>
-                `;
-                body.appendChild(tr);
-            });
-        });
-    } else {
-        withVariantsContainer.style.display = 'none';
-        noVariantsContainer.style.display = 'block';
-        
-        var qty = product.stock || 0;
-        var colorBadgeClass = qty === 0 ? 'background: #fee2e2; color: #ef4444;' : (qty <= 5 ? 'background: #fef3c7; color: #d97706;' : 'background: #dcfce7; color: #16a34a;');
-        
-        var badge = document.getElementById('restockCurrentStockBadge');
-        badge.style = `font-size: 13px; padding: 2px 8px; border-radius: 4px; font-weight: 700; ${colorBadgeClass}`;
-        badge.textContent = qty;
-        
-        var input = noVariantsContainer.querySelector('input');
-        input.dataset.current = qty;
-        input.value = 0;
-        document.getElementById('restockNoVariantNewTotal').textContent = qty;
+// Safety: Handle Outside Click
+function handleOutsideClick(e, modalId) {
+    if (e.target.id === modalId) {
+        if (modalId === 'productModal') closeProductModal();
+        else closeRestockModal();
     }
-    
-    updateRestockTotals();
-    
-    document.querySelectorAll('.restock-input').forEach(function(inp) {
-        inp.addEventListener('input', updateRestockTotals);
-    });
-    
-    document.getElementById('restockProductModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
 }
 
-function updateRestockTotals() {
-    var totalAdded = 0;
-    document.querySelectorAll('.restock-input').forEach(function(inp) {
-        var added = parseInt(inp.value) || 0;
-        if (added < 0) {
-            inp.value = 0;
-            added = 0;
-        }
-        totalAdded += added;
-        
-        var current = parseInt(inp.dataset.current) || 0;
-        var newTotal = current + added;
-        
-        var tr = inp.closest('tr');
-        if (tr) {
-            tr.querySelector('.restock-new-total').textContent = newTotal;
-        } else {
-            document.getElementById('restockNoVariantNewTotal').textContent = newTotal;
-        }
-    });
-    
-    document.getElementById('restockTotalAdded').textContent = totalAdded;
-}
-
-function closeRestockModal() {
-    document.getElementById('restockProductModal').style.display = 'none';
-    document.body.style.overflow = '';
-}
+document.addEventListener('DOMContentLoaded', () => { 
+    if (window.lucide) lucide.createIcons(); 
+    // Always ensure body is unlocked on load
+    document.body.classList.remove('modal-open');
+});
 </script>
 @endsection

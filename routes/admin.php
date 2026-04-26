@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * FILE: routes/admin.php
+ * WHAT IT DOES: This is the "Traffic Cop" or "Map" for the admin panel.
+ * WHY: It tells the website which Controller should handle which URL (Link).
+ * HOW IT WORKS: If someone goes to "/admin/products", this file tells Laravel to open the "ProductController".
+ */
+
 use Illuminate\Support\Facades\Route;
 
 // Ensure this file is loaded
@@ -19,9 +26,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'a
     Route::post('/products', [\App\Http\Controllers\Admin\ProductController::class, 'store'])->name('products.store');
     Route::put('/products/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'update'])->name('products.update');
     Route::post('/products/{id}/restock', [\App\Http\Controllers\Admin\ProductController::class, 'restock'])->name('products.restock');
+    Route::get('/products/{id}/stock-data', [\App\Http\Controllers\Admin\ProductController::class, 'stockData'])->name('products.stock-data');
     Route::delete('/products/{id}', [\App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.delete');
     Route::post('/products/{id}/archive', [\App\Http\Controllers\Admin\ProductController::class, 'archive'])->name('products.archive');
     Route::post('/products/{id}/restore', [\App\Http\Controllers\Admin\ProductController::class, 'restore'])->name('products.restore');
+    Route::post('/products/{id}/remove-size', [\App\Http\Controllers\Admin\ProductController::class, 'removeSize'])->name('products.remove-size');
     Route::get('/archive', [\App\Http\Controllers\Admin\ProductController::class, 'archivedIndex'])->name('archive');
     
     // Categories
