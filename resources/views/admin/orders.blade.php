@@ -507,6 +507,29 @@
                     `;
                 });
 
+                /**
+                 * PROOF OF DELIVERY (POD):
+                 * If the order is delivered and there is a photo uploaded by the rider,
+                 * we show it at the bottom of the items list.
+                 * This provides visual evidence of completion to the admin.
+                 */
+                if (order.proof_of_delivery) {
+                    itemsContainer.innerHTML += `
+                        <div style="margin-top: 20px; padding: 18px; border: 1px solid #dcfce7; background: #f0fdf4; border-radius: 12px;">
+                            <h4 style="font-size: 12px; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="camera" style="width: 14px;"></i> Proof of Delivery
+                            </h4>
+                            <img src="/storage/${order.proof_of_delivery}" 
+                                 alt="POD" 
+                                 style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; border: 1px solid #bbf7d0; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" 
+                                 onclick="window.open(this.src)">
+                            <p style="font-size: 11px; color: #166534; margin-top: 8px; text-align: center; font-style: italic;">
+                                Click image to view full size
+                            </p>
+                        </div>
+                    `;
+                }
+
                 // Total
                 document.getElementById('modalTotal').textContent = '₱' + Number(order.total).toLocaleString('en-PH', {minimumFractionDigits: 2});
 
@@ -661,6 +684,28 @@
         if (e.key === 'Escape') {
             closeOrderModal();
             closeCourierModal();
+        }
+    });
+
+    /**
+     * AUTO-OPEN LOGIC:
+     * When an admin clicks a notification link, it sends them to: /admin/orders?search=#123
+     * This script checks the URL on page load. If it finds a search for a specific #ID,
+     * it automatically opens that order's detail modal so the admin doesn't have to click again.
+     */
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const search = urlParams.get('search');
+        if (search && search.startsWith('#')) {
+            const rawId = search.replace('#', '');
+            // We find the display ID from the search, but we need the actual DB ID.
+            // Since our search results already filter the table to show ONLY this order,
+            // we can look for any row that starts with 'order-row-'.
+            const firstRow = document.querySelector('tr[id^="order-row-"]');
+            if (firstRow) {
+                const dbId = firstRow.id.replace('order-row-', '');
+                openOrderModal(dbId);
+            }
         }
     });
 </script>

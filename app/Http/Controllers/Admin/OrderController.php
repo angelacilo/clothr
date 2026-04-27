@@ -92,8 +92,8 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        // Find the order or error out if not found.
-        $order = Order::with('user:id,name,email,phone')->findOrFail($id);
+        // Find the order and include both the user info and the delivery (for proof of delivery).
+        $order = Order::with(['user:id,name,email,phone', 'delivery'])->findOrFail($id);
         
         // Loop through the items in the order to make sure they have images.
         $items = collect($order->items)->map(function($item) {
@@ -111,7 +111,7 @@ class OrderController extends Controller
             return $item;
         })->toArray();
 
-        // Send back a clean JSON response.
+        // Send back a clean JSON response including the Proof of Delivery if it exists.
         return response()->json([
             'id' => $order->id,
             'status' => $order->status,
@@ -121,6 +121,7 @@ class OrderController extends Controller
             'courier_name' => $order->courier_name,
             'tracking_number' => $order->tracking_number,
             'created_at' => $order->created_at,
+            'proof_of_delivery' => $order->delivery ? $order->delivery->proof_of_delivery : null,
             'user' => $order->user ? [
                 'id' => $order->user->id,
                 'name' => $order->user->name,

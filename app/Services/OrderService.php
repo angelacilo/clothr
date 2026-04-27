@@ -71,12 +71,23 @@ class OrderService
                 ];
             }
 
+            /**
+             * SHIPPING FEE CALCULATION:
+             * Rule: Orders ₱2,500 and above get FREE shipping.
+             * Orders below ₱2,500 have a flat fee of ₱250.
+             */
+            $shippingFee = ($calculatedTotal >= 2500) ? 0 : 250;
+            
+            // The final amount that will be charged to the customer.
+            $finalTotal = $calculatedTotal + $shippingFee;
+
             // Create the record in the "orders" table.
             $order = Order::create([
                 'user_id'       => $userId,
-                'customer_info' => $customerInfo,
+                // We save the shipping fee inside customer_info for record keeping.
+                'customer_info' => array_merge($customerInfo, ['shipping_fee' => $shippingFee]),
                 'items'         => $processedItems,
-                'total'         => $calculatedTotal,
+                'total'         => $finalTotal,
                 'status'        => 'pending'
             ]);
 
@@ -355,12 +366,15 @@ class OrderService
                             "Your order #{$displayId} is out for delivery with our rider. Please be ready to receive it!", 
                             $link);
                         break;
-                    case 'delivered':
-                        \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_delivered', 
-                            'Order Delivered Successfully', 
-                            "Your order #{$displayId} has been delivered. Thank you for shopping with CLOTHR!", 
-                            $link);
-                        break;
+                    
+                    /**
+                     * NOTE ON DELIVERED:
+                     * We removed the 'delivered' case from here because it is now handled 
+                     * in RiderController.php. This allows us to include the Rider's Name 
+                     * and Proof of Delivery in the notification, providing a better 
+                     * experience than this generic service could.
+                     */
+
                     case 'cancelled':
                         \App\Models\UserNotification::notify($order->user_id, $order->id, 'order_cancelled', 
                             'Order Has Been Cancelled', 

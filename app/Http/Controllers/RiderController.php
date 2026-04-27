@@ -139,6 +139,52 @@ class RiderController extends Controller
                 
                 if ($request->status === 'delivered') {
                     $update['delivered_at'] = now();
+                    
+                    /**
+                     * NOTIFICATION LOGIC: When an order is delivered, we notify three main parties:
+                     * 1. The Customer (To confirm receipt)
+                     * 2. The Courier (To close the logistical loop)
+                     * 3. The Admins (For record-keeping and oversight)
+                     */
+                    
+                    // 1. NOTIFY THE CUSTOMER
+                    // Link: Takes them to their order history.
+                    \App\Models\UserNotification::notify(
+                        $delivery->order->user_id,
+                        $delivery->order->id,
+                        'order_delivered',
+                        'Order Delivered! 🎉',
+                        "Great news! Your order #{$delivery->order->id} has been delivered successfully. Thank you for shopping with us!",
+                        "/profile/order/{$delivery->order->id}"
+                    );
+
+                    // 2. NOTIFY THE COURIER (If the rider belongs to a courier company)
+                    // Link: Takes them to the courier's order detail page.
+                    $courier = $rider->courier;
+                    if ($courier && $courier->user_id) {
+                        \App\Models\UserNotification::notify(
+                            $courier->user_id,
+                            $delivery->order->id,
+                            'order_delivered',
+                            'Delivery Completed',
+                            "Rider {$rider->user->name} has completed the delivery for Order #{$delivery->order->id}.",
+                            "/courier/orders/{$delivery->order->id}"
+                        );
+                    }
+
+                    // 3. NOTIFY ALL ADMINS
+                    // Link: Takes them to the admin order management dashboard.
+                    $admins = \App\Models\User::where('is_admin', true)->get();
+                    foreach ($admins as $admin) {
+                        \App\Models\UserNotification::notify(
+                            $admin->id,
+                            $delivery->order->id,
+                            'order_delivered',
+                            'New Successful Delivery',
+                            "Order #{$delivery->order->id} has been marked as DELIVERED by rider {$rider->user->name}.",
+                            "/admin/orders?search=#{$delivery->order->id}"
+                        );
+                    }
                 }
 
                 $delivery->update($update);
