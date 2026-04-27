@@ -63,9 +63,9 @@
                             <td><span class="stock-badge {{ $alert['stock'] == 0 ? 'out' : 'low' }}">{{ $alert['stock'] }} units</span></td>
                             <td style="text-align: right;">
                                 <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                                    <button class="pro-btn-action-mini restock" onclick="openRestockModal({{ $alert['id'] }}, '{{ addslashes($alert['name']) }}')">Restock</button>
-                                    <button class="pro-btn-action-mini remove" onclick="removeSizePermanently({{ $alert['id'] }}, '{{ addslashes($alert['color']) }}', '{{ addslashes($alert['size']) }}', true)" title="Delete size permanently">
-                                        <i data-lucide="trash-2" style="width: 14px;"></i>
+                                    <button class="pro-btn-action-mini restock" onclick='openRestockModal({{ $alert['id'] }}, {{ json_encode($alert['name']) }})'>Restock</button>
+                                    <button class="pro-btn-action-mini remove" onclick='removeSizePermanently({{ $alert['id'] }}, {{ json_encode($alert['color']) }}, {{ json_encode($alert['size']) }}, true)' title="Delete size permanently">
+                                        <i data-lucide="trash-2" style="width: 14px; pointer-events: none;"></i>
                                     </button>
                                 </div>
                             </td>
@@ -94,11 +94,11 @@
                     <span class="pro-stock">{{ $product->stock }} in stock</span>
                 </div>
                 <div class="pro-card-actions">
-                    <button class="pro-btn-main edit" onclick="openProductModal({{ json_encode($product) }})">
-                        <i data-lucide="edit-3"></i> Edit
+                    <button class="pro-btn-main edit" onclick='openProductModal({{ json_encode($product) }})'>
+                        <i data-lucide="edit-3" style="pointer-events: none;"></i> Edit
                     </button>
-                    <button class="pro-btn-main stock" onclick="openRestockModal({{ $product->id }}, '{{ addslashes($product->name) }}')">
-                        <i data-lucide="package-plus"></i> Stock
+                    <button class="pro-btn-main stock" onclick='openRestockModal({{ $product->id }}, {{ json_encode($product->name) }})'>
+                        <i data-lucide="package-plus" style="pointer-events: none;"></i> Stock
                     </button>
                     <form action="{{ route('admin.products.delete', $product->id) }}" method="POST" onsubmit="return confirm('Delete permanently?')" style="display: contents;">
                         @csrf @method('DELETE')
@@ -199,18 +199,38 @@
    WIDE RESTOCK MODAL (Consistent & Simple)
 ══════════════════════════════════════════════════════ -->
 <div id="restockModal" class="pro-modal-overlay" onclick="handleOutsideClick(event, 'restockModal')">
-    <div class="pro-modal-container" style="width: 800px; height: auto; max-height: 85vh;">
-        <div class="pro-modal-header">
-            <h2>Inventory Restock</h2>
-            <button onclick="closeRestockModal()" class="pro-modal-close-btn">&times;</button>
+    <div class="pro-modal-container" style="width: 900px; height: auto; max-height: 85vh;">
+        <div class="pro-modal-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <h2 style="margin: 0;">Inventory Restock</h2>
+                <button onclick="closeRestockModal()" class="pro-modal-close-btn">&times;</button>
+            </div>
+            <p id="restock_product_name" style="margin: 0; font-size: 14px; font-weight: 700; color: #64748b;"></p>
         </div>
-        <div class="pro-modal-scroller" style="padding: 0;">
-            <div id="restock_table_area"></div>
+        
+        <!-- Info Alert -->
+        <div style="padding: 15px 45px 0;">
+            <div style="background: #eff6ff; border: 1.5px solid #dbeafe; border-radius: 14px; padding: 14px 20px; display: flex; align-items: center; gap: 12px;">
+                <i data-lucide="info" style="color: #3b82f6; width: 20px;"></i>
+                <p style="margin: 0; font-size: 13px; font-weight: 700; color: #1e40af;">
+                    Enter how many units to <b>ADD</b> to each size. Current stock will not decrease.
+                </p>
+            </div>
         </div>
+
+        <div class="pro-modal-scroller" style="padding: 25px 45px 45px;">
+            <div id="restock_table_area" style="border: 2px solid #f1f5f9; border-radius: 20px; overflow: hidden; background: #fff;"></div>
+        </div>
+
         <div class="pro-modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="font-weight: 800; color: #64748b;">New Units: <span id="r_sum_display" style="font-size: 26px; color: #111827; margin-left: 15px;">0</span></div>
-            <div style="display: flex; gap: 15px;">
-                <button onclick="closeRestockModal()" class="pro-btn-ghost">Cancel</button>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="font-size: 13px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em;">New Units Total</span>
+                <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 6px 16px;">
+                    <span id="r_sum_display" style="font-size: 24px; font-weight: 900; color: #111827;">0</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closeRestockModal()" class="pro-btn-ghost" style="margin:0;">Cancel</button>
                 <button onclick="submitRestockNow()" class="pro-btn-solid">Update Stock</button>
             </div>
         </div>
@@ -274,8 +294,17 @@
 .pro-modal-header { padding: 30px 45px; border-bottom: 2.5px solid #f1f5f9; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
 .pro-modal-header h2 { margin: 0; font-size: 26px; font-weight: 900; }
 .pro-modal-close-btn { background: #f1f5f9; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 32px; color: #94a3b8; cursor: pointer; line-height: 1; }
-.pro-modal-scroller { flex: 1; overflow-y: auto; padding: 45px; }
+.pro-modal-scroller { flex: 1; overflow-y: auto; padding: 45px; min-height: 0; }
 .pro-modal-footer { padding: 30px 45px; border-top: 2.5px solid #f1f5f9; background: #fafafa; flex-shrink: 0; text-align: right; }
+
+/* The "Magic" Flex Fix for Scrolling Forms */
+.pro-modal-form-logic {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
 
 .pro-form-section { border-bottom: 2px solid #f1f5f9; margin-bottom: 45px; padding-bottom: 45px; }
 .pro-section-title { font-size: 11px; font-weight: 900; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.12em; margin-bottom: 25px; }
@@ -290,15 +319,50 @@
 .pro-btn-ghost { background: #fff; border: 2.5px solid var(--p-border); color: #64748b; padding: 16px 36px; border-radius: 16px; font-weight: 800; margin-right: 15px; cursor: pointer; }
 
 /* Restock Table */
-.r-table { width: 100%; border-collapse: collapse; }
-.r-table th { text-align: left; padding: 20px 35px; font-size: 11px; text-transform: uppercase; color: #94a3b8; border-bottom: 2px solid #f1f5f9; }
-.r-table td { padding: 20px 35px; border-bottom: 1px solid #f8fafc; font-size: 15px; vertical-align: middle; }
-.r-color-label { font-weight: 900; color: var(--p-dark); vertical-align: top !important; padding-top: 25px !important; width: 120px; }
-.r-input-pill { background: #eff6ff; border: 2.5px solid #dbeafe; border-radius: 14px; padding: 10px 18px; display: inline-flex; align-items: center; gap: 10px; }
-.r-input-pill span { font-weight: 900; color: var(--p-blue); font-size: 16px; }
+/* Restock Table */
+.r-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Every header cell — identical */
+.r-table thead th {
+    padding: 12px 20px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: .1em;
+    border-bottom: 2px solid #f1f5f9;
+    text-align: left;
+    background: #fafafa;
+}
+
+/* Every body row — identical height */
+.r-table tbody tr {
+    height: 64px;
+    transition: background 0.1s;
+}
+
+/* Every body cell — identical padding */
+.r-table tbody td {
+    padding: 14px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 14px;
+}
+
+/* Remove bottom border from last row */
+.r-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Hover effect on rows */
+.r-table tbody tr:hover {
+    background: #f8fafc;
+}
+
 .r-qty-field { border: none; background: none; width: 45px; text-align: center; font-size: 18px; font-weight: 900; color: var(--p-blue); outline: none; }
-.r-trash-btn { background: #fff; border: 1.5px solid #fee2e2; color: var(--p-red); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-.r-trash-btn:hover { background: #fef2f2; }
 
 /* Variants */
 .pro-v-card { background: #fff; border: 2.5px solid #f1f5f9; border-radius: 28px; padding: 25px; margin-bottom: 25px; position: relative; }
@@ -403,27 +467,186 @@ function renderVariantList() {
                     <input type="file" name="color_images[${idx}]" class="pro-form-input" style="font-size:11px; padding:13px;">
                 </div>
             </div>
-            <div class="pro-s-grid">
-                ${Object.keys(v.sizes).map(sz => `
-                    <div class="pro-s-box">
-                        <span>${sz}</span>
-                        <input type="number" min="0" value="${v.sizes[sz]}" oninput="variantsStore[${idx}].sizes['${sz}']=this.value">
-                        <button type="button" class="pro-s-del" onclick="deleteSizeFromStore(${idx}, '${sz}')">&times;</button>
+            <!-- SIZES SECTION: Replaces the old prompt() system -->
+            <div style="margin-top: 25px; padding-top: 25px; border-top: 1.5px solid #f1f5f9;">
+                <div style="font-size:11px;font-weight:900;text-transform:uppercase;color:#94a3b8;letter-spacing:.1em;margin-bottom:12px;">
+                    Select Sizes — click to toggle on/off
+                </div>
+
+                <!-- PRESET SIZE BUTTONS -->
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+                    ${PRESET_SIZES.map(sz => {
+                        const isSelected = sz in v.sizes;
+                        return `
+                            <button type="button"
+                                onclick="togglePresetSize(${idx}, '${sz}')"
+                                style="padding:8px 16px; border-radius:10px; font-size:13px; font-weight:800; cursor:pointer; transition:all .15s;
+                                       ${isSelected 
+                                         ? 'background:#111827;color:#fff;border:2px solid #111827;' 
+                                         : 'background:#f8fafc;color:#374151;border:2px solid #e2e8f0;'
+                                       }">
+                                ${sz}
+                                ${isSelected ? ' ✓' : ''}
+                            </button>
+                        `;
+                    }).join('')}
+                </div>
+
+                <!-- CUSTOM SIZE INPUT -->
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:20px;">
+                    <input type="text"
+                           id="customSizeInput_${idx}"
+                           placeholder="Custom size (e.g. 32, EU38, One Size)"
+                           style="flex:1;padding:10px 14px; border:2px solid #f1f5f9; background:#f8fafc; border-radius:12px; font-size:13px; font-weight:700; outline:none;"
+                           onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomSize(${idx});}">
+                    <button type="button"
+                            onclick="addCustomSize(${idx})"
+                            style="padding:10px 18px; background:#f1f5f9; border:none; border-radius:12px; font-size:13px; font-weight:800; cursor:pointer;">
+                        + Add
+                    </button>
+                </div>
+
+                <!-- STOCK INPUTS FOR SELECTED SIZES -->
+                ${Object.keys(v.sizes).length > 0 ? `
+                    <div style="font-size:11px;font-weight:900;text-transform:uppercase;color:#94a3b8;letter-spacing:.1em;margin-bottom:12px;">
+                        Enter Stock Per Size
                     </div>
-                `).join('')}
-                <button type="button" class="pro-btn-add-variant" style="height:54px; margin-left:auto;" onclick="addSizeToStore(${idx})">+ Add Size</button>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                        ${Object.entries(v.sizes).map(([sz, qty]) => `
+                            <div style="position:relative;background:#f8fafc; border:2px solid #e2e8f0;border-radius:12px; padding:12px 16px;text-align:center; min-width:80px;">
+                                <button type="button"
+                                        onclick="deleteSizeFromStore(${idx}, '${sz}')"
+                                        style="position:absolute;top:-8px;right:-8px; width:22px;height:22px; background:#ef4444;color:#fff; border:none;border-radius:50%; font-size:13px;cursor:pointer; display:flex;align-items:center; justify-content:center;">
+                                    &times;
+                                </button>
+                                <div style="font-size:11px;font-weight:900; color:#94a3b8;margin-bottom:6px;">
+                                    ${sz}
+                                </div>
+                                <input type="number"
+                                       min="0"
+                                       value="${qty}"
+                                       oninput="updateSizeStock(${idx}, '${sz}', this.value)"
+                                       style="border:none;background:none; width:50px;text-align:center; font-size:18px;font-weight:900; color:#111827;outline:none;">
+                                <div style="font-size:9px;color:#94a3b8;margin-top:4px;">
+                                    units
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : `
+                    <div style="text-align:center;padding:16px; color:#94a3b8;font-size:13px; border:2px dashed #e2e8f0; border-radius:12px;">
+                        Click the size buttons above to add sizes
+                    </div>
+                `}
             </div>
         `;
         list.appendChild(card);
     });
 }
 
-function addSizeToStore(idx) {
-    let s = prompt("Enter Size Name:");
-    if(s) { variantsStore[idx].sizes[s] = 0; renderVariantList(); }
+/**
+ * PRESET_SIZES
+ * 
+ * These are the standard clothing sizes that every 
+ * product can use. Instead of typing sizes manually,
+ * the admin just clicks these buttons.
+ * 
+ * "Free Size" means the item fits everyone 
+ * regardless of size (like a scarf or bag).
+ */
+const PRESET_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Free Size'];
+
+/**
+ * Toggles a preset size on or off for a color variant.
+ * 
+ * If the size is NOT in the variant: add it with stock = 0
+ * If the size IS already in the variant: remove it
+ * 
+ * Then re-renders the variant list so the UI updates.
+ * 
+ * @param {number} idx  - which color variant (0, 1, 2...)
+ * @param {string} size - the size name e.g. "S", "M", "XL"
+ */
+function togglePresetSize(idx, size) {
+    // Check if this size already exists in this variant
+    if (size in variantsStore[idx].sizes) {
+        // Size exists — remove it
+        // Confirm if it already has stock entered to prevent accidents
+        if (variantsStore[idx].sizes[size] > 0) {
+            if (!confirm('This size has stock entered. Remove it?')) {
+                return; // Admin said no — do nothing
+            }
+        }
+        delete variantsStore[idx].sizes[size];
+    } else {
+        // Size does not exist — add it with 0 stock
+        variantsStore[idx].sizes[size] = 0;
+    }
+    
+    // Re-render the whole variant list to show the change
+    renderVariantList();
+}
+
+/**
+ * Adds a custom size that is not in the preset list.
+ * 
+ * Admin types a size in the custom input box and 
+ * clicks "+ Add". This function reads that input,
+ * validates it, and adds it to the variant.
+ * 
+ * @param {number} idx - which color variant (0, 1, 2...)
+ */
+function addCustomSize(idx) {
+    // Get the custom input field for this color variant
+    const input = document.getElementById('customSizeInput_' + idx);
+    
+    // Read what the admin typed and remove extra spaces
+    const size = input.value.trim().toUpperCase();
+    
+    // Do not add if empty
+    if (!size) {
+        alert('Please type a size name first.');
+        return;
+    }
+    
+    // Do not add if this size already exists
+    if (size in variantsStore[idx].sizes) {
+        alert(size + ' is already added to this color.');
+        input.value = '';
+        return;
+    }
+    
+    // Add the custom size with 0 stock
+    variantsStore[idx].sizes[size] = 0;
+    
+    // Clear the input field
+    input.value = '';
+    
+    // Re-render to show the new size
+    renderVariantList();
+}
+
+/**
+ * Updates the stock number for a specific size 
+ * when admin types in the stock input box.
+ * 
+ * @param {number} idx   - which color variant
+ * @param {string} size  - which size (e.g. "M")
+ * @param {number} value - the new stock number
+ */
+function updateSizeStock(idx, size, value) {
+    // Make sure the value is a valid number, minimum 0
+    const qty = Math.max(0, parseInt(value) || 0);
+    variantsStore[idx].sizes[size] = qty;
+    // No need to re-render — just update the stored value
 }
 
 function deleteSizeFromStore(idx, size) {
+    if (variantsStore[idx].sizes[size] > 0) {
+        if (!confirm('This size has stock entered. Remove it?')) {
+            return;
+        }
+    }
     delete variantsStore[idx].sizes[size];
     renderVariantList();
 }
@@ -433,40 +656,142 @@ document.getElementById('productForm').onsubmit = function() {
 };
 
 // 3. RESTOCK & CLEANUP
+/**
+ * openRestockModal()
+ * 
+ * Opens the restock popup for a specific product.
+ * 
+ * HOW IT WORKS:
+ * 1. Shows the modal immediately with a loading message
+ * 2. Fetches the current stock data from the server
+ *    via AJAX (GET /admin/products/{id}/stock-data)
+ * 3. Builds an HTML table showing every 
+ *    color + size combination with its current stock
+ * 4. Admin types how many units to ADD in each row
+ * 5. The "New Units" total updates live
+ * 6. Admin clicks "Update Stock" to save
+ * 
+ * WHY NO ROWSPAN:
+ * We intentionally show the color name on EVERY row 
+ * instead of using HTML rowspan. This is because 
+ * rowspan in dynamically injected HTML (via innerHTML) 
+ * causes inconsistent rendering across browsers, 
+ * making rows appear different sizes. Every row 
+ * being identical guarantees consistent appearance.
+ * 
+ * SECURITY:
+ * The actual stock update happens on the server.
+ * The server validates all quantities are >= 0.
+ * The server uses a database transaction and 
+ * row lock to prevent two restocks at the same time.
+ * 
+ * @param {number} id   - The product ID
+ * @param {string} name - The product name for display
+ */
 function openRestockModal(id, name) {
     const modal = document.getElementById('restockModal');
     const area = document.getElementById('restock_table_area');
-    area.innerHTML = '<div style="padding:50px; text-align:center; color:#94a3b8;">Processing Catalog Data...</div>';
+    document.getElementById('restock_product_name').innerText = name;
+    area.innerHTML = '<div style="padding:100px 50px; text-align:center; color:#94a3b8;"><div class="pro-spinner" style="margin-bottom:20px;"></div><p style="font-weight:800; font-size:15px;">Loading Inventory Data...</p></div>';
     
     document.body.classList.remove('modal-open');
     document.body.classList.add('modal-open');
 
-    fetch('/admin/products/' + id + '/stock-data').then(res => res.json()).then(data => {
-        let h = '<table class="r-table"><thead><tr><th>Color</th><th>Size</th><th>Stock</th><th style="text-align:right;">+ Add Units</th><th style="width:50px;"></th></tr></thead><tbody>';
+    // SECURITY: Include CSRF token in headers (Standard practice)
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '{{ csrf_token() }}';
+    
+    fetch('/admin/products/' + id + '/stock-data', {
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        let h = '';
+        h += '<table class="r-table">';
+        h += '<thead>';
+        h += '<tr>';
+        h += '<th>Color</th>';
+        h += '<th>Size</th>';
+        h += '<th style="text-align:center;">Current Stock</th>';
+        h += '<th style="text-align:center;">+ Add Units</th>';
+        h += '<th style="text-align:center; width:60px;"></th>';
+        h += '</tr>';
+        h += '</thead>';
+        h += '<tbody>';
+        
         if (data.hasVariants) {
-            data.variants.forEach(v => {
-                let sizes = Object.keys(v.sizes);
+            data.variants.forEach((v, variantIdx) => {
+                const sizes = Object.keys(v.sizes);
+                const colorHex = v.colorHex || '#ccc';
+                const isLast = variantIdx === data.variants.length - 1;
+                
                 if (sizes.length === 0) return;
-                sizes.forEach((sz, i) => {
-                    let k = v.color + '_' + sz;
-                    h += `<tr id="r-row-${id}-${v.color.replace(' ','_')}-${sz}">
-                        ${i===0?`<td rowspan="${sizes.length}" class="r-color-label">${v.color}</td>`:''}
-                        <td><span class="pro-pill">${sz}</span></td>
-                        <td style="font-weight:700; color:#64748b;">${v.sizes[sz]}</td>
-                        <td style="text-align:right;"><div class="r-input-pill"><span>+</span><input type="number" min="0" value="0" class="r-qty-field r-fld" data-key="${k}" oninput="recalcRestock()"></div></td>
-                        <td><button type="button" class="r-trash-btn" onclick="removeSizePermanently(${id}, '${v.color}', '${sz}', false)"><i data-lucide="trash-2" style="width:14px;"></i></button></td>
-                    </tr>`;
+                
+                sizes.forEach((sz, sizeIdx) => {
+                    const qty = v.sizes[sz];
+                    const key = v.color + '_' + sz;
+                    const rowId = 'r-row-' + id + '-' + v.color.replace(/ /g,'_') + '-' + sz;
+                    const stockColor = qty === 0 ? '#ef4444' : qty <= 5 ? '#d97706' : '#16a34a';
+                    
+                    const isFirstSizeOfColor = sizeIdx === 0;
+                    const isLastSizeOfColor = sizeIdx === sizes.length - 1;
+                    const topBorder = isFirstSizeOfColor && variantIdx > 0 ? 'border-top:2px solid #f1f5f9;' : '';
+                    const bottomBorder = isLastSizeOfColor && !isLast ? '' : 'border-bottom:1px solid #f8fafc;';
+                    
+                    h += `<tr id="${rowId}" style="${topBorder}${bottomBorder}">`;
+                    
+                    // COLOR column
+                    h += `<td><div style="display:flex;align-items:center;gap:10px;">`;
+                    h += `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${colorHex};border:1.5px solid rgba(0,0,0,0.1);flex-shrink:0;"></span>`;
+                    h += `<span style="font-size:13px;font-weight:800;color:#111827;">${v.color}</span>`;
+                    h += `</div></td>`;
+                    
+                    // SIZE column
+                    h += `<td><span style="background:#f1f5f9;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:900;color:#374151;">${sz}</span></td>`;
+                    
+                    // CURRENT STOCK column
+                    h += `<td style="text-align:center;"><span style="font-size:16px;font-weight:900;color:${stockColor};">${qty}</span></td>`;
+                    
+                    // ADD UNITS column
+                    h += `<td style="text-align:center;"><div style="display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:8px 14px;">`;
+                    h += `<span style="font-size:14px;font-weight:900;color:#3b82f6;">+</span>`;
+                    h += `<input type="number" min="0" value="0" class="r-qty-field r-fld" data-key="${key}" style="border:none;background:none;width:40px;text-align:center;font-size:16px;font-weight:900;color:#3b82f6;outline:none;" oninput="recalcRestock()">`;
+                    h += `</div></td>`;
+                    
+                    // ACTION column
+                    h += `<td style="text-align:center;"><button type="button" onclick="removeSizePermanently(${id}, '${v.color.replace(/'/g, "\\'")}', '${sz.replace(/'/g, "\\'")}', false)" style="background:#fee2e2;border:none;color:#ef4444;width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;">`;
+                    h += `<i data-lucide="trash-2" style="width:15px;height:15px;"></i></button></td>`;
+                    
+                    h += `</tr>`;
                 });
             });
         } else {
-            h += `<tr><td class="r-color-label">Global</td><td>-</td><td>${data.stock}</td><td style="text-align:right;"><div class="r-input-pill"><span>+</span><input type="number" min="0" value="0" class="r-qty-field r-fld" data-key="default" oninput="recalcRestock()"></div></td><td></td></tr>`;
+            const stockColor = data.stock === 0 ? '#ef4444' : data.stock <= 5 ? '#d97706' : '#16a34a';
+            h += `<tr>`;
+            h += `<td style="font-size:13px;font-weight:800;color:#111827;">Standard Product</td>`;
+            h += `<td><span style="background:#f1f5f9;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:900;color:#94a3b8;">—</span></td>`;
+            h += `<td style="text-align:center;"><span style="font-size:16px;font-weight:900;color:${stockColor};">${data.stock}</span></td>`;
+            h += `<td style="text-align:center;"><div style="display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:8px 14px;">`;
+            h += `<span style="font-size:14px;font-weight:900;color:#3b82f6;">+</span>`;
+            h += `<input type="number" min="0" value="0" class="r-qty-field r-fld" data-key="default" style="border:none;background:none;width:40px;text-align:center;font-size:16px;font-weight:900;color:#3b82f6;outline:none;" oninput="recalcRestock()">`;
+            h += `</div></td>`;
+            h += `<td></td>`;
+            h += `</tr>`;
         }
+        
         area.innerHTML = h + '</tbody></table>';
         lucide.createIcons();
+    })
+    .catch(err => {
+        area.innerHTML = '<div style="text-align:center;padding:100px 40px;color:#ef4444;font-size:14px;font-weight:700;">Failed to load stock data. Please check your connection and try again.</div>';
     });
     
     document.getElementById('restockForm').action = '/admin/products/' + id + '/restock';
     document.getElementById('r_sum_display').innerText = '0';
+    document.getElementById('r_sum_display').parentElement.style.borderColor = '#e2e8f0';
     modal.style.display = 'flex';
 }
 
@@ -475,6 +800,63 @@ function closeRestockModal() {
     document.body.classList.remove('modal-open');
 }
 
+/**
+ * recalcRestock()
+ * 
+ * Runs every time admin types a number in 
+ * any "+ Add Units" input field.
+ * 
+ * It adds up all the numbers across all rows 
+ * and shows the total in the "New Units" display.
+ * 
+ * It also builds hidden form inputs so when 
+ * the form submits, all the quantities are 
+ * included in the POST request to the server.
+ */
+function recalcRestock() {
+    let t = 0; let ins = '';
+    document.querySelectorAll('.r-fld').forEach(f => {
+        let v = parseInt(f.value) || 0; t += v;
+        ins += `<input type="hidden" name="restock[${f.dataset.key}]" value="${v}">`;
+    });
+    document.getElementById('r_sum_display').innerText = t;
+    const summaryBox = document.getElementById('r_sum_display').parentElement;
+    if (t > 0) {
+        summaryBox.style.background = '#f0fdf4';
+        summaryBox.style.borderColor = '#bbf7d0';
+        document.getElementById('r_sum_display').style.color = '#16a34a';
+    } else {
+        summaryBox.style.background = '#f8fafc';
+        summaryBox.style.borderColor = '#e2e8f0';
+        document.getElementById('r_sum_display').style.color = '#111827';
+    }
+    document.getElementById('r_inputs_hidden').innerHTML = ins;
+}
+
+function submitRestockNow() { if(confirm('Update stock?')) document.getElementById('restockForm').submit(); }
+
+/**
+ * removeSizePermanently()
+ * 
+ * Permanently deletes a size from a product variant.
+ * This is different from restocking — this REMOVES 
+ * the size entirely from the product.
+ * 
+ * Example: If "Blue / XS" has 0 stock and is no 
+ * longer being sold, admin can remove it so it 
+ * does not appear in the restock table anymore.
+ * 
+ * This sends a POST request to the server which 
+ * removes the size from the variants JSON in 
+ * the database and recalculates the total stock.
+ * 
+ * @param {number}  id         - Product ID
+ * @param {string}  color      - Color name e.g. "Blue"
+ * @param {string}  size       - Size name e.g. "XS"
+ * @param {boolean} fromBanner - true if called from 
+ *                               the inventory alerts banner,
+ *                               false if from restock modal
+ */
 function removeSizePermanently(id, color, size, fromBanner) {
     if (!confirm(`Delete "${size}" forever?`)) return;
     const fd = new FormData();
@@ -483,25 +865,13 @@ function removeSizePermanently(id, color, size, fromBanner) {
     fd.append('size', size);
     fetch(`/admin/products/${id}/remove-size`, { method: 'POST', body: fd }).then(res => res.json()).then(res => {
         if (res.success) {
-            const rowId = `r-row-${id}-${color.replace(' ','_')}-${size}`;
-            const bannerId = `alert-row-${id}-${color.replace(' ','_')}-${size}`;
+            const rowId = `r-row-${id}-${color.replace(/ /g,'_')}-${size}`;
+            const bannerId = `alert-row-${id}-${color.replace(/ /g,'_')}-${size}`;
             if (document.getElementById(rowId)) document.getElementById(rowId).style.display = 'none';
             if (document.getElementById(bannerId)) document.getElementById(bannerId).style.display = 'none';
         }
     });
 }
-
-function recalcRestock() {
-    let t = 0; let ins = '';
-    document.querySelectorAll('.r-fld').forEach(f => {
-        let v = parseInt(f.value) || 0; t += v;
-        ins += `<input type="hidden" name="restock[${f.dataset.key}]" value="${v}">`;
-    });
-    document.getElementById('r_sum_display').innerText = t;
-    document.getElementById('r_inputs_hidden').innerHTML = ins;
-}
-
-function submitRestockNow() { if(confirm('Update stock?')) document.getElementById('restockForm').submit(); }
 
 // 4. UTILS
 function toggleAlerts() {

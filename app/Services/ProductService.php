@@ -59,26 +59,54 @@ class ProductService
         }
 
         $built = [];
+        $colorMap = [];
+
         foreach ($raw as $idx => $v) {
             $color    = trim($v['color'] ?? '');
             $colorHex = trim($v['colorHex'] ?? '');
             $sizes    = isset($v['sizes']) && is_array($v['sizes']) ? $v['sizes'] : [];
-            $image    = $v['image'] ?? null; // existing stored URL
+            $image    = $v['image'] ?? null;
 
-            // IMAGE UPLOAD: If a new photo was chosen for this color, save it to the "products" folder.
+            if ($color === '') continue;
+
+            // IMAGE UPLOAD: If a new photo was chosen for this color, save it.
             if (isset($uploadedColorImages[$idx])) {
                 $path  = $uploadedColorImages[$idx]->store('products', 'public');
                 $image = '/storage/' . $path;
             }
+            
+            // SECURITY: Sanitize each size key and stock quantity.
+            $cleanSizes = [];
+            foreach ($sizes as $sizeKey => $qty) {
+                $cleanKey = substr(trim((string)$sizeKey), 0, 20);
+                if ($cleanKey === '') continue;
+                $cleanQty = max(0, (int)$qty);
+                $cleanSizes[$cleanKey] = $cleanQty;
+            }
 
-            if ($color === '') continue;
-
-            $built[] = [
-                'color'    => $color,
-                'colorHex' => $colorHex,
-                'image'    => $image,
-                'sizes'    => $sizes,
-            ];
+            // DUPLICATE PROTECTION: If this color already exists in this product, merge the sizes.
+            if (isset($colorMap[$color])) {
+                $existingIdx = $colorMap[$color];
+                foreach ($cleanSizes as $sz => $qty) {
+                    if (isset($built[$existingIdx]['sizes'][$sz])) {
+                        $built[$existingIdx]['sizes'][$sz] += $qty;
+                    } else {
+                        $built[$existingIdx]['sizes'][$sz] = $qty;
+                    }
+                }
+                // If the duplicate entry has an image and the existing one doesn't, take it.
+                if ($image && !$built[$existingIdx]['image']) {
+                    $built[$existingIdx]['image'] = $image;
+                }
+            } else {
+                $colorMap[$color] = count($built);
+                $built[] = [
+                    'color'    => $color,
+                    'colorHex' => $colorHex,
+                    'image'    => $image,
+                    'sizes'    => $cleanSizes,
+                ];
+            }
         }
         return $built;
     }

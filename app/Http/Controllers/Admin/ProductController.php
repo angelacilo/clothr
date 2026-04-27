@@ -116,6 +116,7 @@ class ProductController extends Controller
             'description'          => 'nullable',
             'image'                => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'color_images.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'variants_data'        => 'nullable|string',
         ]);
 
         // 2. Handle variant images (if the admin uploaded photos for specific colors).
@@ -151,6 +152,7 @@ class ProductController extends Controller
             'description'          => 'nullable',
             'image'                => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
             'color_images.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
+            'variants_data'        => 'nullable|string',
         ]);
 
         $colorImages = [];
