@@ -1,4 +1,0 @@
-The WebSockets server wasn't running: The browser was trying to connect to port 6001 but failing because the local websockets server wasn't actively listening. I have started it in the background using php artisan websockets:serve.
-Missing Javascript Dependencies: The libraries laravel-echo and pusher-js were missing from your node_modules and failed to compile initially when I tried to rebuild the script. I've installed them via NPM.
-Missing wssPort definition: Your resources/js/bootstrap.js configuration was missing the wssPort option. When browsers try to connect securely (or automatically upgrade), it defaults to port 443 without wssPort, causing it to try to connect to standard wss://127.0.0.1 (which also failed). I've explicitly set wssPort: 6001.
-Asset Compilation: Finally, I ran npm run dev to recompile your scripts so that the app.js file now contains the correct Echo setup and dependencies.
