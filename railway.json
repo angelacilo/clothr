@@ -1,0 +1,17 @@
+{
+  "build": {
+    "builder": "dockerfile"
+  },
+  "deploy": {
+    "restartPolicyType": "on_failure",
+    "restartPolicyMaxRetries": 5,
+    "healthchecks": {
+      "readiness": {
+        "command": "curl -f http://localhost/ || exit 1",
+        "interval": 10,
+        "timeout": 5,
+        "startPeriod": 30
+      }
+    }
+  }
+}
