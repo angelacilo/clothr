@@ -197,10 +197,24 @@ class ProfileController extends Controller
     }
 
     /**
-     * Shows the reviews written by the customer.
+     * Shows the reviews written by the customer and products awaiting review.
      */
-    public function reviews()
+    public function reviews(Request $request)
     {
-        return view('profile.reviews');
+        $status = $request->get('status', 'awaiting');
+        $user = auth()->user();
+
+        // Always get delivered orders count for the tab badge
+        $deliveredOrders = Order::where('user_id', $user->id)
+            ->where('status', 'Delivered')
+            ->latest()
+            ->get();
+
+        if ($status == 'reviewed') {
+            $reviews = $user->reviews()->with('product')->latest()->get();
+            return view('profile.reviews', compact('reviews', 'status', 'deliveredOrders'));
+        }
+
+        return view('profile.reviews', compact('deliveredOrders', 'status'));
     }
 }

@@ -93,7 +93,22 @@ class ProductController extends Controller
             $ratingCounts[$b->rating] = $b->count;
         }
 
+        // 4. WISHLIST CHECK:
+        $inWishlist = false;
+        if (auth()->check()) {
+            $inWishlist = auth()->user()->wishlists()->where('product_id', $id)->exists();
+        }
+
+        // 5. FETCH REVIEWS:
+        // Get the actual reviews to display at the bottom of the page.
+        $reviewsList = \App\Models\Review::where('product_id', $id)
+            ->where('is_visible', true)
+            ->with('user')
+            ->latest()
+            ->take(10)
+            ->get();
+
         // Send all gathered data to the product view.
-        return view('shop.product', compact('product', 'canReview', 'userReview', 'totalReviews', 'avgRating', 'ratingCounts'));
+        return view('shop.product', compact('product', 'canReview', 'userReview', 'totalReviews', 'avgRating', 'ratingCounts', 'inWishlist', 'reviewsList'));
     }
 }

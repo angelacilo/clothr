@@ -400,8 +400,9 @@
                     <span class="product-badge" style="background:var(--cobalt);">Sale</span>
                 @endif
 
-                <button class="product-card__wishlist" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
-                    <i data-lucide="heart" size="17"></i>
+                @php $inWishlist = in_array($product->id, $wishlistProductIds ?? []); @endphp
+                <button class="product-card__wishlist {{ $inWishlist ? 'active' : '' }}" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
+                    <i data-lucide="heart" size="17" {{ $inWishlist ? 'fill=currentColor' : '' }}></i>
                 </button>
 
                 <a href="{{ route('product', $product->id) }}">

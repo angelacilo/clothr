@@ -56,8 +56,14 @@ class HomeController extends Controller
         // 4. Get all visible categories for the navigation menu.
         $categories = Category::where('isVisible', true)->get();
         
+        // 5. Get the current user's wishlist product IDs (for the heart icons)
+        $wishlistProductIds = [];
+        if (auth()->check()) {
+            $wishlistProductIds = auth()->user()->wishlists()->pluck('product_id')->toArray();
+        }
+        
         // Send all these groups of products to the homepage view.
-        return view('shop.index', compact('featured', 'superDeals', 'topTrends', 'categories'));
+        return view('shop.index', compact('featured', 'superDeals', 'topTrends', 'categories', 'wishlistProductIds'));
     }
 
     /**

@@ -78,8 +78,14 @@ class ShopController extends Controller
         // 6. PAGINATION: Only load 24 products at a time to keep the page fast.
         $products = $query->paginate(24);
         $categories = Category::where('isVisible', true)->get();
+
+        // 7. Get wishlist IDs
+        $wishlistProductIds = [];
+        if (auth()->check()) {
+            $wishlistProductIds = auth()->user()->wishlists()->pluck('product_id')->toArray();
+        }
         
-        return view('shop.shop', compact('products', 'categories', 'sort'));
+        return view('shop.shop', compact('products', 'categories', 'sort', 'wishlistProductIds'));
     }
 
     /**
@@ -118,6 +124,12 @@ class ShopController extends Controller
         $products = $query->paginate(24);
         $categories = Category::where('isVisible', true)->get();
         
-        return view('shop.category', compact('category', 'products', 'categories', 'sort'));
+        // Wishlist IDs
+        $wishlistProductIds = [];
+        if (auth()->check()) {
+            $wishlistProductIds = auth()->user()->wishlists()->pluck('product_id')->toArray();
+        }
+        
+        return view('shop.category', compact('category', 'products', 'categories', 'sort', 'wishlistProductIds'));
     }
 }

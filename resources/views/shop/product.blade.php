@@ -176,9 +176,9 @@
                         style="padding: 22px; background: var(--cobalt); color: white; border: none; border-radius: 18px; font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 10px 25px rgba(30, 64, 175, 0.2);">
                     Buy It Now
                 </button>
-                <button class="wishlist-btn" onclick="toggleWishlist({{ $product->id }}, this)" 
+                <button class="wishlist-btn {{ $inWishlist ? 'active' : '' }}" onclick="toggleWishlist({{ $product->id }}, this)" 
                         style="padding: 16px; background: none; border: 2px solid var(--border); border-radius: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <i data-lucide="heart" size="20"></i> Add to Wishlist
+                    <i data-lucide="heart" size="20" {{ $inWishlist ? 'fill=currentColor' : '' }}></i> {{ $inWishlist ? 'In Wishlist' : 'Add to Wishlist' }}
                 </button>
             </div>
 
@@ -191,6 +191,94 @@
                 </p>
             </div>
             @endif
+
+            {{-- CUSTOMER REVIEWS SECTION --}}
+            <div style="margin-top: 48px; padding-top: 36px; border-top: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 32px;">
+                    <h2 style="font-size: 24px; font-weight: 800; color: var(--ink);">Customer Reviews</h2>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="color: #fbbf24; display: flex;">
+                            @for($i=1; $i<=5; $i++)
+                                <i data-lucide="star" size="18" {{ $i <= round($avgRating) ? 'fill=currentColor' : '' }}></i>
+                            @endfor
+                        </div>
+                        <span style="font-size: 15px; font-weight: 700; color: var(--ink);">{{ number_format($avgRating, 1) }}</span>
+                        <span style="font-size: 14px; color: var(--ink-muted);">({{ $totalReviews }} reviews)</span>
+                        
+                        @if($canReview)
+                            <button class="btn-sso-black" style="padding: 8px 16px; font-size: 13px; margin-left: 20px;" onclick="openReviewModal()">Write a Review</button>
+                        @elseif(!auth()->check())
+                            <span style="font-size: 12px; color: var(--ink-muted); margin-left: 20px; font-style: italic;">Sign in to review</span>
+                        @elseif(!$userReview)
+                            <span style="font-size: 12px; color: var(--ink-muted); margin-left: 20px; font-style: italic;">Verified buyers only</span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Rating Breakdown Bars --}}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 48px;">
+                    @foreach(array_reverse([1, 2, 3, 4, 5], true) as $star)
+                        @php $percent = $totalReviews > 0 ? ($ratingCounts[$star] / $totalReviews) * 100 : 0; @endphp
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 13px; font-weight: 700; width: 45px; color: var(--ink-muted);">{{ $star }} stars</span>
+                            <div style="flex: 1; height: 6px; background: var(--sand); border-radius: 3px; overflow: hidden;">
+                                <div style="width: {{ $percent }}%; height: 100%; background: var(--ink); border-radius: 3px;"></div>
+                            </div>
+                            <span style="font-size: 13px; font-weight: 600; width: 35px; color: var(--ink-muted); text-align: right;">{{ round($percent) }}%</span>
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Actual Reviews List --}}
+                <div style="display: grid; gap: 32px;">
+                    @if($userReview)
+                        <div style="padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; margin-bottom: 20px;">
+                            <div style="font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase; margin-bottom: 12px;">Your Review</div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="color: #fbbf24; display: flex; gap: 2px;">
+                                    @for($i=1; $i<=5; $i++)
+                                        <i data-lucide="star" size="14" {{ $i <= $userReview->rating ? 'fill=currentColor' : '' }}></i>
+                                    @endfor
+                                </div>
+                                <div style="font-size: 12px; color: #166534;">{{ $userReview->created_at->format('M d, Y') }}</div>
+                            </div>
+                            <p style="font-size: 14px; color: #166534; line-height: 1.5; font-style: italic;">"{{ $userReview->comment }}"</p>
+                        </div>
+                    @endif
+
+                    @forelse($reviewsList as $review)
+                        {{-- Skip the current user's review in the main list as it's pinned above --}}
+                        @if(auth()->check() && $review->user_id == auth()->id()) @continue @endif
+                        <div style="padding-bottom: 24px; border-bottom: 1px solid var(--border-faint);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 32px; height: 32px; background: var(--cream); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--ink-muted);">
+                                        {{ strtoupper(substr($review->user->name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 14px; font-weight: 700; color: var(--ink);">{{ $review->user->name }}</div>
+                                        <div style="font-size: 12px; color: var(--ink-muted);">Verified Buyer</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 12px; color: var(--ink-muted);">{{ $review->created_at->diffForHumans() }}</div>
+                            </div>
+                            <div style="color: #fbbf24; display: flex; gap: 2px; margin-bottom: 10px;">
+                                @for($i=1; $i<=5; $i++)
+                                    <i data-lucide="star" size="14" {{ $i <= $review->rating ? 'fill=currentColor' : '' }}></i>
+                                @endfor
+                            </div>
+                            <p style="font-size: 15px; color: var(--ink-soft); line-height: 1.6; font-style: italic;">
+                                "{{ $review->comment ?? 'No written comment.' }}"
+                            </p>
+                        </div>
+                    @empty
+                        <div style="text-align: center; padding: 40px; background: var(--sand); border-radius: 20px;">
+                            <i data-lucide="message-square" size="32" style="color: var(--ink-faint); margin-bottom: 12px;"></i>
+                            <p style="font-size: 15px; color: var(--ink-muted); font-weight: 600;">No reviews yet. Be the first to share your thoughts!</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -502,9 +590,126 @@ function handleBuyNow() {
 // --- FUNCTION: toggleWishlist ---
 // Saves or removes the item from the user's favorites.
 function toggleWishlist(id, btn) {
-    var active = btn.classList.toggle('active');
-    btn.innerHTML = active ? '<i data-lucide="heart" size="20" fill="currentColor"></i> In Wishlist' : '<i data-lucide="heart" size="20"></i> Add to Wishlist';
-    showToast(active ? 'Saved to wishlist' : 'Removed from wishlist', 'info');
+    if (!isLoggedIn) {
+        showToast('Please sign in to save items', 'info');
+        setTimeout(() => document.getElementById('openLoginModal')?.click(), 900);
+        return;
+    }
+    
+    btn.disabled = true;
+    fetch(`/wishlist/toggle/${id}`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        if (data.status === 'added') {
+            btn.classList.add('active');
+            btn.innerHTML = '<i data-lucide="heart" size="20" fill="currentColor"></i> In Wishlist';
+            showToast('Saved to wishlist', 'info');
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i data-lucide="heart" size="20"></i> Add to Wishlist';
+            showToast('Removed from wishlist');
+        }
+        lucide.createIcons();
+    })
+    .catch(() => {
+        btn.disabled = false;
+        showToast('Failed to update wishlist', 'error');
+    });
 }
+</script>
+
+{{-- Review Submission Modal --}}
+<div class="modal-overlay" id="reviewModal">
+    <div class="login-modal" style="width: 500px; padding: 0; border-radius: 24px; overflow: hidden; border: none; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+        <div class="modal-header" style="background: var(--ink); color: white; padding: 24px; border: none;">
+            <span class="modal-title" style="font-weight: 800; font-size: 18px;">Rate this Product</span>
+            <button class="modal-close" onclick="closeReviewModal()" style="color: white; opacity: 0.7;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 32px;">
+            <form id="reviewForm" onsubmit="submitReview(event)">
+                @csrf
+                <div style="margin-bottom: 28px;">
+                    <label class="form-label" style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; display: block;">How many stars?</label>
+                    <div style="display: flex; gap: 12px; color: #fbbf24; font-size: 32px;" id="starRating">
+                        @for($i=1; $i<=5; $i++)
+                            <i data-lucide="star" class="star-btn" data-value="{{ $i }}" onclick="setRating({{ $i }})" style="cursor: pointer; transition: 0.2s;"></i>
+                        @endfor
+                    </div>
+                    <input type="hidden" name="rating" id="ratingInput" value="5">
+                </div>
+
+                <div style="margin-bottom: 32px;">
+                    <label class="form-label" style="font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; display: block;">Your Feedback</label>
+                    <textarea name="comment" id="reviewComment" class="form-input" style="height: 140px; resize: none; padding: 18px; border-radius: 16px; border: 2px solid var(--border); font-size: 15px;" placeholder="What did you like or dislike about this product?"></textarea>
+                </div>
+
+                <button type="submit" class="btn-sso-black" id="submitReviewBtn" style="width: 100%; padding: 20px; border-radius: 16px; font-weight: 800; font-size: 16px; background: var(--ink); color: white; border: none; cursor: pointer; transition: 0.3s;">
+                    Submit My Review
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openReviewModal() {
+        document.getElementById('reviewModal').classList.add('show');
+        setRating(5);
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    function closeReviewModal() {
+        document.getElementById('reviewModal').classList.remove('show');
+    }
+    function setRating(val) {
+        document.getElementById('ratingInput').value = val;
+        document.querySelectorAll('.star-btn').forEach(star => {
+            if (parseInt(star.dataset.value) <= val) star.setAttribute('fill', 'currentColor');
+            else star.removeAttribute('fill');
+        });
+    }
+    function submitReview(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitReviewBtn');
+        const comment = document.getElementById('reviewComment').value;
+        const rating = document.getElementById('ratingInput').value;
+
+        if (!comment.trim()) {
+            showToast('Please write a short comment', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = 'Sending Review...';
+
+        fetch(`/product/{{ $product->id }}/review`, {
+            method: 'POST',
+            headers: { 
+                'X-CSRF-TOKEN': '{{ csrf_token() }}', 
+                'Content-Type': 'application/json', 
+                'Accept': 'application/json' 
+            },
+            body: JSON.stringify({ rating, comment })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1200);
+            } else {
+                showToast(data.error || 'Submission failed', 'error');
+                btn.disabled = false;
+                btn.innerText = 'Submit My Review';
+            }
+        })
+        .catch(() => {
+            showToast('Something went wrong', 'error');
+            btn.disabled = false;
+            btn.innerText = 'Submit My Review';
+        });
+    }
 </script>
 @endsection

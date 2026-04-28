@@ -74,8 +74,9 @@
                             @elseif($product->isOnSale)
                                 <span class="product-badge" style="background: #2563eb;">Sale</span>
                             @endif
-                            <button class="product-card__wishlist" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
-                                <i data-lucide="heart" size="18"></i>
+                            @php $inWishlist = in_array($product->id, $wishlistProductIds ?? []); @endphp
+                            <button class="product-card__wishlist {{ $inWishlist ? 'active' : '' }}" onclick="event.preventDefault(); toggleWishlistGlobal({{ $product->id }}, this)">
+                                <i data-lucide="heart" size="18" {{ $inWishlist ? 'fill=currentColor' : '' }}></i>
                             </button>
                             <a href="{{ route('product', $product->id) }}">
                                 <div class="product-card__img-box">
