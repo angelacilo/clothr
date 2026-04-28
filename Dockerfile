@@ -1,4 +1,4 @@
-# Use official PHP image with Apache
+# Use PHP 8.1 with Apache
 FROM php:8.1-apache
 
 # Set working directory
@@ -14,62 +14,79 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
+    --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Enable Apache modules
+RUN a2enmod rewrite headers
 
-# Copy composer from official image
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Copy composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy project files
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install PHP dependencies with composer
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-progress
 
-# Set permissions for Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Remove default Apache config and create new one
-RUN rm /etc/apache2/sites-enabled/000-default.conf
+# Disable default site
+RUN a2dissite 000-default.conf
 
-# Create new Apache configuration
-RUN echo '<VirtualHost *:80>\n\
-    ServerName clothr-production.up.railway.app\n\
-    DocumentRoot /var/www/html/public\n\
-\n\
-    <Directory /var/www/html>\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        RewriteEngine On\n\
-        RewriteCond %{REQUEST_FILENAME} !-f\n\
-        RewriteCond %{REQUEST_FILENAME} !-d\n\
-        RewriteRule ^ /index.php [QSA,L]\n\
-    </Directory>\n\
-\n\
-    <Directory /var/www/html/public>\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-\n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/clothr.conf
+# Create Apache VirtualHost configuration
+RUN cat > /etc/apache2/sites-available/clothr.conf <<'EOF'
+<VirtualHost *:80>
+    ServerName clothr-production.up.railway.app
+    DocumentRoot /var/www/html/public
 
-# Enable the new site
+    <Directory /var/www/html/public>
+        AllowOverride All
+        Require all granted
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ index.php [QSA,L]
+    </Directory>
+
+    <Directory /var/www/html>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+EOF
+
+# Enable the site
 RUN a2ensite clothr.conf
 
 # Health check
-HEALTHCHECK --interval=10s --timeout=3s --start-period=40s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=5s --start-period=45s --retries=3 \
     CMD curl -f http://localhost/ || exit 1
 
 # Expose port
 EXPOSE 80
 
-# Start Apache in foreground
+# Start Apache
 CMD ["apache2-foreground"]
